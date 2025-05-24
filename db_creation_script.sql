@@ -3,6 +3,10 @@ CREATE DATABASE DA19785;
 USE DA19785;
  
  SET @address_id :=0 ;
+ SET @person_id := 0;
+ SET @employee_id := 0;
+ SET @invoice_id := 0;
+ 
  
  CREATE TABLE phone_numbers(phone_number_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, phone_number VARCHAR(16), phone_type VARCHAR(32));
  
@@ -23,15 +27,15 @@ USE DA19785;
  
  
  
- CREATE TABLE addresses(address_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, street VARCHAR(64), street_2 VARCHAR(64), state_id INT, 
+ CREATE TABLE addresses(address_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, street VARCHAR(64), street_2 VARCHAR(64), city VARCHAR(64), state_id INT, 
  FOREIGN KEY(state_id) REFERENCES states(state_id), created_date DATETIME);
  
   DELIMITER //
- CREATE PROCEDURE create_address(street VARCHAR(64), state_abbv VARCHAR(4))
+ CREATE PROCEDURE create_address(street VARCHAR(64), city VARCHAR(64), state_abbv VARCHAR(4))
  BEGIN
-  IF( SELECT COUNT(address_id) < 1 FROM addresses AS addr INNER JOIN states AS sts ON addr.state_id = sts.state_id INNER JOIN countries AS con ON con.country_id = sts.country_id WHERE addr.street = street AND sts.state_abbreviation = state_abbv AND con.country_abbreviation = 'USA')
+  IF( SELECT COUNT(address_id) < 1 FROM addresses AS addr INNER JOIN states AS sts ON addr.state_id = sts.state_id INNER JOIN countries AS con ON con.country_id = sts.country_id WHERE addr.street = street  AND addr.city = city AND sts.state_abbreviation = state_abbv AND con.country_abbreviation = 'USA')
  THEN
- INSERT INTO addresses (street, street_2, state_id) SELECT street, '', state_id FROM states AS sts INNER JOIN
+ INSERT INTO addresses (street, street_2, city, state_id) SELECT street, '',city, state_id FROM states AS sts INNER JOIN
  countries AS con ON sts.country_id = con.country_id
  WHERE sts.state_abbreviation = state_abbv AND con.country_abbreviation = 'USA';
  END IF;
@@ -62,15 +66,31 @@ DELIMITER //
  
  
   DELIMITER //
- CREATE PROCEDURE create_person(first_name VARCHAR(64),  middle_name VARCHAR(64), last_name VARCHAR(64),street VARCHAR(64), state_abbv VARCHAR(4), sex CHAR)
+ CREATE PROCEDURE create_person(first_name VARCHAR(64),  middle_name VARCHAR(64), last_name VARCHAR(64), sex CHAR,street VARCHAR(64),city VARCHAR(64), state_abbv VARCHAR(4))
  BEGIN
-CALL create_address(street, state_abbv);
-SELECT * FROm addresses;
+CALL get_person_id(first_name,middle_name,last_name);
+
+IF(@person_id < 1)
+THEN
+CALL create_address(street, city, state_abbv);
+
 INSERT INTO persons(first_name, middle_name,last_name,address_id,sex, is_current, is_active) VALUES(first_name, middle_name,last_name,@address_id,sex, true,true);
-  
-  
+  END IF;
+  CALL get_person_id(first_name,middle_name,last_name);
+
   END //
  DELIMITER ;
+ 
+ DELIMITER //
+ CREATE PROCEDURE get_person_id(first_name VARCHAR(64),  middle_name VARCHAR(64), last_name VARCHAR(64))
+ BEGIN
+  SET @person_id :=0 ;
+ SELECT @person_id := person_id FROM persons AS per WHERE per.first_name = first_name AND per.middle_name= middle_name AND per.last_name = last_name;
+ END //
+ DELIMITER ;
+  
+  
+  
   
   CREATE TABLE historic_persons(historic_person_id INT, current_person_id INT, PRIMARY KEY(historic_person_id) 
  , FOREIGN KEY(historic_person_id) REFERENCES persons(person_id), FOREIGN KEY(current_person_id) REFERENCES persons(person_id));
@@ -86,9 +106,28 @@ INSERT INTO persons(first_name, middle_name,last_name,address_id,sex, is_current
   CREATE TABLE accounts(account_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, account_number VARCHAR(32) UNIQUE, account_name VARCHAR(64) UNIQUE, person_id INT , created_date DATE, closed_date DATE);
   
   
-  CREATE TABLE employees(employee_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, person_id INT, role_name VARCHAR(16), 
-  hire_date DATETIME, is_active BOOLEAN, is_instructor BOOLEAN, is_technician boolean, employee_code VARCHAR(16),
+  CREATE TABLE employees(employee_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, person_id INT, role_name VARCHAR(32), 
+  hire_date DATE, is_active BOOLEAN, is_instructor BOOLEAN, is_technician boolean, employee_code VARCHAR(16), created_date DATETIME,
   FOREIGN KEY(person_id) REFERENCES persons(person_id) );
+  
+  ALTER TABLE employees MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+ 
+ 
+  
+   DELIMITER //
+ CREATE PROCEDURE create_employee(first_name VARCHAR(64),  middle_name VARCHAR(64), last_name VARCHAR(64), role_name VARCHAR(32))
+ BEGIN
+CALL get_person_id(first_name, middle_name,last_name);
+INSERT INTO employees(person_id, role_name,is_active, is_instructor, is_technician, employee_code, hire_date)
+ VALUES (@person_id, role_name, TRUE, FALSE, FALSE, 'DEFAULT', CURDATE());
+ END //
+ DELIMITER ;
+  
+  
+  
+  
+  
+  
   
   
  CREATE TABLE companies(company_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, company_name VARCHAR(64), notes BLOB,
@@ -169,11 +208,20 @@ CREATE TABLE servicing_items(servicing_item_id INT PRIMARY KEY NOT NULL AUTO_INC
  
 CALL create_state('ALASKA','AK','USA'); 
 
-CALL create_address('1234 STREET','AK');
+CALL create_address('1234 STREET','ANCHORAGE','AK');
 
-CALL create_person('CHRISTOPHER','MICHAEL','TYDINGS','10030 GEBHART','AK','M');
+CALL create_person('NOT','A','PERSON','M','10030 GEBHART DR','ANCHORAGE','AK');
+
+
+CALL create_person('CHRISTOPHER','MICHAEL','TYDINGS','M','10030 GEBHART DR','ANCHORAGE','AK');
+
+CALL create_employee('CHRISTOPHER','MICHAEL','TYDINGS','STANDARD');
+
+
 
 SELECT * FROM persons;
+
+SELECT * FROM employees;
 
 
  
