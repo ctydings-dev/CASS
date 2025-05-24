@@ -6,11 +6,16 @@ USE DA19785;
  SET @person_id := 0;
  SET @employee_id := 0;
  SET @invoice_id := 0;
+ SET @country_id := 0;
+ SET @state_id := 0;
  
  
  CREATE TABLE phone_numbers(phone_number_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, phone_number VARCHAR(16), phone_type VARCHAR(32));
  
  CREATE TABLE countries(country_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, country_name VARCHAR(64), country_abbreviation VARCHAR(4));
+  
+  
+ 
  
  
  
@@ -23,7 +28,15 @@ USE DA19785;
  END //
  DELIMITER ;
  
-
+  DELIMITER //
+ CREATE PROCEDURE get_state_id( state_abbv VARCHAR(4), country_abbv VARCHAR(4))
+ BEGIN
+  SET @state_id :=0 ;
+  SELECT @address_id :=  con.country_id FROM states AS st INNER JOIN countries AS con on st.country_id = con.country_id WHERE st.state_abbreviation = state_abbv AND con.country_abbreviation = country_abbv;
+  
+  
+  END //
+ DELIMITER ;
  
  
  
