@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'CASS'
-include('app')
+include 'app'

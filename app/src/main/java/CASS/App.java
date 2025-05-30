@@ -57,6 +57,9 @@ public class App {
 
         CountryDTO toCreate = new CountryDTO("UNITED KINGDOM", "UK");
         int id = adrSvc.addCountry(toCreate);
+        toCreate = new CountryDTO("UNITED STATES", "USA");
+        toCreate = new CountryDTO("UNITED STATES", "USA");
+        id = adrSvc.addCountry(toCreate);
 
         //  System.out.println(id);
     }
