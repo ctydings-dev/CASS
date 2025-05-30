@@ -3,6 +3,7 @@
  */
 package CASS;
 
+import cass.App;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
