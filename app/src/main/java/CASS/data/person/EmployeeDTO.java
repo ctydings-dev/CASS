@@ -6,6 +6,7 @@ package CASS.data.person;
 
 import CASS.data.BaseDTO;
 import CASS.data.CreatedDTO;
+import CASS.data.TypeDTO;
 
 /**
  *
@@ -31,5 +32,37 @@ public class EmployeeDTO extends CreatedDTO {
         this.isActive = isActive;
         this.employeeCode = employeeCode;
     }
+    
+      public EmployeeDTO(int personID, String hireDate, TypeDTO employeeType, boolean isActive, String employeeCode, int key, String createdDate) {
+        super(key, createdDate);
+        this.personID = personID;
+        this.hireDate = hireDate;
+        this.employee_type_id = employeeType.getTypeID();
+        this.isActive = isActive;
+        this.employeeCode = employeeCode;
+    }
+
+    public int getPersonID() {
+        return personID;
+    }
+
+    public String getHireDate() {
+        return hireDate;
+    }
+
+    public int getEmployeeTypeId() {
+        return employee_type_id;
+    }
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public String getEmployeeCode() {
+        return employeeCode;
+    }
+    
+    
+    
 
 }

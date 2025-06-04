@@ -21,11 +21,11 @@ public class PersonDTO extends CreatedDTO {
     private boolean is_current;
     private boolean is_active;
     private int addressID;
-
+private String alias;
     private String updatedDate;
     private String birthday;
 
-    public PersonDTO(String firstName, String middleName, String lastName, String nickname, char gender, boolean is_current, boolean is_active, int addressID, String createdDate, String updatedDate, String birthday, int key) {
+    public PersonDTO(String firstName, String middleName, String lastName, String nickname, String alias, char gender, boolean is_current, boolean is_active, int addressID, String createdDate, String updatedDate, String birthday, int key) {
         super(key, createdDate);
         this.firstName = firstName;
         this.middleName = middleName;
@@ -35,7 +35,7 @@ public class PersonDTO extends CreatedDTO {
         this.is_current = is_current;
         this.is_active = is_active;
         this.addressID = addressID;
-
+        this.alias = alias;
         this.updatedDate = updatedDate;
         this.birthday = birthday;
     }
@@ -80,4 +80,8 @@ public class PersonDTO extends CreatedDTO {
         return birthday;
     }
 
+    public String getAlias(){
+        return this.alias;
+    }
+    
 }
