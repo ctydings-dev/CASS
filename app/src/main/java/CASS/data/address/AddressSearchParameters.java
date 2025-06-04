@@ -30,25 +30,34 @@ public class AddressSearchParameters extends BaseSearchParameter {
         this.city = city;
 
     }
+    
+    
+       public AddressSearchParameters(int id) {
+        super(id, SearchTable.getAddressTable());
+      
+
+    }
+    
+    
 
     public AddressSearchParameters(AddressDTO value) {
         super(SearchTable.getAddressTable());
-        this.addStreetParameter(value.getStreet());
-        this.addStreet2Parameter(value.getStreet2());
-        this.addPostCodeParameter(value.getPostCode());
+        this.setStreet(value.getStreet());
+        this.setStreet2(value.getStreet2());
+        this.setPostCode(value.getPostCode());
         this.setCity(new CitySearchParameters(value.getCityID()));
 
     }
 
-    public void addStreetParameter(String street) {
+    public void setStreet(String street) {
         this.addSearchParameter(STREET, street);
     }
 
-    public void addStreet2Parameter(String street) {
+    public void setStreet2(String street) {
         this.addSearchParameter(STREET2, street);
     }
 
-    public void addPostCodeParameter(String street) {
+    public void setPostCode(String street) {
         this.addSearchParameter(POST_CODE, street);
     }
 
@@ -56,6 +65,12 @@ public class AddressSearchParameters extends BaseSearchParameter {
         return this.city;
     }
 
+    
+    public void setCity(int id){
+        this.setCity(new CitySearchParameters(id));
+    }
+    
+    
     public void setCity(CitySearchParameters city) {
         this.city = city;
     }

@@ -61,9 +61,14 @@ public class StateSearchParameters extends BaseSearchParameter {
         return country;
     }
 
-    public void addCountry(CountrySearchParameters country) {
+    public void setCountry(CountrySearchParameters country) {
         this.country = country;
     }
+    
+    public void setCountry(int id){
+        this.setCountry(new CountrySearchParameters(id));
+    }
+    
 
     public boolean isSearchByCountry() {
         return this.hasParameter(this.getCountry());

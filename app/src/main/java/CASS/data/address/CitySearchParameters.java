@@ -18,7 +18,7 @@ public class CitySearchParameters extends BaseSearchParameter {
     public static final String CITY_NAME = "city_name";
 
     public CitySearchParameters(int key) {
-        super(key, SearchTable.getStateTable());
+        super(key, SearchTable.getCityTable());
         this.state = null;
 
     }
@@ -40,10 +40,19 @@ public class CitySearchParameters extends BaseSearchParameter {
         this.state = null;
     }
 
-    public void addState(StateSearchParameters toAdd) {
+    public void setState(StateSearchParameters toAdd) {
         this.state = toAdd;
     }
 
+    
+    public void setState(int id){
+        this.setState(new StateSearchParameters(id));
+    }
+    
+    
+    
+    
+    
     public StateSearchParameters getState() {
         return this.state;
     }
