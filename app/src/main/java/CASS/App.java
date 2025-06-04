@@ -15,11 +15,7 @@ import CASS.services.mysql.MySqlService;
 import CASS.services.mysql.SqlAddressService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
+
 
 public class App {
 
@@ -38,20 +34,25 @@ public class App {
 
         //   state.addStateName("ALASKA");
         state.addCountry(con);
-        CitySearchParameters city = new CitySearchParameters();
+*/
+        CitySearchParameters city = new CitySearchParameters(1);
 
-        city.addCityName("ANCHOR");
+      //  city.addCityName("ANCHOR");
 
-        city.setParameterIsExact(CitySearchParameters.CITY_NAME, false);
-        city.addState(state);
+       //city.setParameterIsExact(CitySearchParameters.CITY_NAME, false);
+      //  city.addState(state);
 
         AddressSearchParameters adr = new AddressSearchParameters();
         adr.setCity(city);
+        
+          System.out.println(AddressSearchBuilder.createQueryForCity(city));
+        
+        
 
-        System.out.println(AddressSearchBuilder.createQueryForAddress(adr));
-         */
+      //  System.out.println(AddressSearchBuilder.createQueryForAddress(adr));
+        
 
-        MySqlService mysql = new MySqlService("root", "Per@grin1", "localhost", "3306", "DA19785");
+       /* MySqlService mysql = new MySqlService("root", "Per@grin1", "localhost", "3306", "DA19785");
 
         AddressService adrSvc = new SqlAddressService(mysql);
 
@@ -59,7 +60,7 @@ public class App {
         int id = adrSvc.addCountry(toCreate);
         toCreate = new CountryDTO("UNITED STATES", "USA");
         id = adrSvc.addCountry(toCreate);
-
+*/
         //  System.out.println(id);
     }
 }
