@@ -17,7 +17,7 @@ public class TypeDTO extends BaseDTO {
         this.roleName = roleName;
     }
 
-    public String getRoleName() {
+    public String getTypeName() {
         return roleName;
     }
 
