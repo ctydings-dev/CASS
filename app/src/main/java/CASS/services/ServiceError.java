@@ -18,4 +18,18 @@ public class ServiceError extends Throwable {
 
     }
 
+    
+    public ServiceError(Throwable e){
+        
+    }
+    
+    
+    public void setError(String msg){
+        
+    }
+    
 }
+
+
+
+

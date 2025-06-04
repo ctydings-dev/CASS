@@ -5,7 +5,9 @@
 package CASS.services;
 
 import CASS.data.BaseDTO;
+import CASS.data.person.EmployeeDTO;
 import CASS.data.person.PersonDTO;
+import CASS.data.person.*;
 import java.util.List;
 
 /**
@@ -18,4 +20,22 @@ public interface PersonService {
 
     public List<PersonDTO> getPersons() throws ServiceError;
 
+    public int addPerson(PersonDTO toAdd) throws ServiceError;
+    
+    public List<PersonDTO> searchPersons(PersonSearchParameters params) throws ServiceError;
+  
+    
+    public EmployeeDTO getEmployee(BaseDTO key)throws ServiceError;
+    
+    
+    public List<EmployeeDTO> getEmployees() throws ServiceError;
+    
+    public int addEmployee(EmployeeDTO toAdd) throws ServiceError;
+    
+    public List<EmployeeDTO> searchEmployees(EmployeeSearchParameters params) throws ServiceError;
+    
+    
+
+    
+    
 }
