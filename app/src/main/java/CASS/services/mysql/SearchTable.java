@@ -70,4 +70,18 @@ public class SearchTable {
     public static SearchTable getAddressTable() {
         return new SearchTable("addresses", "addr", "address_id");
     }
+
+    public static SearchTable getPersonTable() {
+        return new SearchTable("persons", "prsn", "person_id");
+    }
+
+    public static SearchTable getEmployeeTable() {
+        return new SearchTable("employees", "empl", "employee_id");
+    }
+
+
+
+
 }
+
+

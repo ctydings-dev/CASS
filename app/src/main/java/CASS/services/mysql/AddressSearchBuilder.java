@@ -38,13 +38,29 @@ public class AddressSearchBuilder {
     }
 
     public static void addCityToQuery(SearchBuilder builder, CitySearchParameters city) {
-        builder.addSearhParameter(city);
-        if (city.isSearchByState()) {
+       
+                if (city.isSearchByState()) {
             builder.addJoinParameter(SearchTable.getCityTable(), city.getState());
             addStateToQuery(builder, city.getState());
         }
 
     }
+    
+        public static void addAddressToQuery(SearchBuilder builder, AddressSearchParameters address) {
+       
+            
+            builder.addSearhParameter(address);
+                if (address.isSearchByCity()) {
+                    builder.addSearhParameter(address.getCity());
+            builder.addJoinParameter(SearchTable.getAddressTable(), address.getCity());
+            addCityToQuery(builder, address.getCity());
+        }
+
+    }
+    
+    
+    
+    
 
     public static String createQueryForState(StateSearchParameters state) {
         SearchBuilder builder = new SearchBuilder(SearchTable.getStateTable());
@@ -55,6 +71,7 @@ public class AddressSearchBuilder {
 
     public static String createQueryForCity(CitySearchParameters city) {
         SearchBuilder builder = new SearchBuilder(SearchTable.getCityTable());
+        builder.addSearhParameter(city);
         addCityToQuery(builder, city);
         return builder.createQuery();
     }
@@ -63,6 +80,7 @@ public class AddressSearchBuilder {
         SearchBuilder builder = new SearchBuilder(SearchTable.getAddressTable());
         builder.addSearhParameter(address);
         if (address.isSearchByCity()) {
+            builder.addJoinParameter(SearchTable.getAddressTable(), address.getCity());
             addCityToQuery(builder, address.getCity());
         }
         return builder.createQuery();

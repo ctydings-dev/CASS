@@ -10,6 +10,8 @@ import CASS.data.address.AddressSearchParameters;
 import CASS.data.address.CityDTO;
 import CASS.data.address.CitySearchParameters;
 import CASS.data.address.CompositeAddress;
+import CASS.data.address.CompositeCity;
+import CASS.data.address.CompositeState;
 import CASS.data.address.CountryDTO;
 import CASS.data.address.CountrySearchParameters;
 import CASS.data.address.StateDTO;
@@ -20,6 +22,7 @@ import CASS.util.DataObjectGenerator;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +51,36 @@ public class SqlAddressService implements AddressService {
 
         return new CountryDTO(name, abbv, ID);
 
+    }
+
+    private StateDTO createStateFromResultSet(ResultSet rs) throws SQLException {
+
+        int stateId = this.getService().getIntValue(rs, "state_id");
+        String name = rs.getString("state_name");
+        String abbv = rs.getString("state_abbv");
+        int countryId = this.getService().getIntValue(rs, "country_id");
+        return new StateDTO(name, abbv, countryId, stateId);
+
+    }
+
+    private CityDTO createCityFromResultSet(ResultSet rs) throws SQLException {
+
+        int cityId = this.getService().getIntValue(rs, "city_id");
+        String name = rs.getString("city_name");
+        int stateId = this.getService().getIntValue(rs, "state_id");
+        return new CityDTO(name, stateId, cityId);
+
+    }
+
+    private AddressDTO createAddressFromResultSet(ResultSet rs) throws SQLException {
+
+        int id = this.getService().getIntValue(rs, "address_id");
+        int city = this.getService().getIntValue(rs, "city_id");
+        String street = rs.getString("street");
+        String street2 = rs.getString("street_2");
+        String postal = rs.getString("post_code");
+        AddressDTO ret = new AddressDTO(street, street2, postal, city, id);
+        return ret;
     }
 
     private <BaseDTO> BaseDTO checkForSingular(List<BaseDTO> toCheck) throws ServiceError {
@@ -99,33 +132,106 @@ public class SqlAddressService implements AddressService {
     }
 
     @Override
-    public List<StateDTO> getStates() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<StateDTO> getStates() throws ServiceError {
+        try {
+            String query = "SELECT * FROM states;";
+
+            ResultSet resultSet = this.getService().executeQuery(query);
+            List<StateDTO> ret = DataObjectGenerator.createList();
+
+            while (resultSet.next()) {
+                StateDTO toAdd = createStateFromResultSet(resultSet);
+                ret.add(toAdd);
+            }
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError();
+        }
     }
 
     @Override
-    public CityDTO getCity(BaseDTO key) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public CityDTO getCity(BaseDTO key) throws ServiceError {
+        
+     try {
+            String query = "SELECT * FROM cities WHERE city_id = " + key.getKey() + ";";
+
+            ResultSet resultSet = this.getService().executeQuery(query);
+            resultSet.next();
+
+            return createCityFromResultSet(resultSet);
+        } catch (SQLException ex) {
+            throw new ServiceError();
+        }
+    
     }
 
     @Override
-    public List<CityDTO> getCities() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<CityDTO> getCities() throws ServiceError {
+        try {
+            String query = "SELECT * FROM states;";
+
+            ResultSet resultSet = this.getService().executeQuery(query);
+            List<CityDTO> ret = DataObjectGenerator.createList();
+
+            while (resultSet.next()) {
+                CityDTO toAdd = createCityFromResultSet(resultSet);
+                ret.add(toAdd);
+            }
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError();
+        }
     }
 
     @Override
-    public AddressDTO getAddress(BaseDTO key) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public AddressDTO getAddress(BaseDTO key) throws ServiceError {
+        try {
+            String query = "SELECT * FROM addresses WHERE address_id = " + key.getKey() + ";";
+
+            ResultSet resultSet = this.getService().executeQuery(query);
+            resultSet.next();
+
+            return createAddressFromResultSet(resultSet);
+        } catch (SQLException ex) {
+            throw new ServiceError();
+        }
+
     }
 
     @Override
-    public List<AddressDTO> getAddressses() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<AddressDTO> getAddressses() throws ServiceError {
+     try {
+            String query = "SELECT * FROM addresses;";
+
+            ResultSet resultSet = this.getService().executeQuery(query);
+            List<AddressDTO> ret = DataObjectGenerator.createList();
+
+            while (resultSet.next()) {
+                AddressDTO toAdd = createAddressFromResultSet(resultSet);
+                ret.add(toAdd);
+            }
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError();
+        }
+    
+    
     }
 
     @Override
     public CompositeAddress getFullAddress(BaseDTO key) throws ServiceError {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+     
+    AddressDTO adr = this.getAddress(key);
+    key = new BaseDTO(adr.getCityID());
+    CityDTO cty = this.getCity(key);
+    key = new BaseDTO(cty.getStateID());
+    StateDTO st = this.getState(key);
+    key = new BaseDTO(st.getCountryID());
+    CountryDTO con = this.getCountry(key);
+    
+  return new CompositeAddress(adr, cty,st,con);
+    
+    
     }
 
     @Override
@@ -163,7 +269,21 @@ public class SqlAddressService implements AddressService {
 
     @Override
     public List<StateDTO> searchStates(StateSearchParameters param) throws ServiceError {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+String query = AddressSearchBuilder.createQueryForState(param);
+    
+     try {
+                    ResultSet resultSet = this.getService().executeQuery(query);
+            List<StateDTO> ret = DataObjectGenerator.createList();
+
+            while (resultSet.next()) {
+                StateDTO toAdd = createStateFromResultSet(resultSet);
+                ret.add(toAdd);
+            }
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError();
+        }
+    
     }
 
     @Override
@@ -175,9 +295,21 @@ public class SqlAddressService implements AddressService {
 
     @Override
     public List<CityDTO> searchCities(CitySearchParameters param) throws ServiceError {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+         try {
+            String query =  AddressSearchBuilder.createQueryForCity(param);
 
+            ResultSet resultSet = this.getService().executeQuery(query);
+            List<CityDTO> ret = DataObjectGenerator.createList();
+
+            while (resultSet.next()) {
+                CityDTO toAdd = createCityFromResultSet(resultSet);
+                ret.add(toAdd);
+            }
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError();
+        }
+    }
     @Override
     public AddressDTO searchAddress(AddressSearchParameters param) throws ServiceError {
         List<AddressDTO> results = this.searchAddresses(param);
@@ -186,15 +318,27 @@ public class SqlAddressService implements AddressService {
 
     @Override
     public List<AddressDTO> searchAddresses(AddressSearchParameters param) throws ServiceError {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+      try {
+            String query =  AddressSearchBuilder.createQueryForAddress(param);
 
+            ResultSet resultSet = this.getService().executeQuery(query);
+            List<AddressDTO> ret = DataObjectGenerator.createList();
+
+            while (resultSet.next()) {
+                AddressDTO toAdd = createAddressFromResultSet(resultSet);
+                ret.add(toAdd);
+            }
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError();
+        }
     }
 
     @Override
     public int addCountry(CountryDTO toAdd) throws ServiceError {
 
         String statement = "INSERT INTO countries(country_name, country_abbv) VALUES ('";
-        statement += toAdd.getCountryName() + "','" + toAdd.getAbbreviation() + "');";
+        statement += toAdd.getCountryName().trim().toUpperCase() + "','" + toAdd.getAbbreviation().trim().toUpperCase() + "');";
 
         try {
             CountryDTO toCheck = this.getCountry(toAdd);
@@ -215,7 +359,7 @@ public class SqlAddressService implements AddressService {
     @Override
     public int addState(StateDTO toAdd) throws ServiceError {
         String statement = "INSERT INTO states(state_name, state_abbv, country_id) VALUES ('";
-        statement += toAdd.getStateName() + "','" + toAdd.getAbbreviation() + "', " + toAdd.getCountryID() + ");";
+        statement += toAdd.getStateName().trim().toUpperCase() + "','" + toAdd.getAbbreviation().trim().toUpperCase() + "', " + toAdd.getCountryID() + ");";
 
         try {
             this.getService().executeStatement(statement);
@@ -233,13 +377,14 @@ public class SqlAddressService implements AddressService {
     @Override
     public int addCity(CityDTO toAdd) throws ServiceError {
         String statement = "INSERT INTO cities(city_name, state_id) VALUES ('";
-        statement += toAdd.getCityName() + "', " + toAdd.getStateID() + ");";
+        statement += toAdd.getCityName().trim().toUpperCase() + "', " + toAdd.getStateID() + ");";
 
         try {
             this.getService().executeStatement(statement);
 
-            CitySearchParameters params = new CitySearchParameters(toAdd);
-
+            CitySearchParameters params = new CitySearchParameters();
+            params.setState(new StateSearchParameters(toAdd.getStateID()));
+params.addCityName(toAdd.getCityName());
             return this.searchCity(params).getKey();
 
         } catch (SQLException ex) {
@@ -251,12 +396,17 @@ public class SqlAddressService implements AddressService {
     public int addAddress(AddressDTO toAdd) throws ServiceError {
 
         String statement = "INSERT INTO addresses(street,street_2, post_code, city_id) VALUES ('";
-        statement += toAdd.getStreet() + "' , '" + toAdd.getStreet2() + " ',' "
-                + toAdd.getPostCode() + "', " + toAdd.getCityID() + ");";
+        statement += toAdd.getStreet().trim().toUpperCase() + "' , '" + toAdd.getStreet2().trim().toUpperCase() + "','"
+                + toAdd.getPostCode().trim().toUpperCase() + "', " + toAdd.getCityID() + ");";
 
         try {
             this.getService().executeStatement(statement);
-            AddressSearchParameters adr = new AddressSearchParameters(toAdd);
+            AddressSearchParameters adr = new AddressSearchParameters();
+            adr.setCity(toAdd.getCityID());
+            adr.setPostCode(toAdd.getPostCode());
+            adr.setStreet(toAdd.getStreet());
+            adr.setStreet2(toAdd.getStreet2());
+            
 
             return this.searchAddress(adr).getKey();
 
@@ -308,5 +458,4 @@ public class SqlAddressService implements AddressService {
         AddressSearchParameters param = new AddressSearchParameters(key);
         return this.searchAddress(param);
     }
-
 }

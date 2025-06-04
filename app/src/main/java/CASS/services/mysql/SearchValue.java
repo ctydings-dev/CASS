@@ -4,13 +4,15 @@
  */
 package CASS.services.mysql;
 
+import java.util.Date;
+
 /**
  *
  * @author ctydi
  */
 public class SearchValue {
 
-    private String value;
+    private final String value;
 
     private boolean isExact;
 
@@ -19,6 +21,18 @@ public class SearchValue {
     public SearchValue(String value) {
         this.isString = true;
         this.value = value;
+        this.isExact = true;
+    }
+
+    public SearchValue(int value) {
+        this.isString = false;
+        this.value = "" + value;
+        this.isExact = true;
+    }
+
+    public SearchValue(Date date) {
+        this.isString = true;
+        this.value = date.toString();
         this.isExact = true;
     }
 
