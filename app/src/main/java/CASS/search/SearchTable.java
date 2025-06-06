@@ -85,6 +85,11 @@ public class SearchTable {
     public static SearchTable getCompanyTable(){
         return new SearchTable(TABLE_COLUMNS.PEOPLE.COMPANY.TABLE_NAME,"comp", TABLE_COLUMNS.PEOPLE.COMPANY.ID);
     }
+    
+    
+    public static SearchTable getItemTable(){
+        return new SearchTable(TABLE_COLUMNS.INVENTORY.ITEM.TABLE_NAME, "itm", TABLE_COLUMNS.INVENTORY.ITEM.ID);
+    }
 
     
     

@@ -25,7 +25,7 @@ public class TypeRepository {
     private static Map<EMPLOYEE_ROLE,Integer> employeeRoles;
     
         private static Map<ITEM_TYPE,Integer> itemTypes;
-    
+    private static Map<TRANSACTION_TYPE,Integer> transactionTypes;
     
     
     public static void setupRepo(TypeService svc) throws ServiceError{
@@ -33,6 +33,7 @@ public class TypeRepository {
         setupEmployeeRepo(svc);
        setupItemRepo(svc);
        setupEmployeeRoleRepo(svc);
+       setupTransactionRepo(svc);
     }
     
     
@@ -90,6 +91,22 @@ public class TypeRepository {
 
     }
     
+       
+           private static void setupTransactionRepo(TypeService svc) throws ServiceError{
+        transactionTypes = DataObjectGenerator.createMap();
+     
+        
+    
+        for(int index= 0; index < TRANSACTION_TYPE.values().length; index++){
+            TRANSACTION_TYPE type = TRANSACTION_TYPE.values()[index];
+                        
+             transactionTypes.put(type,svc.getTransactionType(type.name()));
+        }
+
+    }
+    
+       
+       
     
     
     public static TypeDTO getTypeDTO(EMPLOYEE_TYPE type){
@@ -109,7 +126,9 @@ public class TypeRepository {
     }
     
     
-    
+     public static Integer getKey(ITEM_TYPE type){
+        return itemTypes.get(type);
+    }
     
     
     public static Integer getKey(NOTE_TYPE type){
@@ -125,6 +144,9 @@ public class TypeRepository {
     }
     
     
+        public static Integer getKey(TRANSACTION_TYPE type){
+        return transactionTypes.get(type);
+    }
     
     
     
@@ -146,6 +168,13 @@ public class TypeRepository {
         
         public enum ITEM_TYPE{
             REGULATOR,BCD;
+        }
+        
+        
+        public enum TRANSACTION_TYPE{
+            
+            SALE,SHIPMENT,RETURN,SERVICE,RELEASE,RETURN_REMOVED;
+            
         }
     
 }

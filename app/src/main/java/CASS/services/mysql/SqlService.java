@@ -98,7 +98,7 @@ public abstract class SqlService {
     
     
     public ResultSet getForId(String tableName, String idName, int id) throws SQLException{
-        String query = "SELECT * FROM "+ tableName + " WHERE "+idName +"="+
+        String query = "SELECT * FROM "+ tableName + " WHERE "+idName +" = "+
                 id+ ";";
                return this.executeQuery(query);
         

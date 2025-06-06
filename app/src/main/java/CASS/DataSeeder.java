@@ -12,6 +12,7 @@ import CASS.data.address.CountryDTO;
 import CASS.data.address.StateDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.services.AddressService;
+import CASS.services.ItemService;
 import CASS.services.PersonService;
 import CASS.services.ServiceError;
 import CASS.services.ServiceProvider;
@@ -30,13 +31,14 @@ public class DataSeeder {
     public static void main(String[] args) throws ServiceError, SQLException {
         AddressService addrSvc = ServiceProvider.getAddressService();
         PersonService prsnSvc = ServiceProvider.getPersonService();
-        
+          ItemService itmSvc = ServiceProvider.getItemService();
             TypeService typeSvc = ServiceProvider.getTypeService();
 
         TypeRepository.setupRepo(typeSvc);
 clearDBs();
     AddressDataSeeder.seedAddresses(addrSvc);
    PersonDataSeeder.seedPersonData(prsnSvc);
+   ItemDataSeed.seedItemData(itmSvc);
    
    TypeDTO target =TypeRepository.getTypeDTO(TypeRepository.EMPLOYEE_ROLE.INSTRUCTOR);
    
@@ -50,12 +52,23 @@ clearDBs();
          String query ="";
            query = "DELETE FROM company_parents;";
        ServiceProvider.getMySql().executeStatement(query);
-        
+           query = "DELETE FROM inventory;";
+       ServiceProvider.getMySql().executeStatement(query);
+       
+           query = "DELETE FROM inventory_transactions;";
+       ServiceProvider.getMySql().executeStatement(query);
+            query = "DELETE FROM items;";
+       ServiceProvider.getMySql().executeStatement(query);
+       
              query = "DELETE FROM company_persons;";
        ServiceProvider.getMySql().executeStatement(query);
         
             query = "DELETE FROM employee_roles;";
        ServiceProvider.getMySql().executeStatement(query);
+       
+             query = "DELETE FROM items;";
+       ServiceProvider.getMySql().executeStatement(query);
+       
        
           query = "DELETE FROM companies;";
        ServiceProvider.getMySql().executeStatement(query);

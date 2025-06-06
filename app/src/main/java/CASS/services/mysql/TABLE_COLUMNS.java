@@ -48,6 +48,16 @@ public class TABLE_COLUMNS {
             public static final String ID = "item_type_id";
             public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
         }
+        
+          public static class TRANSACTION {
+
+            public static final String TABLE_NAME = "inventory_transaction_types";
+            public static final String ID = "inventory_transaction_type_id";
+             public static final String MULTIPLYER = "inventory_multiplyer";
+            public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
+        }
+        
+        
 
     }
 
@@ -151,8 +161,32 @@ public class TABLE_COLUMNS {
             public static final String COMPANY = "company_id";
             public static final String TYPE = "item_type_id";
             public static final String IS_FOR_SALE = "is_for_sale";
+            public static final String IS_SERIALIZED = "is_serialized";
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
         }
-
+        
+     public static class INVENTORY_TABLE{
+          public static final String TABLE_NAME = "inventory";
+            public static final String ID = "inventory_id";
+             public static final String ITEM = "item_id";
+          public static final String STOCK = "quantity";
+            public static final String FACILITY = "facility_id";
+     }
+     
+     
+     public static class INVENTORY_TRANSACTION{
+         public static final String TABLE_NAME = "inventory_transactions";
+            public static final String ID = "inventory_transaction_id";
+             public static final String ITEM = "item_id";
+          public static final String AMMOUNT = "quantity";
+          public static final String EMPLOYEE = "employee_id";
+          public static final String TYPE = "inventory_transaction_type_id";
+          public static final String DATE = "transaction_date";
+          public static final String IS_VALID = "valid";
+            public static final String FACILITY = "facility_id";
+          
+     }
+     
     }
 
     public static class LOCATION {

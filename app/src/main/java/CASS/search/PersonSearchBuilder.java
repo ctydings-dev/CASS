@@ -34,7 +34,15 @@ public class PersonSearchBuilder {
          
          
      }
-     
+    public static  void addCompanyToQuery(SearchBuilder builder, CompanySearchParameters com){
+        builder.addSearhParameter(com);
+        if (com.isSearchByAddress()) {
+            builder.addJoinParameter(SearchTable.getItemTable(), com.getAddress());
+            AddressSearchBuilder.addAddressToQuery(builder, com.getAddress());
+        }
+         
+         
+     }
      
      
     

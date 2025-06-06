@@ -53,7 +53,9 @@ public abstract class BaseSearchParameter {
         public void addSearchParameter(String name, Boolean value) {
         addSearchParameter(name, new SearchValue(value));
     }
-    
+          public void addSearchParameter(String name, Integer value) {
+        addSearchParameter(name, new SearchValue(value));
+    }
     
     
     public void addSearchParameter(String name, SearchValue value) {

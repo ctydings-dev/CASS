@@ -186,5 +186,20 @@ public class SqlTypeService implements TypeService {
     public int getEmployeeRoleType(String type) throws ServiceError {
        return this.get(TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.TABLE_NAME,TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.ID, type); }
 
+    @Override
+    public List<TypeDTO> getTransactionTypes() throws ServiceError {
+       return this.getTypesList(TABLE_COLUMNS.TYPE.TRANSACTION.TABLE_NAME, TABLE_COLUMNS.TYPE.TRANSACTION.ID);   }
+
+
+    @Override
+    public int getTransactionType(String type) throws ServiceError {
+       return this.get(TABLE_COLUMNS.TYPE.TRANSACTION.TABLE_NAME,TABLE_COLUMNS.TYPE.TRANSACTION.ID, type);
+}
+
+    @Override
+    public int addTransactionItemType(String toAdd) throws ServiceError {
+        return this.get(TABLE_COLUMNS.TYPE.TRANSACTION.TABLE_NAME,TABLE_COLUMNS.TYPE.TRANSACTION.ID, toAdd); }
+ 
+
     
 }

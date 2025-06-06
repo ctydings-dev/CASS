@@ -19,7 +19,7 @@ public class ItemDTO extends CreatedDTO{
              
              private String itemAlias;
              private Integer itemType;
-             
+             private boolean isSerialized;
              private boolean isForSale;
              private Integer company;
              
@@ -32,13 +32,14 @@ public class ItemDTO extends CreatedDTO{
     }
 
     
-    public ItemDTO(Integer key, String name, String alias, Integer type, Integer company, boolean isForSale){
+    public ItemDTO(Integer key, String name, String alias, Integer type, Integer company, boolean isForSale, boolean isSerialized){
         super(key);
         this.itemName = name;
         this.itemAlias = alias;
         this.itemType = type;
         this.company = company;
         this.isForSale = isForSale == true;
+        this.isSerialized = isSerialized;
         
     }
     
