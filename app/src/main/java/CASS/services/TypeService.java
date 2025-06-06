@@ -35,6 +35,10 @@ public interface TypeService {
     
     public int getEmployeeType(String type) throws ServiceError;
     
+     public int getEmployeeRoleType(String type) throws ServiceError;
+    
+      
+    
         public int getCertificatioType(String type) throws ServiceError;
    
     

@@ -4,7 +4,12 @@
  */
 package CASS.services;
 
+import CASS.search.PersonSearchParameters;
+import CASS.search.CompanySearchParameters;
+import CASS.search.EmployeeSearchParameters;
 import CASS.data.BaseDTO;
+import CASS.data.TypeAssignmentDTO;
+import CASS.data.TypeDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.data.person.PersonDTO;
 import CASS.data.person.*;
@@ -35,7 +40,29 @@ public interface PersonService {
     public List<EmployeeDTO> searchEmployees(EmployeeSearchParameters params) throws ServiceError;
     
     
-
+    public int addCompany(CompanyDTO toAdd)throws ServiceError;
+    
+    public int addCompanyRep(CompanyDTO comp, PersonDTO person) throws ServiceError;
+    
+    public List<CompanyDTO> getCompanies() throws ServiceError;
+    
+    public CompanyDTO getCompany(BaseDTO key) throws ServiceError;
+    
+   
+    public List<CompanyDTO> searchCompanies(CompanySearchParameters params) throws ServiceError;
+    
+    
+    public Integer addRoleForEmployee(EmployeeDTO employee, TypeDTO target) throws ServiceError;
+    
+    
+    public List<TypeAssignmentDTO> getRolesForEmployee(BaseDTO employee) throws ServiceError;
+    
+    public List<EmployeeDTO> getEmployeesIDsWithAssignment(TypeDTO target) throws ServiceError;
+ 
+    
+    public Integer addPersonToCompany(PersonDTO person, CompanyDTO company) throws ServiceError;
+    
+    public List<PersonDTO> getPeopleForCompany(CompanyDTO company) throws ServiceError;
     
     
 }

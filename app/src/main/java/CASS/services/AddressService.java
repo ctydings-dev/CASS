@@ -6,14 +6,14 @@ package CASS.services;
 
 import CASS.data.BaseDTO;
 import CASS.data.address.AddressDTO;
-import CASS.data.address.AddressSearchParameters;
+import CASS.search.AddressSearchParameters;
 import CASS.data.address.CityDTO;
-import CASS.data.address.CitySearchParameters;
+import CASS.search.CitySearchParameters;
 import CASS.data.address.CompositeAddress;
 import CASS.data.address.CountryDTO;
-import CASS.data.address.CountrySearchParameters;
+import CASS.search.CountrySearchParameters;
 import CASS.data.address.StateDTO;
-import CASS.data.address.StateSearchParameters;
+import CASS.search.StateSearchParameters;
 import java.util.List;
 
 /**
