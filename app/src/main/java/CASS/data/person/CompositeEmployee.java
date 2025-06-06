@@ -19,13 +19,13 @@ public class CompositeEmployee {
 
     private EmployeeTypeDTO type;
 
-    private List<EmployeeRoleDTO> roles;
+
 
     public CompositeEmployee(PersonDTO person, EmployeeDTO emp, EmployeeTypeDTO type) {
         this.person = person;
         this.employee = emp;
         this.type = type;
-        this.roles = DataObjectGenerator.createList();
+       // this.roles = DataObjectGenerator.createList();
 
     }
 
@@ -41,8 +41,8 @@ public class CompositeEmployee {
         return type;
     }
 
-    public List<EmployeeRoleDTO> getRoles() {
+    /*public List<EmployeeRoleDTO> getRoles() {
         return roles;
     }
-
+*/
 }

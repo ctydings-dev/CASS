@@ -20,12 +20,12 @@ public class PersonDTO extends CreatedDTO {
     private char gender;
     private boolean is_current;
     private boolean is_active;
-    private int addressID;
+    private Integer addressID;
 private String alias;
     private String updatedDate;
     private String birthday;
 
-    public PersonDTO(String firstName, String middleName, String lastName, String nickname, String alias, char gender, boolean is_current, boolean is_active, int addressID, String createdDate, String updatedDate, String birthday, int key) {
+    public PersonDTO(String firstName, String middleName, String lastName, String nickname, String alias, char gender, boolean is_current, boolean is_active, Integer addressID, String createdDate, String updatedDate, String birthday, Integer key) {
         super(key, createdDate);
         this.firstName = firstName;
         this.middleName = middleName;
@@ -39,6 +39,45 @@ private String alias;
         this.updatedDate = updatedDate;
         this.birthday = birthday;
     }
+    
+      public PersonDTO(String firstName, String middleName, String lastName, String nickname, String alias, char gender, boolean is_current, boolean is_active, int addressID, String createdDate, String updatedDate, String birthday) {
+        super(createdDate);
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.is_current = is_current;
+        this.is_active = is_active;
+        this.addressID = addressID;
+        this.alias = alias;
+        this.updatedDate = updatedDate;
+        this.birthday = birthday;
+    }
+      
+      public PersonDTO(int key){
+          super(key);
+      }
+    
+    
+    
+    
+       public PersonDTO(String firstName, String middleName, String lastName, String nickname, String alias, char gender, boolean is_current, boolean is_active, Integer addressID,  String birthday) {
+        super();
+            this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.is_current = is_current;
+        this.is_active = is_active;
+        this.addressID = addressID;
+        this.alias = alias;
+          this.birthday = birthday;
+    }
+
+    
+    
 
     public String getFirstName() {
         return firstName;
@@ -68,7 +107,7 @@ private String alias;
         return is_active;
     }
 
-    public int getAddressID() {
+    public Integer getAddressID() {
         return addressID;
     }
 

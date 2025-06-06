@@ -14,17 +14,26 @@ import CASS.data.TypeDTO;
  */
 public class EmployeeDTO extends CreatedDTO {
 
-    private int personID;
+    private Integer personID;
 
     private String hireDate;
 
-    private int employee_type_id;
+    private Integer employee_type_id;
 
     private boolean isActive;
 
     private String employeeCode;
 
-    public EmployeeDTO(int personID, String hireDate, int employee_type_id, boolean isActive, String employeeCode, int key, String createdDate) {
+    
+      public EmployeeDTO(int ID){
+          super(ID);
+      
+    }
+    
+    
+    
+    
+    public EmployeeDTO(Integer personID, String hireDate, Integer employee_type_id, boolean isActive, String employeeCode, Integer key, String createdDate) {
         super(key, createdDate);
         this.personID = personID;
         this.hireDate = hireDate;
@@ -33,7 +42,17 @@ public class EmployeeDTO extends CreatedDTO {
         this.employeeCode = employeeCode;
     }
     
-      public EmployeeDTO(int personID, String hireDate, TypeDTO employeeType, boolean isActive, String employeeCode, int key, String createdDate) {
+        public EmployeeDTO(Integer personID, String hireDate, Integer employee_type_id, boolean isActive, String employeeCode) {
+        super();
+        this.personID = personID;
+        this.hireDate = hireDate;
+        this.employee_type_id = employee_type_id;
+        this.isActive = isActive;
+        this.employeeCode = employeeCode;
+    }
+    
+    
+      public EmployeeDTO(Integer personID, String hireDate, TypeDTO employeeType, boolean isActive, String employeeCode, Integer key, String createdDate) {
         super(key, createdDate);
         this.personID = personID;
         this.hireDate = hireDate;
@@ -41,8 +60,18 @@ public class EmployeeDTO extends CreatedDTO {
         this.isActive = isActive;
         this.employeeCode = employeeCode;
     }
+        public EmployeeDTO(Integer personID, String hireDate, TypeDTO employeeType, boolean isActive, String employeeCode) {
+        super();
+        this.personID = personID;
+        this.hireDate = hireDate;
+        this.employee_type_id = employeeType.getTypeID();
+        this.isActive = isActive;
+        this.employeeCode = employeeCode;
+    }
+      
+      
 
-    public int getPersonID() {
+    public Integer getPersonID() {
         return personID;
     }
 
@@ -50,7 +79,7 @@ public class EmployeeDTO extends CreatedDTO {
         return hireDate;
     }
 
-    public int getEmployeeTypeId() {
+    public Integer getEmployeeTypeId() {
         return employee_type_id;
     }
 
