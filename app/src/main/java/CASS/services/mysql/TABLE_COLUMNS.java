@@ -1,0 +1,208 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package CASS.services.mysql;
+
+/**
+ *
+ * @author ctydi
+ */
+public class TABLE_COLUMNS {
+
+    public static class TYPE {
+
+        public static class EMPLOYEE_ROLE {
+
+            public static final String TABLE_NAME = "employee_role_types";
+            public static final String ID = "employee_role_type_id";
+            public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
+
+        }
+
+        public static class EMPLOYEE {
+
+            public static final String TABLE_NAME = "employee_types";
+            public static final String ID = "employee_type_id";
+            public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
+
+        }
+
+        public static class CERTIFICATION {
+
+            public static final String TABLE_NAME = "certification_types";
+            public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
+
+        }
+
+        public static class NOTE {
+
+            public static final String TABLE_NAME = "note_types";
+            public static final String ID = "note_type_id";
+            public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
+        }
+
+        public static class ITEM {
+
+            public static final String TABLE_NAME = "item_types";
+            public static final String ID = "item_type_id";
+            public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
+        }
+
+    }
+
+    private static class GENERAL {
+
+        public static final String IS_ACTIVE = "is_active";
+        public static final String IS_CURRENT = "is_current";
+
+        public static final String CREATED_DATE = "created_date";
+
+        public static final String UPDATED_DATE = "updated_date";
+
+        public static final String TYPE = "type_name";
+
+    }
+
+    public static class PEOPLE {
+
+        public static class PERSON {
+
+            public static final String TABLE_NAME = "persons";
+            public static final String ID = "person_id";
+            public static final String FIRST_NAME = "first_name";
+            public static final String MIDDLE_NAME = "middle_name";
+            public static final String LAST_NAME = "last_name";
+            public static final String NICKNAME = "nickname";
+            public static final String ALIAS = "alias";
+            public static final String GENDER = "sex";
+            public static final String BIRTHDAY = "birthday";
+            public static final String ADDRESS = TABLE_COLUMNS.LOCATION.ADDRESS.ID;
+            public static final String IS_ACTIVE = TABLE_COLUMNS.GENERAL.IS_ACTIVE;
+            public static final String IS_CURRENT = TABLE_COLUMNS.GENERAL.IS_CURRENT;
+
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+
+            public static final String UPDATED_DATE = TABLE_COLUMNS.GENERAL.UPDATED_DATE;
+        }
+
+        public static class EMPLOYEE {
+
+            public static final String TABLE_NAME = "employees";
+            public static final String ID = "employee_id";
+            public static final String PERSON = TABLE_COLUMNS.PEOPLE.PERSON.ID;
+            public static final String HIRE_DATE = "hire_date";
+            public static final String EMPLOYEE_TYPE = "employee_type_id";
+            public static final String EMPLOYEE_CODE = "employee_code";
+            public static final String IS_ACTIVE = TABLE_COLUMNS.GENERAL.IS_ACTIVE;
+            public static final String IS_CURRENT = TABLE_COLUMNS.GENERAL.IS_CURRENT;
+
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+
+        }
+
+        public static class COMPANY {
+
+            public static final String TABLE_NAME = "companies";
+            public static final String ID = "company_id";
+            public static final String NAME = "company_name";
+            public static final String CODE = "company_code";
+            public static final String NOTES = "notes";
+            public static final String ADDRESS = TABLE_COLUMNS.LOCATION.ADDRESS.ID;
+
+            public static final String IS_ACTIVE = TABLE_COLUMNS.GENERAL.IS_ACTIVE;
+            public static final String IS_CURRENT = TABLE_COLUMNS.GENERAL.IS_CURRENT;
+
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+
+            public static final String UPDATED_DATE = TABLE_COLUMNS.GENERAL.UPDATED_DATE;
+
+        }
+
+        public static class COMPANY_PERSON {
+
+            public static final String TABLE_NAME = "company_persons";
+            public static final String ID = "company_person_id";
+            public static final String COMPANY = "company_id";
+            public static final String PERSON = "person_id";
+
+        }
+
+        public static class EMPLOYEE_ROLES {
+
+            public static final String TABLE_NAME = "employee_roles";
+
+            public static final String ID = "employee_role_id";
+            public static final String EMPLOYEE = "employee_id";
+            public static final String ROLE = "role_id";
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+
+        }
+
+    }
+
+    public static class INVENTORY {
+
+        public static class ITEM {
+            public static final String TABLE_NAME = "items";
+            public static final String ID = "item_id";
+            public static final String NAME = "item_name";
+            public static final String ALIAS = "item_alias";
+            public static final String COMPANY = "company_id";
+            public static final String TYPE = "item_type_id";
+            public static final String IS_FOR_SALE = "is_for_sale";
+        }
+
+    }
+
+    public static class LOCATION {
+
+        public static class COUNTRY {
+
+            public static final String TABLE_NAME = "countries";
+            public static final String ID = "country_id";
+            public static final String NAME = "country_name";
+            public static final String ABBV = "country_abbv";
+
+        }
+
+        public static class STATE {
+
+            public static final String TABLE_NAME = "states";
+            public static final String ID = "state_id";
+            public static final String NAME = "state_name";
+            public static final String ABBV = "state_abbv";
+            public static final String COUNTRY = TABLE_COLUMNS.LOCATION.COUNTRY.ID;
+
+        }
+
+        public static class CITY {
+
+            public static final String TABLE_NAME = "cities";
+            public static final String ID = "city_id";
+            public static final String NAME = "city_name";
+            public static final String STATE = TABLE_COLUMNS.LOCATION.STATE.ID;
+
+        }
+
+        public static class ADDRESS {
+
+            public static final String TABLE_NAME = "addresses";
+            public static final String ID = "address_id";
+            public static final String STREET = "street";
+            public static final String STREET_2 = "street_2";
+            public static final String POST_CODE = "post_code";
+            public static final String CITY = TABLE_COLUMNS.LOCATION.CITY.ID;
+
+            public static final String IS_ACTIVE = TABLE_COLUMNS.GENERAL.IS_ACTIVE;
+            public static final String IS_CURRENT = TABLE_COLUMNS.GENERAL.IS_CURRENT;
+
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+
+            public static final String UPDATED_DATE = TABLE_COLUMNS.GENERAL.UPDATED_DATE;
+
+        }
+
+    }
+
+}

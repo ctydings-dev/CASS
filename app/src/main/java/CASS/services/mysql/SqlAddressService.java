@@ -4,18 +4,20 @@
  */
 package CASS.services.mysql;
 
+import CASS.search.AddressSearchBuilder;
 import CASS.data.BaseDTO;
+import CASS.data.BaseSearchParameter;
 import CASS.data.address.AddressDTO;
-import CASS.data.address.AddressSearchParameters;
+import CASS.search.AddressSearchParameters;
 import CASS.data.address.CityDTO;
-import CASS.data.address.CitySearchParameters;
+import CASS.search.CitySearchParameters;
 import CASS.data.address.CompositeAddress;
 import CASS.data.address.CompositeCity;
 import CASS.data.address.CompositeState;
 import CASS.data.address.CountryDTO;
-import CASS.data.address.CountrySearchParameters;
+import CASS.search.CountrySearchParameters;
 import CASS.data.address.StateDTO;
-import CASS.data.address.StateSearchParameters;
+import CASS.search.StateSearchParameters;
 import CASS.services.AddressService;
 import CASS.services.ServiceError;
 import CASS.util.DataObjectGenerator;
@@ -45,9 +47,9 @@ public class SqlAddressService implements AddressService {
 
     private CountryDTO createCountryFromResultSet(ResultSet rs) throws SQLException {
 
-        int ID = this.getService().getIntValue(rs, "country_id");
-        String name = rs.getString("country_name");
-        String abbv = rs.getString("country_abbv");
+        int ID = this.getService().getIntValue(rs, TABLE_COLUMNS.LOCATION.COUNTRY.ID);
+        String name = rs.getString(TABLE_COLUMNS.LOCATION.COUNTRY.NAME);
+        String abbv = rs.getString(TABLE_COLUMNS.LOCATION.COUNTRY.ABBV);
 
         return new CountryDTO(name, abbv, ID);
 
@@ -55,30 +57,30 @@ public class SqlAddressService implements AddressService {
 
     private StateDTO createStateFromResultSet(ResultSet rs) throws SQLException {
 
-        int stateId = this.getService().getIntValue(rs, "state_id");
-        String name = rs.getString("state_name");
-        String abbv = rs.getString("state_abbv");
-        int countryId = this.getService().getIntValue(rs, "country_id");
+        int stateId = this.getService().getIntValue(rs, TABLE_COLUMNS.LOCATION.STATE.ID);
+        String name = rs.getString(TABLE_COLUMNS.LOCATION.STATE.NAME);
+        String abbv = rs.getString(TABLE_COLUMNS.LOCATION.STATE.ABBV);
+        int countryId = this.getService().getIntValue(rs, TABLE_COLUMNS.LOCATION.STATE.COUNTRY);
         return new StateDTO(name, abbv, countryId, stateId);
 
     }
 
     private CityDTO createCityFromResultSet(ResultSet rs) throws SQLException {
 
-        int cityId = this.getService().getIntValue(rs, "city_id");
-        String name = rs.getString("city_name");
-        int stateId = this.getService().getIntValue(rs, "state_id");
+        int cityId = this.getService().getIntValue(rs, TABLE_COLUMNS.LOCATION.CITY.ID);
+        String name = rs.getString(TABLE_COLUMNS.LOCATION.CITY.NAME);
+        int stateId = this.getService().getIntValue(rs, TABLE_COLUMNS.LOCATION.CITY.STATE);
         return new CityDTO(name, stateId, cityId);
 
     }
 
     private AddressDTO createAddressFromResultSet(ResultSet rs) throws SQLException {
 
-        int id = this.getService().getIntValue(rs, "address_id");
-        int city = this.getService().getIntValue(rs, "city_id");
-        String street = rs.getString("street");
-        String street2 = rs.getString("street_2");
-        String postal = rs.getString("post_code");
+        int id = this.getService().getIntValue(rs, TABLE_COLUMNS.LOCATION.ADDRESS.ID);
+        int city = this.getService().getIntValue(rs, TABLE_COLUMNS.LOCATION.ADDRESS.CITY);
+        String street = rs.getString(TABLE_COLUMNS.LOCATION.ADDRESS.STREET);
+        String street2 = rs.getString(TABLE_COLUMNS.LOCATION.ADDRESS.STREET_2);
+        String postal = rs.getString(TABLE_COLUMNS.LOCATION.ADDRESS.POST_CODE);
         AddressDTO ret = new AddressDTO(street, street2, postal, city, id);
         return ret;
     }
@@ -110,9 +112,10 @@ public class SqlAddressService implements AddressService {
     @Override
     public List<CountryDTO> getCountries() throws ServiceError {
         try {
-            String query = "SELECT * FROM countries;";
-
-            ResultSet resultSet = this.getService().executeQuery(query);
+         ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.COUNTRY.TABLE_NAME);
+           
+            
+            
             List<CountryDTO> ret = DataObjectGenerator.createList();
 
             while (resultSet.next()) {
@@ -134,9 +137,8 @@ public class SqlAddressService implements AddressService {
     @Override
     public List<StateDTO> getStates() throws ServiceError {
         try {
-            String query = "SELECT * FROM states;";
-
-            ResultSet resultSet = this.getService().executeQuery(query);
+         ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.STATE.TABLE_NAME);
+           
             List<StateDTO> ret = DataObjectGenerator.createList();
 
             while (resultSet.next()) {
@@ -153,9 +155,8 @@ public class SqlAddressService implements AddressService {
     public CityDTO getCity(BaseDTO key) throws ServiceError {
         
      try {
-            String query = "SELECT * FROM cities WHERE city_id = " + key.getKey() + ";";
-
-            ResultSet resultSet = this.getService().executeQuery(query);
+                 ResultSet resultSet = this.getService().getForId(TABLE_COLUMNS.LOCATION.CITY.TABLE_NAME, TABLE_COLUMNS.LOCATION.CITY.ID, key.getKey());
+           
             resultSet.next();
 
             return createCityFromResultSet(resultSet);
@@ -168,9 +169,8 @@ public class SqlAddressService implements AddressService {
     @Override
     public List<CityDTO> getCities() throws ServiceError {
         try {
-            String query = "SELECT * FROM states;";
-
-            ResultSet resultSet = this.getService().executeQuery(query);
+          ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.CITY.TABLE_NAME);
+           
             List<CityDTO> ret = DataObjectGenerator.createList();
 
             while (resultSet.next()) {
@@ -186,9 +186,7 @@ public class SqlAddressService implements AddressService {
     @Override
     public AddressDTO getAddress(BaseDTO key) throws ServiceError {
         try {
-            String query = "SELECT * FROM addresses WHERE address_id = " + key.getKey() + ";";
-
-            ResultSet resultSet = this.getService().executeQuery(query);
+                 ResultSet resultSet = this.getService().getForId(TABLE_COLUMNS.LOCATION.ADDRESS.TABLE_NAME, TABLE_COLUMNS.LOCATION.ADDRESS.ID, key.getKey());
             resultSet.next();
 
             return createAddressFromResultSet(resultSet);
@@ -201,9 +199,8 @@ public class SqlAddressService implements AddressService {
     @Override
     public List<AddressDTO> getAddressses() throws ServiceError {
      try {
-            String query = "SELECT * FROM addresses;";
-
-            ResultSet resultSet = this.getService().executeQuery(query);
+       ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.ADDRESS.TABLE_NAME);
+           
             List<AddressDTO> ret = DataObjectGenerator.createList();
 
             while (resultSet.next()) {
@@ -337,19 +334,10 @@ String query = AddressSearchBuilder.createQueryForState(param);
     @Override
     public int addCountry(CountryDTO toAdd) throws ServiceError {
 
-        String statement = "INSERT INTO countries(country_name, country_abbv) VALUES ('";
-        statement += toAdd.getCountryName().trim().toUpperCase() + "','" + toAdd.getAbbreviation().trim().toUpperCase() + "');";
-
-        try {
-            CountryDTO toCheck = this.getCountry(toAdd);
-
-            if (toCheck != null) {
-                return toCheck.getKey();
-            }
-
-            this.getService().executeStatement(statement);
-            CountrySearchParameters params = new CountrySearchParameters(toAdd);
-            return this.searchCountry(params).getKey();
+           try {
+              BaseSearchParameter toInsert = new CountrySearchParameters(toAdd);
+           
+return            this.getService().insertAndGet(toInsert);
         } catch (SQLException ex) {
             throw new ServiceError(ex.getLocalizedMessage());
         }
@@ -358,15 +346,13 @@ String query = AddressSearchBuilder.createQueryForState(param);
 
     @Override
     public int addState(StateDTO toAdd) throws ServiceError {
-        String statement = "INSERT INTO states(state_name, state_abbv, country_id) VALUES ('";
-        statement += toAdd.getStateName().trim().toUpperCase() + "','" + toAdd.getAbbreviation().trim().toUpperCase() + "', " + toAdd.getCountryID() + ");";
+       try {
+           
+           StateSearchParameters toInsert = new StateSearchParameters(toAdd);
+           
+return            this.getService().insertAndGet(toInsert);
 
-        try {
-            this.getService().executeStatement(statement);
-
-            StateSearchParameters params = new StateSearchParameters(toAdd);
-
-            return this.searchState(params).getKey();
+            
 
         } catch (SQLException ex) {
             throw new ServiceError(ex.getLocalizedMessage());
@@ -376,17 +362,10 @@ String query = AddressSearchBuilder.createQueryForState(param);
 
     @Override
     public int addCity(CityDTO toAdd) throws ServiceError {
-        String statement = "INSERT INTO cities(city_name, state_id) VALUES ('";
-        statement += toAdd.getCityName().trim().toUpperCase() + "', " + toAdd.getStateID() + ");";
-
-        try {
-            this.getService().executeStatement(statement);
-
-            CitySearchParameters params = new CitySearchParameters();
-            params.setState(new StateSearchParameters(toAdd.getStateID()));
-params.addCityName(toAdd.getCityName());
-            return this.searchCity(params).getKey();
-
+       try {
+              BaseSearchParameter toInsert = new CitySearchParameters(toAdd);
+           
+return            this.getService().insertAndGet(toInsert);
         } catch (SQLException ex) {
             throw new ServiceError(ex.getLocalizedMessage());
         }
@@ -395,21 +374,12 @@ params.addCityName(toAdd.getCityName());
     @Override
     public int addAddress(AddressDTO toAdd) throws ServiceError {
 
-        String statement = "INSERT INTO addresses(street,street_2, post_code, city_id) VALUES ('";
-        statement += toAdd.getStreet().trim().toUpperCase() + "' , '" + toAdd.getStreet2().trim().toUpperCase() + "','"
-                + toAdd.getPostCode().trim().toUpperCase() + "', " + toAdd.getCityID() + ");";
+      
 
-        try {
-            this.getService().executeStatement(statement);
-            AddressSearchParameters adr = new AddressSearchParameters();
-            adr.setCity(toAdd.getCityID());
-            adr.setPostCode(toAdd.getPostCode());
-            adr.setStreet(toAdd.getStreet());
-            adr.setStreet2(toAdd.getStreet2());
-            
-
-            return this.searchAddress(adr).getKey();
-
+             try {
+              BaseSearchParameter toInsert = new AddressSearchParameters(toAdd);
+           
+return            this.getService().insertAndGet(toInsert);
         } catch (SQLException ex) {
             throw new ServiceError(ex.getLocalizedMessage());
         }
@@ -458,4 +428,10 @@ params.addCityName(toAdd.getCityName());
         AddressSearchParameters param = new AddressSearchParameters(key);
         return this.searchAddress(param);
     }
+    
+    
+    
+ 
+    
+    
 }

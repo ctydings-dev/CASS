@@ -4,6 +4,9 @@
  */
 package CASS.services.mysql;
 
+import CASS.search.SearchTable;
+import CASS.search.SearchValue;
+
 /**
  *
  * @author ctydi

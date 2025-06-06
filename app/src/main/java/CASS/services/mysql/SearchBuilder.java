@@ -4,6 +4,7 @@
  */
 package CASS.services.mysql;
 
+import CASS.search.SearchTable;
 import CASS.data.BaseSearchParameter;
 import CASS.util.DataObjectGenerator;
 import java.util.List;
