@@ -14,13 +14,20 @@ public class CityDTO extends BaseDTO {
 
     private String cityName;
 
-    private int stateID;
+    private Integer stateID;
 
-    public CityDTO(String cityName, int stateID, int key) {
+    public CityDTO(String cityName, Integer stateID, Integer key) {
         super(key);
         this.cityName = cityName;
         this.stateID = stateID;
     }
+    
+        public CityDTO(String cityName, Integer stateID) {
+        super();
+        this.cityName = cityName;
+        this.stateID = stateID;
+    }
+    
 
     public String getCityName() {
         return cityName;
@@ -30,11 +37,11 @@ public class CityDTO extends BaseDTO {
         this.cityName = cityName;
     }
 
-    public int getStateID() {
+    public Integer getStateID() {
         return stateID;
     }
 
-    public void setStateID(int stateID) {
+    public void setStateID(Integer stateID) {
         this.stateID = stateID;
     }
 

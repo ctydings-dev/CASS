@@ -19,14 +19,12 @@ public class CountryDTO extends BaseDTO {
     public CountryDTO(String countryName, String abbreviation, int key) {
         super(key);
         this.countryName = countryName;
-
         this.abbreviation = abbreviation;
     }
 
     public CountryDTO(String countryName, String abbreviation) {
-
+        super();
         this.countryName = countryName;
-
         this.abbreviation = abbreviation;
     }
 

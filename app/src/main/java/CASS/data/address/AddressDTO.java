@@ -19,7 +19,7 @@ public class AddressDTO extends CreatedDTO {
 
     private String postCode;
 
-    private int cityID;
+    private Integer cityID;
 
     public AddressDTO(String street, String street2, String postCode, int cityID, int key) {
         super(key);
@@ -30,12 +30,30 @@ public class AddressDTO extends CreatedDTO {
 
     }
 
-    public AddressDTO(String street, String postCode, int cityID, int key) {
+    public AddressDTO(String street, String postCode, Integer cityID, Integer key) {
         super(key);
         this.street = street;
         this.postCode = postCode;
         this.cityID = cityID;
     }
+    
+    
+        public AddressDTO(String street, String street2, String postCode, Integer cityID) {
+        super();
+        this.street = street;
+        this.street2 = street2;
+        this.postCode = postCode;
+        this.cityID = cityID;
+
+    }
+
+    public AddressDTO(String street, String postCode, Integer cityID) {
+        super();
+        this.street = street;
+        this.postCode = postCode;
+        this.cityID = cityID;
+    }
+    
 
     public String getStreet() {
         return street;
@@ -61,11 +79,11 @@ public class AddressDTO extends CreatedDTO {
         this.postCode = postCode;
     }
 
-    public int getCityID() {
+    public Integer getCityID() {
         return cityID;
     }
 
-    public void setCityID(int cityID) {
+    public void setCityID(Integer cityID) {
         this.cityID = cityID;
     }
 }

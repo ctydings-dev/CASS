@@ -16,14 +16,23 @@ public class StateDTO extends BaseDTO {
 
     private String abbreviation;
 
-    private int countryID;
+    private Integer countryID;
 
-    public StateDTO(String name, String abbreviation, int countryID, int key) {
+    public StateDTO(String name, String abbreviation, Integer countryID, Integer key) {
         super(key);
         this.stateName = name;
         this.abbreviation = abbreviation;
         this.countryID = countryID;
     }
+      public StateDTO(String name, String abbreviation, Integer countryID) {
+        super();
+        this.stateName = name;
+        this.abbreviation = abbreviation;
+        this.countryID = countryID;
+    }
+
+    
+    
 
     public String getStateName() {
         return stateName;
@@ -41,11 +50,11 @@ public class StateDTO extends BaseDTO {
         this.abbreviation = abbreviation;
     }
 
-    public int getCountryID() {
+    public Integer getCountryID() {
         return countryID;
     }
 
-    public void setCountryID(int countryID) {
+    public void setCountryID(Integer countryID) {
         this.countryID = countryID;
     }
 
