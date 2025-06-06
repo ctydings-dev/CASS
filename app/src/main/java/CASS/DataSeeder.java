@@ -4,17 +4,20 @@
  */
 package CASS;
 
+import CASS.data.TypeDTO;
 import CASS.data.TypeRepository;
 import CASS.data.address.AddressDTO;
 import CASS.data.address.CityDTO;
 import CASS.data.address.CountryDTO;
 import CASS.data.address.StateDTO;
+import CASS.data.person.EmployeeDTO;
 import CASS.services.AddressService;
 import CASS.services.PersonService;
 import CASS.services.ServiceError;
 import CASS.services.ServiceProvider;
 import CASS.services.TypeService;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  *
@@ -33,14 +36,31 @@ public class DataSeeder {
         TypeRepository.setupRepo(typeSvc);
 clearDBs();
     AddressDataSeeder.seedAddresses(addrSvc);
-    PersonDataSeeder.seedPersonData(prsnSvc);
+   PersonDataSeeder.seedPersonData(prsnSvc);
+   
+   TypeDTO target =TypeRepository.getTypeDTO(TypeRepository.EMPLOYEE_ROLE.INSTRUCTOR);
+   
+   //List<EmployeeDTO> test = prsnSvc.getEmployeesIDsWithAssignment(target);
+   //System.out.println(test);
         
     }
     
     
     private static void clearDBs() throws SQLException{
+         String query ="";
+           query = "DELETE FROM company_parents;";
+       ServiceProvider.getMySql().executeStatement(query);
         
-        String query = "DELETE FROM employees;";
+             query = "DELETE FROM company_persons;";
+       ServiceProvider.getMySql().executeStatement(query);
+        
+            query = "DELETE FROM employee_roles;";
+       ServiceProvider.getMySql().executeStatement(query);
+       
+          query = "DELETE FROM companies;";
+       ServiceProvider.getMySql().executeStatement(query);
+        
+     query = "DELETE FROM employees;";
        ServiceProvider.getMySql().executeStatement(query);
        query = "DELETE FROM persons;";
        ServiceProvider.getMySql().executeStatement(query); 

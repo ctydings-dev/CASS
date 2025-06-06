@@ -3,14 +3,14 @@
  */
 package CASS;
 
-import CASS.data.address.AddressSearchParameters;
-import CASS.data.address.CitySearchParameters;
+import CASS.search.AddressSearchParameters;
+import CASS.search.CitySearchParameters;
 import CASS.data.address.CountryDTO;
-import CASS.data.address.CountrySearchParameters;
-import CASS.data.address.StateSearchParameters;
+import CASS.search.CountrySearchParameters;
+import CASS.search.StateSearchParameters;
 import CASS.services.AddressService;
 import CASS.services.ServiceError;
-import CASS.services.mysql.AddressSearchBuilder;
+import CASS.search.AddressSearchBuilder;
 import CASS.services.mysql.MySqlService;
 import CASS.services.mysql.SqlAddressService;
 import java.sql.ResultSet;

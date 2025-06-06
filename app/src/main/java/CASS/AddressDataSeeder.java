@@ -16,7 +16,7 @@ import CASS.services.ServiceError;
  * @author ctydi
  */
 public class AddressDataSeeder {
-    public static int US, UK, CAN, FRN, AK, AL, CA, PADILAND, ANC,EAGLE_RIVER, HOME,PADI, MIKE,JD,KRIS;
+    public static int US, UK, CAN, FRN, AK, AL, CA,FL,NC,LELAND,ASHBURN, VA, ITY, ITY_ST, PADILAND, ANC,EAGLE_RIVER, SPAGETTILAND,GUE_LAND,GUE, HOME,PADI, MIKE,JD,KRIS, MARES;
     
     
     
@@ -28,18 +28,29 @@ public class AddressDataSeeder {
         
         CityDTO padi = new CityDTO("PADILAND", CA,0);
         
+        CityDTO mares = new CityDTO("SPAGETTI LAND", ITY_ST,0);
+        
+        CityDTO gue = new CityDTO("CLEARWATER", FL,0);
+        
+        CityDTO leland = new CityDTO("LELAND", NC,0);
+        
+        CityDTO ash = new CityDTO("Ashburn", VA,0);
+        
       ANC =  addrSvc.addCity(anc);
         
      PADILAND = addrSvc.addCity(padi);
      EAGLE_RIVER = addrSvc.addCity(eagle);
-        
+     SPAGETTILAND = addrSvc.addCity(mares);
+     GUE_LAND = addrSvc.addCity(gue);
+     LELAND = addrSvc.addCity(leland);
+     ASHBURN = addrSvc.addCity(ash);
     }
     
     
     
     public static void seedAddresses(AddressService addrSvc) throws ServiceError{
            createCountries(addrSvc);
-        createStates(addrSvc);
+      createStates(addrSvc);
       createCities(addrSvc);
 createAddresses(addrSvc);
     }
@@ -47,20 +58,27 @@ createAddresses(addrSvc);
     
     private static void createAddresses(AddressService addrSvc) throws ServiceError{
         
-        AddressDTO home = new AddressDTO("10030 GEBHART DR.", "","99515",ANC,0);
-                AddressDTO mike = new AddressDTO("1234 U2GOOD4ANC DRIVE", "","99516",EAGLE_RIVER,0);
+        AddressDTO home = new AddressDTO("10030 GEBHART DR.", "","99515",ANC);
+                AddressDTO mike = new AddressDTO("1234 U2GOOD4ANC DRIVE", "","99516",EAGLE_RIVER);
        
-                AddressDTO jd = new AddressDTO("2458 COVESIDE CT.", "","99401",ANC,0);
-               AddressDTO kris = new AddressDTO("20936 CAPILANO CT.", "","99323",ANC,0);
+                AddressDTO jd = new AddressDTO("2458 COVESIDE CT.", "","99401",LELAND);
+               AddressDTO kris = new AddressDTO("20936 CAPILANO CT.", "","28451",ASHBURN);
        
         
-         AddressDTO padi = new AddressDTO("1234 PADI RD", "","123456",ANC,0);
+         AddressDTO padi = new AddressDTO("1234 PADI RD", "","123456",ANC);
+         
+          AddressDTO mares = new AddressDTO("TALKING W UR HANDS", "","123456",SPAGETTILAND);
+         AddressDTO gue = new AddressDTO("ALL BLACK AND TAC", "","123456",GUE_LAND);
         
+         
+        MARES = addrSvc.addAddress(mares);
         HOME = addrSvc.addAddress(home);
         PADI = addrSvc.addAddress(padi);
      MIKE = addrSvc.addAddress(mike);
         JD = addrSvc.addAddress(jd);
         KRIS = addrSvc.addAddress(kris);
+        GUE = addrSvc.addAddress(gue);
+        
 
         
     }
@@ -75,7 +93,7 @@ createAddresses(addrSvc);
 
             String name = values[index].trim();
             String abbv = values[index + 1].trim();
-            StateDTO state = new StateDTO(name, abbv, US, 0);
+            StateDTO state = new StateDTO(name, abbv, US);
         int id =    addrSvc.addState(state);
 
         if(state.getAbbreviation().equals("AK")){
@@ -89,9 +107,22 @@ createAddresses(addrSvc);
            if(state.getAbbreviation().equals("CA")){
             CA = id;
         }
-        
+           if(state.getAbbreviation().equals("FL")){
+            FL = id;
+        }
+         if(state.getAbbreviation().equals("NC")){
+            NC = id;
+        }
+           if(state.getAbbreviation().equals("VA")){
+            VA = id;
+        } 
+           
         
         }
+        
+        StateDTO state = new StateDTO("SPAGETTI STATE", "SGTY-OS", ITY);
+        
+        ITY_ST=  addrSvc.addState(state);
 
     }
 
@@ -107,7 +138,12 @@ createAddresses(addrSvc);
         toAdd = new CountryDTO("CANADA", "CAN");
 
         CAN = addrSvc.addCountry(toAdd);
+    toAdd = new CountryDTO("ITALY", "ITY");
 
+        ITY = addrSvc.addCountry(toAdd);
+        
+        
+        
     }
 
     
