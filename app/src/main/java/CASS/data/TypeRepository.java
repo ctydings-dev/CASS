@@ -22,6 +22,8 @@ public class TypeRepository {
     
     private static Map<EMPLOYEE_TYPE,Integer> employeeTypes;
     
+    private static Map<EMPLOYEE_ROLE,Integer> employeeRoles;
+    
         private static Map<ITEM_TYPE,Integer> itemTypes;
     
     
@@ -30,6 +32,7 @@ public class TypeRepository {
         setupNoteRepo(svc);
         setupEmployeeRepo(svc);
        setupItemRepo(svc);
+       setupEmployeeRoleRepo(svc);
     }
     
     
@@ -56,6 +59,23 @@ public class TypeRepository {
         }
 
     }
+        
+        
+          private static void setupEmployeeRoleRepo(TypeService svc) throws ServiceError{
+        employeeRoles = DataObjectGenerator.createMap();
+     
+        
+    
+        for(int index= 0; index < EMPLOYEE_ROLE.values().length; index++){
+            EMPLOYEE_ROLE type = EMPLOYEE_ROLE.values()[index];
+                        
+             employeeRoles.put(type,svc.getEmployeeRoleType(type.name()));
+        }
+
+    }
+        
+        
+        
     
        private static void setupItemRepo(TypeService svc) throws ServiceError{
         itemTypes = DataObjectGenerator.createMap();
@@ -72,6 +92,22 @@ public class TypeRepository {
     
     
     
+    public static TypeDTO getTypeDTO(EMPLOYEE_TYPE type){
+     
+       Integer key = getKey(type);
+        
+       return new TypeDTO( type.name(),key);
+        
+    }
+    
+        public static TypeDTO getTypeDTO(EMPLOYEE_ROLE type){
+     
+       Integer key = getKey(type);
+        
+       return new TypeDTO( type.name(),key);
+        
+    }
+    
     
     
     
@@ -84,6 +120,9 @@ public class TypeRepository {
         return employeeTypes.get(type);
     }
     
+        public static Integer getKey(EMPLOYEE_ROLE type){
+        return employeeRoles.get(type);
+    }
     
     
     
@@ -95,9 +134,15 @@ public class TypeRepository {
     
     
         public enum EMPLOYEE_TYPE{
-                EMPLOYEE,CONSULTANT,INSTRUCTOR,CONTRACTOR, TECHNICIAN,MANAGER;
+                EMPLOYEE,CONSULTANT,CONTRACTOR;
                    }
     
+             public enum EMPLOYEE_ROLE{
+                MANAGER,INSTRUCTOR,CASHIER,TECHNICIAN    }
+    
+        
+        
+        
         
         public enum ITEM_TYPE{
             REGULATOR,BCD;

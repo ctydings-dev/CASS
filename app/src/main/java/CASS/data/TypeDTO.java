@@ -16,7 +16,21 @@ public class TypeDTO extends BaseDTO {
         super(key);
         this.roleName = roleName;
     }
+    
+    
+      public TypeDTO(String roleName) {
+        super();
+        this.roleName = roleName;
+    }
+    
 
+        public TypeDTO( int key) {
+        super(key);
+
+    }
+    
+    
+    
     public String getTypeName() {
         return roleName;
     }

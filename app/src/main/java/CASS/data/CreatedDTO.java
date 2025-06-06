@@ -16,11 +16,24 @@ public class CreatedDTO extends BaseDTO {
         super(key);
         this.createdDate = createdDate;
     }
+    
+     public CreatedDTO( String createdDate) {
+        super();
+        this.createdDate = createdDate;
+    }
+
+    
 
     public CreatedDTO(int key) {
         super(key);
 
     }
+    
+      public CreatedDTO() {
+        super();
+
+    }
+    
 
     public String getCreatedDate() {
         return this.createdDate;

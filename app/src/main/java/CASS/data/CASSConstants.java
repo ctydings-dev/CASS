@@ -10,7 +10,4 @@ package CASS.data;
  */
 public class CASSConstants {
     
-    public static final String CREATED_DATE = "created_date";
-    
-    public static final String UPDATED_DATE = "updated_date";
 }

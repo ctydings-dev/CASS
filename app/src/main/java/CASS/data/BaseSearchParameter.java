@@ -4,9 +4,9 @@
  */
 package CASS.data;
 
-import CASS.services.mysql.SearchTable;
+import CASS.search.SearchTable;
 import CASS.services.mysql.SearchParameter;
-import CASS.services.mysql.SearchValue;
+import CASS.search.SearchValue;
 import CASS.util.DataObjectGenerator;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Set;
  *
  * @author ctydi
  */
-public class BaseSearchParameter {
+public abstract class BaseSearchParameter {
 
     private Integer key;
 
@@ -27,9 +27,9 @@ public class BaseSearchParameter {
 
     private Map<String, SearchValue> searchValues;
 
-    public BaseSearchParameter(int key, SearchTable table) {
+    public BaseSearchParameter(Integer key, SearchTable table) {
         this.key = key;
-        this.idOverride = true;
+        this.setKey(key);
         this.searchValues = DataObjectGenerator.createMap();
         this.table = table;
 
@@ -50,6 +50,12 @@ public class BaseSearchParameter {
         addSearchParameter(name, new SearchValue(value));
     }
 
+        public void addSearchParameter(String name, Boolean value) {
+        addSearchParameter(name, new SearchValue(value));
+    }
+    
+    
+    
     public void addSearchParameter(String name, SearchValue value) {
 
         if (value.getValue() == null) {
@@ -63,12 +69,25 @@ public class BaseSearchParameter {
         return searchValues;
     }
 
-    public int getKey() {
+    public Integer getKey() {
         return this.key;
     }
 
+    public void setKey(Integer toSet){
+        
+        this.key = toSet;
+        
+        if(this.getKey() != null){
+           this.idOverride = true;
+        }
+        
+        
+    }
+    
+    
+    
     protected boolean useIdOverride() {
-        return this.idOverride = true;
+        return this.idOverride == true;
     }
 
     protected boolean hasParameter(Object value) {
@@ -124,4 +143,59 @@ public class BaseSearchParameter {
         return ret;
     }
 
+    protected String getKeyFields(){
+        
+        return "";
+        
+    }
+    
+      protected String getKeyValues(){
+        
+        return "";
+        
+    }
+    
+    public String getInsertStatement(){
+        
+        String ret = "INSERT INTO " + this.getTable().getTableName();
+        
+        String fields = "(";
+        
+        String values = "(";
+        
+        
+    for(String entry : this.getSearchValues().keySet()){
+        fields = fields + entry + ", ";
+        
+        values = values + this.getSearchValues().get(entry).getSqlValue(false) + ", ";
+        
+    }
+    
+    if(this.useIdOverride() == true){
+        fields = fields  + this.getTable().getIdName()+ ", ";
+        values = values + this.getKey()+ ", " ;
+    }
+    
+        
+    fields = fields + this.getKeyFields();
+    values = values + this.getKeyValues();
+    
+    fields = fields.trim();
+    values = values.trim();
+fields = fields.substring(0,fields.length() -1);
+
+values = values.substring(0,values.length() -1);
+        
+ret = ret + fields + ") VALUES " + values + ");";
+
+        return ret;
+        
+    }
+    
+    
+    
+    public abstract String getSearchQuery();
+    
+    
+    
 }

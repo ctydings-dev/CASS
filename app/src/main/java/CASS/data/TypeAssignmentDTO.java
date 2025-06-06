@@ -8,16 +8,44 @@ package CASS.data;
  *
  * @author ctydi
  */
-public class TypeAssignmentDTO extends TypeDTO {
+public class TypeAssignmentDTO extends CreatedDTO {
 
-    private int targetKey;
 
-    public TypeAssignmentDTO(String roleName, int roleKey, String targetKey) {
-        super(roleName, roleKey);
+    public Integer target;
+    
+    public TypeDTO type;
+    
+    
+    
+    public TypeAssignmentDTO(Integer target, TypeDTO type, Integer key, String date){
+        super(key,date);
+        this.target =target;
+        this.type = type;
+        
+    }
+    
+        public TypeAssignmentDTO(Integer key, String date){
+        super();
+        
+    }
+    
+          public TypeAssignmentDTO(Integer target, TypeDTO type){
+        super();
+        this.target =target;
+        this.type = type;
+        
     }
 
-    public int getTargetKey() {
-        return targetKey;
+    public Integer getTarget() {
+        return target;
     }
 
+    public TypeDTO getType() {
+        return type;
+    }
+        
+        
+        
+    
+    
 }

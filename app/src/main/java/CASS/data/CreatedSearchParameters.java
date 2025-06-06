@@ -4,7 +4,7 @@
  */
 package CASS.data;
 
-import CASS.services.mysql.SearchTable;
+import CASS.search.SearchTable;
 import CASS.util.DataObjectGenerator;
 
 /**
