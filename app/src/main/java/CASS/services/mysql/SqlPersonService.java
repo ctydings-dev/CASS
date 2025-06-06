@@ -176,7 +176,7 @@ public class SqlPersonService implements PersonService {
     @Override
     public EmployeeDTO getEmployee(BaseDTO key) throws ServiceError {
         try {
-            ResultSet rs = this.getService().getForId(TABLE_COLUMNS.PEOPLE.PERSON.TABLE_NAME, TABLE_COLUMNS.PEOPLE.PERSON.ID, key.getKey());
+            ResultSet rs = this.getService().getForId(TABLE_COLUMNS.PEOPLE.EMPLOYEE.TABLE_NAME, TABLE_COLUMNS.PEOPLE.EMPLOYEE.ID, key.getKey());
 
             rs.next();
             return this.createEmployeeFromResultSet(rs);

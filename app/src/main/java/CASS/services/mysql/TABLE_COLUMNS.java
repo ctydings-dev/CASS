@@ -57,6 +57,11 @@ public class TABLE_COLUMNS {
             public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
         }
         
+          public static class CURRENCY{
+               public static final String TABLE_NAME = "currencies";
+            public static final String ID = "currency_id";
+            public static final String NAME = "currency_name";
+          }
         
 
     }
@@ -186,6 +191,42 @@ public class TABLE_COLUMNS {
             public static final String FACILITY = "facility_id";
           
      }
+     
+       public static class INVENTORY_TRANSACTION_NOTE{
+         public static final String TABLE_NAME = "inventory_transaction_notes";
+            public static final String ID = "inventory_transaction_note_id";
+             public static final String TRANSACTION = "inventory_transaction_id";
+           public static final String NOTE= "note";
+            public static final String TYPE= "note_type_id";
+     }
+     
+       
+       public static class PRICE{
+           public static final String TABLE_NAME = "prices";
+           public static final String ID = "price_id";
+           
+           public static final String ITEM = "item_id";
+           
+           public static final String BUY = "purchase_price";
+           
+           public static final String SELL = "sell_price";
+           
+           public static final String IS_SPECIAL = "is_special";
+
+           public static final String IS_SALE = "is_sale";
+
+           public static final String CURRENCY = "currency_id";
+                      public static final String STARTED = "started_date";
+                      
+ public static final String ENDED= "ended_date";
+                     
+            public static final String CODE= "price_code";
+           
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+ public static final String EMPLOYEE = TABLE_COLUMNS.PEOPLE.EMPLOYEE.ID;
+           
+       }
+     
      
     }
 

@@ -26,6 +26,8 @@ public class TypeRepository {
     
         private static Map<ITEM_TYPE,Integer> itemTypes;
     private static Map<TRANSACTION_TYPE,Integer> transactionTypes;
+    private static Map<CURRENCY,Integer> currencies;
+    
     
     
     public static void setupRepo(TypeService svc) throws ServiceError{
@@ -34,6 +36,7 @@ public class TypeRepository {
        setupItemRepo(svc);
        setupEmployeeRoleRepo(svc);
        setupTransactionRepo(svc);
+       setupCurrencyRepo(svc);
     }
     
     
@@ -105,7 +108,19 @@ public class TypeRepository {
 
     }
     
-       
+         private static void setupCurrencyRepo(TypeService svc) throws ServiceError{
+        currencies= DataObjectGenerator.createMap();
+     
+        
+    
+        for(int index= 0; index < CURRENCY.values().length; index++){
+            CURRENCY type = CURRENCY.values()[index];
+                        
+             currencies.put(type,svc.getCurrencyType(type.name()));
+        }
+
+    }
+    
        
     
     
@@ -124,7 +139,16 @@ public class TypeRepository {
        return new TypeDTO( type.name(),key);
         
     }
-    
+        
+           public static TypeDTO getTypeDTO(CURRENCY type){
+     
+       Integer key = getKey(type);
+        
+       return new TypeDTO( type.name(),key);
+        
+    }
+        
+        
     
      public static Integer getKey(ITEM_TYPE type){
         return itemTypes.get(type);
@@ -148,10 +172,15 @@ public class TypeRepository {
         return transactionTypes.get(type);
     }
     
+            public static Integer getKey(CURRENCY type){
+        return currencies.get(type);
+    }
+        
+        
     
     
     public enum NOTE_TYPE{
-                PERSON, EMPLOYMENT,EDUCATION,SERVICE,MAINTENANCE;
+                PERSON, EMPLOYMENT,EDUCATION,SERVICE,MAINTENANCE, SALES, INVENTORY;
                    }
     
     
@@ -173,7 +202,13 @@ public class TypeRepository {
         
         public enum TRANSACTION_TYPE{
             
-            SALE,SHIPMENT,RETURN,SERVICE,RELEASE,RETURN_REMOVED;
+            SALE,SHIPMENT,RECIEVE, RETURN_TO_MFG, RETURN,SERVICE,RELEASE,RETURN_REMOVED;
+            
+        }
+        
+        public enum CURRENCY{
+            
+            USD,CAD,POUND,AUD,EURO
             
         }
     

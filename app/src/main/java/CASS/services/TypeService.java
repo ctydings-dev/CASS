@@ -29,6 +29,7 @@ public interface TypeService {
   
    public List<TypeDTO> getTransactionTypes() throws ServiceError;
   
+   public List<TypeDTO> getCurrencyTypes() throws ServiceError;
   
   
   
@@ -53,6 +54,9 @@ public interface TypeService {
   public int getInvoiceItemType(String type) throws ServiceError;
   
   
+   public int getCurrencyType(String type) throws ServiceError;
+  
+  
   
   
   
@@ -74,5 +78,7 @@ public interface TypeService {
   public int addInvoiceItemType(String toAdd) throws ServiceError;
   
     public int addTransactionItemType(String toAdd) throws ServiceError;
+    
+    public int addCurrencyType(String toAdd) throws ServiceError;
     
 }
