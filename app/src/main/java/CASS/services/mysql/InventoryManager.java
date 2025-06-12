@@ -88,8 +88,24 @@ public class InventoryManager {
         
     }
 
+    
+    
+    
+    
+    
  
-   
+   public static String createAccountNumber(PersonDTO person, TypeDTO type){
+    
+       String name = ""+ person.getFirstName().charAt(0);
+       
+       name = name + "_" + person.getLastName() + "_" + type.getTypeName();
+       name = name + "-"+ person.getKey();
+       
+       return name;
+       
+       
+       
+   }
 
  
     

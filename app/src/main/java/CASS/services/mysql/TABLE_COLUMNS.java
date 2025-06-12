@@ -62,6 +62,20 @@ public class TABLE_COLUMNS {
             public static final String ID = "currency_id";
             public static final String NAME = "currency_name";
           }
+          
+            public static class INVOICE{
+               public static final String TABLE_NAME = "invoice_types";
+            public static final String ID = "invoice_type_id";
+            public static final String NAME = "type_name";
+          }
+            
+                public static class ACCOUNT{
+               public static final String TABLE_NAME = "account_types";
+            public static final String ID = "account_type_id";
+            public static final String NAME = "type_name";
+          }
+            
+          
         
 
     }
@@ -153,6 +167,23 @@ public class TABLE_COLUMNS {
             public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
 
         }
+        
+        
+        
+        public static class ACCOUNT{
+                   public static final String TABLE_NAME = "accounts";
+            public static final String ID = "account_id";
+            public static final String TYPE = "account_type_id";
+            public static final String NAME = "account_name";
+             public static final String NUMBER = "account_number";
+            public static final String PERSON = TABLE_COLUMNS.PEOPLE.PERSON.ID;
+            
+            public static final String CLOSED = "closed_date";
+            
+            
+             public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+        }
+        
 
     }
 

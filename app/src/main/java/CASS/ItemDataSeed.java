@@ -54,7 +54,7 @@ public class ItemDataSeed {
         svc.addInventoryTransaction(trans); 
         type  = TypeRepository.getKey(TypeRepository.TRANSACTION_TYPE.RETURN_REMOVED);
        trans = new TransactionDTO(ABYSS,PersonDataSeeder.KRIS_EMP,1,type,true);
-        //svc.addInventoryTransaction(trans);   
+        svc.addInventoryTransaction(trans);   
         
         
     }
@@ -63,9 +63,9 @@ public class ItemDataSeed {
           public static void addRover(ItemService svc) throws ServiceError{
         
         int type = TypeRepository.getKey(TypeRepository.ITEM_TYPE.REGULATOR);
-                ItemDTO abyss = new ItemDTO(0,"ROVER","ROVER-2015-2021",type,PersonDataSeeder.MARES,true,true);
+                ItemDTO rover = new ItemDTO(0,"ROVER","ROVER-2015-2021",type,PersonDataSeeder.MARES,true,true);
        EmployeeDTO kris = new EmployeeDTO(PersonDataSeeder.KRIS_EMP);
-        ROVER = svc.addItem(abyss);
+        ROVER = svc.addItem(rover);
        type  = TypeRepository.getKey(TypeRepository.TRANSACTION_TYPE.RECIEVE);
         TransactionDTO trans = new TransactionDTO( ROVER,PersonDataSeeder.KRIS_EMP,15,type,true);
         svc.addInventoryTransaction(trans);

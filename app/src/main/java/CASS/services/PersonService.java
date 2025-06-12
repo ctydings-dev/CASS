@@ -64,5 +64,15 @@ public interface PersonService {
     
     public List<PersonDTO> getPeopleForCompany(CompanyDTO company) throws ServiceError;
     
+    public List<AccountDTO> getAccountsForPerson(PersonDTO person) throws ServiceError;
+    
+    
+    public AccountDTO getAccount(BaseDTO key) throws ServiceError;
+    
+    
+    
+    public AccountDTO addAccount(AccountDTO toAdd) throws ServiceError;
+    
+    
     
 }

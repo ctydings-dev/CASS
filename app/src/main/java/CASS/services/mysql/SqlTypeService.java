@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -89,19 +90,25 @@ public class SqlTypeService implements TypeService {
     }
     
     
-    private List<TypeDTO> getTypesList(String tableName, String idName, String typeName) throws ServiceError{
+    private TypeDTO [] getTypesList(String tableName, String idName, String typeName) throws ServiceError{
         
         Map<String,Integer> data = this.getTypes(tableName, idName, typeName);
-        List<TypeDTO> ret = DataObjectGenerator.createList();
+         TypeDTO [] ret = new TypeDTO[data.size()];
+        
+        AtomicInteger counter = new AtomicInteger(0);
         
         data.keySet().forEach(name -> {
         
             int id = data.get(name);
             
             TypeDTO toAdd = new TypeDTO(name,id);
-            ret.add(toAdd);
-            
+            ret[counter.get()] = toAdd;
+            counter.addAndGet(1);
         });
+        
+        
+        
+      
         
         return ret;
     }
@@ -111,23 +118,23 @@ public class SqlTypeService implements TypeService {
     
     
     @Override
-    public List<TypeDTO> getNoteTypes() throws ServiceError {
+    public TypeDTO [] getNoteTypes() throws ServiceError {
        return this.getTypesList(TABLE_COLUMNS.TYPE.NOTE.TABLE_NAME, TABLE_COLUMNS.TYPE.NOTE.ID,TABLE_COLUMNS.TYPE.NOTE.NAME);   }
 
     @Override
-    public List<TypeDTO> getEmployeeTypes() throws ServiceError {
+    public TypeDTO [] getEmployeeTypes() throws ServiceError {
       return this.getTypesList(TABLE_COLUMNS.TYPE.EMPLOYEE.TABLE_NAME, TABLE_COLUMNS.TYPE.EMPLOYEE.ID,TABLE_COLUMNS.TYPE.EMPLOYEE.NAME);   }
 
     @Override
-    public List<TypeDTO> getCertificationRequirementTypes() throws ServiceError {
+    public TypeDTO [] getCertificationRequirementTypes() throws ServiceError {
    return this.getTypesList("certification_requirement_type", TABLE_COLUMNS.TYPE.NOTE.ID,TABLE_COLUMNS.TYPE.NOTE.NAME);}
 
     @Override
-    public List<TypeDTO> getItemTypes() throws ServiceError {
+    public TypeDTO [] getItemTypes() throws ServiceError {
       return this.getTypesList(TABLE_COLUMNS.TYPE.ITEM.TABLE_NAME, TABLE_COLUMNS.TYPE.ITEM.ID, TABLE_COLUMNS.TYPE.ITEM.NAME);   }
 
     @Override
-    public List<TypeDTO> getInvoiceItemTypes() throws ServiceError {
+    public TypeDTO [] getInvoiceItemTypes() throws ServiceError {
       return this.getTypesList("invoice_item_type",null,null); }
 
     @Override
@@ -171,7 +178,7 @@ public class SqlTypeService implements TypeService {
        return this.get("invoice_item_type",null,null, toAdd);   }
 
     @Override
-    public List<TypeDTO> getCertificationTypes() throws ServiceError {
+    public TypeDTO [] getCertificationTypes() throws ServiceError {
       return this.getTypesList("certification_type",null,null);   }
 
     @Override
@@ -187,7 +194,7 @@ public class SqlTypeService implements TypeService {
        return this.get(TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.TABLE_NAME,TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.ID,TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.NAME, type); }
 
     @Override
-    public List<TypeDTO> getTransactionTypes() throws ServiceError {
+    public TypeDTO [] getTransactionTypes() throws ServiceError {
        return this.getTypesList(TABLE_COLUMNS.TYPE.TRANSACTION.TABLE_NAME, TABLE_COLUMNS.TYPE.TRANSACTION.ID,TABLE_COLUMNS.TYPE.TRANSACTION.NAME);   }
 
 
@@ -203,7 +210,7 @@ public class SqlTypeService implements TypeService {
 
     
     @Override
-    public List<TypeDTO> getCurrencyTypes() throws ServiceError {
+    public TypeDTO [] getCurrencyTypes() throws ServiceError {
         return this.getTypesList(TABLE_COLUMNS.TYPE.CURRENCY.TABLE_NAME, TABLE_COLUMNS.TYPE.CURRENCY.ID, TABLE_COLUMNS.TYPE.CURRENCY.NAME);   
     }
 
@@ -216,7 +223,36 @@ public class SqlTypeService implements TypeService {
     @Override
     public int addCurrencyType(String toAdd) throws ServiceError {
        return this.get(TABLE_COLUMNS.TYPE.TRANSACTION.TABLE_NAME,TABLE_COLUMNS.TYPE.CURRENCY.ID,TABLE_COLUMNS.TYPE.CURRENCY.NAME, toAdd); }
-  
+
+    @Override
+    public TypeDTO [] getInvoiceTypes() throws ServiceError {
+        return this.getTypesList(TABLE_COLUMNS.TYPE.INVOICE.TABLE_NAME, TABLE_COLUMNS.TYPE.INVOICE.ID, TABLE_COLUMNS.TYPE.INVOICE.NAME);   
+    }
+
+    @Override
+    public int getInvoiceType(String type) throws ServiceError {
+       return this.get(TABLE_COLUMNS.TYPE.INVOICE.TABLE_NAME,TABLE_COLUMNS.TYPE.INVOICE.ID,TABLE_COLUMNS.TYPE.INVOICE.NAME, type);
+    }
+
+    @Override
+    public int addInvoiceType(String toAdd) throws ServiceError {
+    return this.get(TABLE_COLUMNS.TYPE.INVOICE.TABLE_NAME,TABLE_COLUMNS.TYPE.INVOICE.ID,TABLE_COLUMNS.TYPE.INVOICE.NAME,toAdd);  }
+
+    @Override
+    public TypeDTO [] getAccountTypes() throws ServiceError {
+       return this.getTypesList(TABLE_COLUMNS.TYPE.ACCOUNT.TABLE_NAME, TABLE_COLUMNS.TYPE.ACCOUNT.ID, TABLE_COLUMNS.TYPE.ACCOUNT.NAME);   
+   }
+
+    @Override
+    public int getAccountType(String type) throws ServiceError {
+      return this.get(TABLE_COLUMNS.TYPE.ACCOUNT.TABLE_NAME,TABLE_COLUMNS.TYPE.ACCOUNT.ID,TABLE_COLUMNS.TYPE.ACCOUNT.NAME, type);
+     }
+
+    @Override
+    public int addAccountType(String toAdd) throws ServiceError {
+    return this.get(TABLE_COLUMNS.TYPE.ACCOUNT.TABLE_NAME,TABLE_COLUMNS.TYPE.ACCOUNT.ID,TABLE_COLUMNS.TYPE.ACCOUNT.NAME,toAdd);  }
+ 
+
  
 
     

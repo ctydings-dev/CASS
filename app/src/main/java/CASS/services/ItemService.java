@@ -50,8 +50,6 @@ public PriceDTO getStandardPrice(ItemDTO item) throws ServiceError;
 
 public PriceDTO getCurrentPrice(ItemDTO item) throws ServiceError;
 
-
-
 public PriceDTO addItemPrice(PriceDTO toAdd) throws ServiceError;
 
 

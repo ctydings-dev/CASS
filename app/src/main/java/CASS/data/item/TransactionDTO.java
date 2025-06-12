@@ -25,14 +25,14 @@ public class TransactionDTO extends CreatedDTO{
     private Integer facility;
     
     
-    public TransactionDTO(Integer key, Integer item, Integer emp, Integer qty, Integer type, boolean isValid, String date){
+    public TransactionDTO(Integer key, Integer item, Integer emp, Integer qty, Integer type, boolean isValid, String date, int facility){
         super(key,date);
         this.item = item;
         this.employee = emp;
         this.quantity = qty;
          this.type = type;
         this.isValid = isValid;
-        this.facility = 1;
+        this.facility = facility;
         
     }
     

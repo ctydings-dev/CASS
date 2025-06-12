@@ -55,6 +55,10 @@ clearDBs();
            query = "DELETE FROM inventory;";
        ServiceProvider.getMySql().executeStatement(query);
        
+               query = "DELETE FROM accounts;";
+       ServiceProvider.getMySql().executeStatement(query);
+       
+       
            query = "DELETE FROM inventory_transactions;";
        ServiceProvider.getMySql().executeStatement(query);
             query = "DELETE FROM items;";

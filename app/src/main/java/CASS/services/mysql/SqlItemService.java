@@ -13,6 +13,7 @@ import CASS.data.TypeDTO;
 import CASS.data.item.ItemDTO;
 import CASS.data.item.PriceDTO;
 import CASS.data.item.TransactionDTO;
+import CASS.data.person.AccountDTO;
 import CASS.data.person.CompanyDTO;
 import CASS.search.CompanySearchParameters;
 import CASS.data.person.EmployeeDTO;
@@ -44,15 +45,14 @@ public class SqlItemService implements ItemService, ExtendedItemService {
     SqlService svc;
 
     PersonService prsn;
-    
-    
+
     InventoryManager mgmt;
 
     public SqlItemService(SqlService svc, PersonService person) {
         this.svc = svc;
         this.prsn = person;
-        
-        this.mgmt = new InventoryManager(this,person);
+
+        this.mgmt = new InventoryManager(this, person);
     }
 
     private PersonService getPersonService() {
@@ -77,13 +77,22 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         return new ItemDTO(key, name, alias, type, company, isForSale, isSerialized);
 
     }
-    
-    
-    private TransactionDTO createTransactionFromResultSet(ResultSet rs) throws SQLException{
-        return null;
+
+    private TransactionDTO createTransactionFromResultSet(ResultSet rs) throws SQLException {
+
+        int key = rs.getInt(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID);
+        int item = rs.getInt(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ITEM);
+        int emp = rs.getInt(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.EMPLOYEE);
+        int qty = rs.getInt(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.AMMOUNT);
+
+        int type = rs.getInt(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.TYPE);
+        int facility = rs.getInt(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.FACILITY);
+        String date = rs.getString(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.DATE);
+        boolean isValid = rs.getBoolean(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.IS_VALID);
+
+        return new TransactionDTO(key, item, emp, qty, type, isValid, date, facility);
+
     }
-    
-    
 
     private PriceDTO createPriceFromResultSet(ResultSet rs) throws SQLException {
 
@@ -167,24 +176,18 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         }
 
     }
-    
-    
-    
-    private InventoryManager getManager(){
+
+    private InventoryManager getManager() {
         return this.mgmt;
     }
-
-  
-
- 
 
     @Override
     public TransactionDTO addInventoryTransaction(TransactionDTO entry) throws ServiceError {
         try {
-      String stmt = this.getTransactionInsert(entry);
-      this.getService().executeStatement(stmt);
-     return this.getManager().updateInventory(entry, false);
-      
+            String stmt = this.getTransactionInsert(entry);
+            this.getService().executeStatement(stmt);
+            return this.getManager().updateInventory(entry, false);
+
         } catch (SQLException ex) {
             throw new ServiceError(ex);
         }
@@ -194,17 +197,17 @@ public class SqlItemService implements ItemService, ExtendedItemService {
     @Override
     public int addInventoryTransactionNote(TransactionDTO entry, TypeDTO type, String note) throws ServiceError {
         try {
-          String stmt = "INSERT INTO " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION_NOTE.TABLE_NAME;
-        stmt = stmt + " (" + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION_NOTE.TRANSACTION;
-        stmt = stmt + ", " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION_NOTE.TYPE;
-        stmt = stmt + ", " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION_NOTE.NOTE;
-        stmt = stmt + ") VALUES (" + entry.getKey()+ ", ";
-        stmt = stmt + type.getTypeID() + ", '";
+            String stmt = "INSERT INTO " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION_NOTE.TABLE_NAME;
+            stmt = stmt + " (" + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION_NOTE.TRANSACTION;
+            stmt = stmt + ", " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION_NOTE.TYPE;
+            stmt = stmt + ", " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION_NOTE.NOTE;
+            stmt = stmt + ") VALUES (" + entry.getKey() + ", ";
+            stmt = stmt + type.getTypeID() + ", '";
 
-        stmt = stmt + note + "');";
+            stmt = stmt + note + "');";
 
-        this.getService().executeStatement(stmt);
-        return 0;
+            this.getService().executeStatement(stmt);
+            return 0;
         } catch (SQLException ex) {
             throw new ServiceError(ex);
         }
@@ -215,7 +218,7 @@ public class SqlItemService implements ItemService, ExtendedItemService {
     public void reverseTransaction(TransactionDTO toReverse, EmployeeDTO reverser) throws ServiceError {
 
         try {
-         this.getManager().reverseTransaction(toReverse, reverser);
+            this.getManager().reverseTransaction(toReverse, reverser);
         } catch (SQLException ex) {
             throw new ServiceError(ex);
         }
@@ -395,44 +398,42 @@ public class SqlItemService implements ItemService, ExtendedItemService {
             rs.next();
             int id = rs.getInt(TABLE_COLUMNS.INVENTORY.PRICE.ID);
             return this.getPrice(new BaseDTO(id));
-             
+
         } catch (SQLException ex) {
             throw new ServiceError(ex);
         }
-        
+
     }
 
-    
-    private String createPriceInsert(PriceDTO  toAdd){
+    private String createPriceInsert(PriceDTO toAdd) {
         String stmt = "INSERT INTO " + TABLE_COLUMNS.INVENTORY.PRICE.TABLE_NAME;
-            stmt = stmt + " (" + TABLE_COLUMNS.INVENTORY.PRICE.ITEM;
-            stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.EMPLOYEE;
-            stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.STARTED;
-            stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.ENDED;
-            stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.IS_SALE;
-            stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.IS_SPECIAL;
-            stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.CODE;
-            stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.SELL;
-            stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.BUY;
-            stmt = stmt + ") VALUES (";
+        stmt = stmt + " (" + TABLE_COLUMNS.INVENTORY.PRICE.ITEM;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.EMPLOYEE;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.STARTED;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.ENDED;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.IS_SALE;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.IS_SPECIAL;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.CODE;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.SELL;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.BUY;
+        stmt = stmt + ") VALUES (";
 
-            stmt = stmt + toAdd.getItem();
-            stmt = stmt + ", " + toAdd.getEmployee();
-            stmt = stmt + ", '" + toAdd.getStartDate() + "'";
-            stmt = stmt + ", '" + toAdd.getEndDate() + "'";
-            stmt = stmt + ", " + toAdd.isSale();
-            stmt = stmt + ", " + toAdd.isSpecial();
-            stmt = stmt + ", '" + toAdd.getCode() + "'";
-            stmt = stmt + ", " + toAdd.getSalePrice();
-            stmt = stmt + ", " + toAdd.getPurchasePrice();
+        stmt = stmt + toAdd.getItem();
+        stmt = stmt + ", " + toAdd.getEmployee();
+        stmt = stmt + ", '" + toAdd.getStartDate() + "'";
+        stmt = stmt + ", '" + toAdd.getEndDate() + "'";
+        stmt = stmt + ", " + toAdd.isSale();
+        stmt = stmt + ", " + toAdd.isSpecial();
+        stmt = stmt + ", '" + toAdd.getCode() + "'";
+        stmt = stmt + ", " + toAdd.getSalePrice();
+        stmt = stmt + ", " + toAdd.getPurchasePrice();
 
-            stmt = stmt + ");";
-        
+        stmt = stmt + ");";
+
         return stmt;
-        
-        
+
     }
-    
+
     @Override
     public void updateInventoryItem(TransactionDTO entry, int qty) throws SQLException {
         String stmt = "UPDATE " + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.TABLE_NAME;
@@ -459,7 +460,8 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         ResultSet rs = this.getService().executeQuery(query);
         rs.next();
 
-        return rs.getInt(1) > 0;  }
+        return rs.getInt(1) > 0;
+    }
 
     @Override
     public void addInventory(TransactionDTO entry) throws SQLException, ServiceError {
@@ -469,11 +471,12 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         sub = sub + ", " + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK;
         sub = sub + ") VALUES (" + entry.getItem() + ", " + entry.getFacility();
         sub = sub + ", 0);";
-        this.getService().executeStatement(sub);  }
+        this.getService().executeStatement(sub);
+    }
 
     @Override
     public int getMultiplyer(int id) throws SQLException, ServiceError {
-    String query = "SELECT " + TABLE_COLUMNS.TYPE.TRANSACTION.MULTIPLYER;
+        String query = "SELECT " + TABLE_COLUMNS.TYPE.TRANSACTION.MULTIPLYER;
 
         query = query + " FROM " + TABLE_COLUMNS.TYPE.TRANSACTION.TABLE_NAME + " WHERE ";
         query = query + TABLE_COLUMNS.TYPE.TRANSACTION.ID + " = " + id + ";";
@@ -484,15 +487,16 @@ public class SqlItemService implements ItemService, ExtendedItemService {
 
     @Override
     public void reverseTransactionTable(TransactionDTO toReverse, EmployeeDTO reverser) throws SQLException, ServiceError {
-       String stmt = "UPDATE " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.TABLE_NAME;
+        String stmt = "UPDATE " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.TABLE_NAME;
         stmt = stmt + " SET " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.IS_VALID;
         stmt = stmt + " = FALSE WHERE " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID;
         stmt = stmt + " = " + toReverse.getKey();
-        this.getService().executeStatement(stmt); }
+        this.getService().executeStatement(stmt);
+    }
 
     @Override
     public TransactionDTO getLatestTransaction() throws SQLException, ServiceError {
-          String query = " SELECT " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID;
+        String query = " SELECT " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID;
         query = query + " FROM " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.TABLE_NAME;
         query = query + " ORDER BY " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID;
         query = query + " DESC";
@@ -500,37 +504,33 @@ public class SqlItemService implements ItemService, ExtendedItemService {
 
         rs.next();
 
-        int id=  rs.getInt(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID);
-    
-    return this.getTransaction(new BaseDTO(id));
-    
+        int id = rs.getInt(TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID);
+
+        return this.getTransaction(new BaseDTO(id));
+
     }
 
     @Override
     public TransactionDTO getTransaction(BaseDTO key) throws ServiceError {
-       
+
         try {
-            String query =  " SELECT *" ;
+            String query = " SELECT *";
             query = query + " FROM " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.TABLE_NAME;
-            
-            
+
             query = query + " WHERE " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID;
-            
+
             query = query + " = " + key.getKey() + ";";
-            
+
             ResultSet rs = this.getService().executeQuery(query);
             rs.next();
-            
-            
+
             return this.createTransactionFromResultSet(rs);
         } catch (SQLException ex) {
-         throw new ServiceError(ex);  }
-        
-        
-        
-        
+            throw new ServiceError(ex);
+        }
+
     }
-    
+
     private String getTransactionInsert(TransactionDTO entry) {
         String query = "INSERT INTO " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.TABLE_NAME;
 
@@ -553,14 +553,7 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         query = query + ", " + entry.getFacility() + ");";
         return query;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+  
+
 }

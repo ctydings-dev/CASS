@@ -5,6 +5,7 @@
 package CASS.services;
 
 import CASS.data.item.TransactionDTO;
+import CASS.data.person.AccountDTO;
 import CASS.data.person.EmployeeDTO;
 import java.sql.SQLException;
 
@@ -28,5 +29,12 @@ public interface ExtendedItemService extends ItemService {
         
         
         TransactionDTO getLatestTransaction()throws SQLException, ServiceError;
+        
+        
+     
+
+
+
+
 
 }

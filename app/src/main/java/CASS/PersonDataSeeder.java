@@ -7,11 +7,13 @@ package CASS;
 import CASS.data.BaseDTO;
 import CASS.data.TypeDTO;
 import CASS.data.TypeRepository;
+import CASS.data.person.AccountDTO;
 import CASS.data.person.CompanyDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.data.person.PersonDTO;
 import CASS.services.PersonService;
 import CASS.services.ServiceError;
+import CASS.services.mysql.InventoryManager;
 import CASS.util.DateUtils;
 
 /**
@@ -22,7 +24,7 @@ public class PersonDataSeeder {
     
     
     
-    public static int ME,ME_EMP, MIKE, JD, MIKE_EMP,JD_EMP, KRIS, KRIS_EMP, GUE, MARES, PADI, MARES_MAN;
+    public static int ME,ME_EMP,ME_ACC, MIKE,MIKE_ACC, JD,JD_ACC, MIKE_EMP,JD_EMP, KRIS, KRIS_EMP, GUE, MARES, PADI, MARES_MAN;
     
     public static void seedPersonData(PersonService svc) throws ServiceError{
         
@@ -49,12 +51,33 @@ public class PersonDataSeeder {
               PersonDTO maresDTO = new PersonDTO("MARES","COMPANY","MARES","MARES", "MARES_ACC",'M',true,true,AddressDataSeeder.ASHBURN,"","","1995-07-07",0);
         
          
+            
+              
+              
          
           ME =   svc.addPerson(meDTO);
                 MIKE = svc.addPerson(mikeDTO);
         JD = svc.addPerson(jdDTO);
         KRIS = svc.addPerson(krissDTO);
         MARES_MAN = svc.addPerson(maresDTO);
+        
+        TypeDTO  type = TypeRepository.getTypeDTO(TypeRepository.ACCOUNT_TYPE.CONSUMER);
+        
+        
+        
+        meDTO.setKey(ME);
+        
+        String name = InventoryManager.createAccountNumber(meDTO, type);
+        
+          AccountDTO meAcc = new AccountDTO(name,"CMT-"+ meDTO.getKey(),ME,type.getKey());
+          
+ 
+          
+          
+          ME_ACC = svc.addAccount(meAcc).getKey();
+          
+          
+        
         
         
     }

@@ -14,23 +14,26 @@ import java.util.List;
 public interface TypeService {
  
     
-    public List<TypeDTO> getNoteTypes() throws ServiceError;
+    public TypeDTO [] getNoteTypes() throws ServiceError;
     
-    public List<TypeDTO> getEmployeeTypes() throws ServiceError;
+    public TypeDTO [] getEmployeeTypes() throws ServiceError;
     
      
-    public List<TypeDTO> getCertificationTypes() throws ServiceError;
+    public TypeDTO [] getCertificationTypes() throws ServiceError;
     
-    public List<TypeDTO> getCertificationRequirementTypes() throws ServiceError;
+    public TypeDTO [] getCertificationRequirementTypes() throws ServiceError;
     
-  public List<TypeDTO> getItemTypes() throws ServiceError;
+  public TypeDTO [] getItemTypes() throws ServiceError;
   
-  public List<TypeDTO> getInvoiceItemTypes() throws ServiceError;
+  public TypeDTO [] getInvoiceItemTypes() throws ServiceError;
   
-   public List<TypeDTO> getTransactionTypes() throws ServiceError;
+   public TypeDTO [] getTransactionTypes() throws ServiceError;
   
-   public List<TypeDTO> getCurrencyTypes() throws ServiceError;
+     public TypeDTO [] getInvoiceTypes() throws ServiceError;
+   
+   public TypeDTO [] getCurrencyTypes() throws ServiceError;
   
+     public TypeDTO [] getAccountTypes() throws ServiceError;
   
   
      
@@ -42,7 +45,12 @@ public interface TypeService {
     
        public int getTransactionType(String type) throws ServiceError;
     
+   public int getInvoiceType(String type) throws ServiceError;
+    
    
+       
+       
+       
         public int getCertificatioType(String type) throws ServiceError;
    
     
@@ -56,7 +64,7 @@ public interface TypeService {
   
    public int getCurrencyType(String type) throws ServiceError;
   
-  
+  public int getAccountType(String type) throws ServiceError;
   
   
   
@@ -80,5 +88,11 @@ public interface TypeService {
     public int addTransactionItemType(String toAdd) throws ServiceError;
     
     public int addCurrencyType(String toAdd) throws ServiceError;
+    
+    public int addInvoiceType(String toAdd) throws ServiceError;
+    
+    
+       public int addAccountType(String toAdd) throws ServiceError;
+    
     
 }
