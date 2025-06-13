@@ -44,19 +44,9 @@ public class SqlItemService implements ItemService, ExtendedItemService {
 
     SqlService svc;
 
-    PersonService prsn;
-
-    InventoryManager mgmt;
-
-    public SqlItemService(SqlService svc, PersonService person) {
+    public SqlItemService(SqlService svc) {
         this.svc = svc;
-        this.prsn = person;
 
-        this.mgmt = new InventoryManager(this, person);
-    }
-
-    private PersonService getPersonService() {
-        return this.prsn;
     }
 
     private SqlService getService() {
@@ -177,21 +167,32 @@ public class SqlItemService implements ItemService, ExtendedItemService {
 
     }
 
-    private InventoryManager getManager() {
-        return this.mgmt;
-    }
-
     @Override
     public TransactionDTO addInventoryTransaction(TransactionDTO entry) throws ServiceError {
         try {
             String stmt = this.getTransactionInsert(entry);
             this.getService().executeStatement(stmt);
-            return this.getManager().updateInventory(entry, false);
+            return this.updateInventory(entry, false);
 
         } catch (SQLException ex) {
             throw new ServiceError(ex);
         }
 
+    }
+
+    private TransactionDTO updateInventory(TransactionDTO entry, boolean reverse) throws SQLException, ServiceError {
+        if (this.inventoryContains(entry.getItem(), entry.getFacility()) == false) {
+            this.addInventory(entry);
+        }
+
+        int multi = this.getMultiplyer(entry.getType());
+        int qty = entry.getQuantity() * multi;
+        if (reverse) {
+            qty = qty * -1;
+        }
+
+        this.updateInventoryItem(entry, qty);
+        return this.getLatestTransaction();
     }
 
     @Override
@@ -218,7 +219,8 @@ public class SqlItemService implements ItemService, ExtendedItemService {
     public void reverseTransaction(TransactionDTO toReverse, EmployeeDTO reverser) throws ServiceError {
 
         try {
-            this.getManager().reverseTransaction(toReverse, reverser);
+            this.reverseTransactionTable(toReverse, reverser);
+            this.updateInventory(toReverse, true);
         } catch (SQLException ex) {
             throw new ServiceError(ex);
         }
@@ -320,7 +322,7 @@ public class SqlItemService implements ItemService, ExtendedItemService {
     public PriceDTO getPrice(BaseDTO key) throws ServiceError {
 
         try {
-            String query = "SELECT " + TABLE_COLUMNS.INVENTORY.PRICE.ID;
+            String query = "SELECT *";
 
             query = query + " FROM " + TABLE_COLUMNS.INVENTORY.PRICE.TABLE_NAME;
             query = query + " WHERE " + TABLE_COLUMNS.INVENTORY.PRICE.ID;
@@ -409,25 +411,40 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         String stmt = "INSERT INTO " + TABLE_COLUMNS.INVENTORY.PRICE.TABLE_NAME;
         stmt = stmt + " (" + TABLE_COLUMNS.INVENTORY.PRICE.ITEM;
         stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.EMPLOYEE;
-        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.STARTED;
+        if (toAdd.getStartDate() != null) {
+            stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.STARTED;
+        }
+
         stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.ENDED;
+
         stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.IS_SALE;
         stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.IS_SPECIAL;
         stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.CODE;
         stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.SELL;
         stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.BUY;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.CURRENCY;
+        stmt = stmt + " ," + TABLE_COLUMNS.INVENTORY.PRICE.NAME;
         stmt = stmt + ") VALUES (";
 
         stmt = stmt + toAdd.getItem();
         stmt = stmt + ", " + toAdd.getEmployee();
-        stmt = stmt + ", '" + toAdd.getStartDate() + "'";
-        stmt = stmt + ", '" + toAdd.getEndDate() + "'";
+        if (toAdd.getStartDate() != null) {
+            stmt = stmt + ", '" + toAdd.getStartDate() + "'";
+        }
+        if (toAdd.getEndDate() != null) {
+            stmt = stmt + ", '" + toAdd.getEndDate() + "'";
+        } else {
+            stmt = stmt + ", NULL";
+
+        }
+
         stmt = stmt + ", " + toAdd.isSale();
         stmt = stmt + ", " + toAdd.isSpecial();
         stmt = stmt + ", '" + toAdd.getCode() + "'";
         stmt = stmt + ", " + toAdd.getSalePrice();
         stmt = stmt + ", " + toAdd.getPurchasePrice();
-
+        stmt = stmt + ", " + toAdd.getCurrency();
+         stmt = stmt + ", '" + toAdd.getCode() + "'";
         stmt = stmt + ");";
 
         return stmt;
@@ -554,6 +571,29 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         return query;
     }
 
-  
+    @Override
+    public Integer getItemQty(ItemDTO item, BaseDTO facility) throws ServiceError {
+        String stmt = "SELECT " + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK;
+        stmt = stmt + " FROM " + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.TABLE_NAME;
+
+        stmt = stmt + " WHERE " + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.ITEM;
+        stmt = stmt + " = " + item.getKey() + " AND ";
+
+        stmt = stmt + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.FACILITY + " = ";
+
+        stmt = stmt + facility.getKey() + ";";
+        try {
+            ResultSet rs = this.getService().executeQuery(stmt);
+            if (rs.next() == false) {
+                return 0;
+            }
+
+            return rs.getInt(TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK);
+
+        } catch (SQLException ex) {
+            throw new ServiceError(ex);
+        }
+
+    }
 
 }

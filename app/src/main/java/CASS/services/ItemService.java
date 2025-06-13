@@ -53,4 +53,5 @@ public PriceDTO getCurrentPrice(ItemDTO item) throws ServiceError;
 public PriceDTO addItemPrice(PriceDTO toAdd) throws ServiceError;
 
 
+public Integer getItemQty(ItemDTO item, BaseDTO facility) throws ServiceError;
 }

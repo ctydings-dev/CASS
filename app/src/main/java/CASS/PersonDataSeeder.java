@@ -13,7 +13,7 @@ import CASS.data.person.EmployeeDTO;
 import CASS.data.person.PersonDTO;
 import CASS.services.PersonService;
 import CASS.services.ServiceError;
-import CASS.services.mysql.InventoryManager;
+import CASS.manager.InventoryManager;
 import CASS.util.DateUtils;
 
 /**

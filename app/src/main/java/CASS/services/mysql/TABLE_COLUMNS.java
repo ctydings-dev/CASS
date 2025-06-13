@@ -236,6 +236,8 @@ public class TABLE_COLUMNS {
            public static final String TABLE_NAME = "prices";
            public static final String ID = "price_id";
            
+            public static final String NAME = "price_name";
+           
            public static final String ITEM = "item_id";
            
            public static final String BUY = "purchase_price";

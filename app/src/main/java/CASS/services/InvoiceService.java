@@ -5,9 +5,13 @@
 package CASS.services;
 
 import CASS.data.BaseDTO;
+import CASS.data.CreatedDTO;
 import CASS.data.invoice.InvoiceDTO;
 import CASS.data.invoice.InvoiceItemDTO;
+import CASS.data.invoice.ShipmentDTO;
+import CASS.data.item.TransactionDTO;
 import CASS.data.person.AccountDTO;
+import CASS.data.person.EmployeeDTO;
 import java.util.List;
 
 /**
@@ -27,6 +31,11 @@ public abstract class InvoiceService {
     public abstract InvoiceDTO addInvoice(InvoiceDTO toAdd) throws ServiceError;
 
     public abstract InvoiceItemDTO addInvoiceItem(InvoiceItemDTO toAdd) throws ServiceError;
+    
+    
+    public abstract ShipmentDTO addShipment(ShipmentDTO shipment) throws ServiceError;
+
+    
 
     public InvoiceDTO addInvoice(InvoiceDTO toAdd, InvoiceItemDTO[] items) throws ServiceError {
 

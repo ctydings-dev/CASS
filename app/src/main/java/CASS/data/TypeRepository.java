@@ -136,6 +136,37 @@ public class TypeRepository {
         return new TypeDTO(type.name(), key);
 
     }
+    
+        public static TypeDTO getTypeDTO(TRANSACTION_TYPE type) {
+
+        Integer key = getKey(type);
+
+        return new TypeDTO(type.name(), key);
+
+    }
+    
+    
+    
+        public static TypeDTO getTypeDTO(INVOICE_TYPE type) {
+
+        Integer key = getKey(type);
+
+        return new TypeDTO(type.name(), key);
+
+    }
+    
+    
+    
+    
+     public static TypeDTO getTypeDTO(NOTE_TYPE type) {
+
+        Integer key = getKey(type);
+
+        return new TypeDTO(type.name(), key);
+
+    }
+    
+    
 
     public static TypeDTO getTypeDTO(EMPLOYEE_ROLE type) {
 
@@ -189,6 +220,13 @@ public class TypeRepository {
         return accountTypes.get(type);
     }
 
+       public static Integer getKey(INVOICE_TYPE type) {
+        return invoiceTypes.get(type);
+    }
+
+    
+    
+    
     public enum NOTE_TYPE {
         PERSON, EMPLOYMENT, EDUCATION, SERVICE, MAINTENANCE, SALES, INVENTORY;
     }

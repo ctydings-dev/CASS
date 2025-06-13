@@ -11,7 +11,10 @@ import CASS.data.address.CityDTO;
 import CASS.data.address.CountryDTO;
 import CASS.data.address.StateDTO;
 import CASS.data.person.EmployeeDTO;
+import CASS.manager.InventoryManager;
+import CASS.manager.PersonManager;
 import CASS.services.AddressService;
+import CASS.services.ExtendedItemService;
 import CASS.services.ItemService;
 import CASS.services.PersonService;
 import CASS.services.ServiceError;
@@ -38,7 +41,14 @@ public class DataSeeder {
 clearDBs();
     AddressDataSeeder.seedAddresses(addrSvc);
    PersonDataSeeder.seedPersonData(prsnSvc);
-   ItemDataSeed.seedItemData(itmSvc);
+   
+   PersonManager prsnMng = new PersonManager(prsnSvc);
+   
+   
+   InventoryManager invMng = new InventoryManager((ExtendedItemService) itmSvc,prsnMng);
+   
+   
+   ItemDataSeed.seedItemData(invMng);
    
    TypeDTO target =TypeRepository.getTypeDTO(TypeRepository.EMPLOYEE_ROLE.INSTRUCTOR);
    
@@ -57,7 +67,8 @@ clearDBs();
        
                query = "DELETE FROM accounts;";
        ServiceProvider.getMySql().executeStatement(query);
-       
+            query = "DELETE FROM prices;";
+       ServiceProvider.getMySql().executeStatement(query);
        
            query = "DELETE FROM inventory_transactions;";
        ServiceProvider.getMySql().executeStatement(query);

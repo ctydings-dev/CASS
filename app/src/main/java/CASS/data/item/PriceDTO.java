@@ -108,6 +108,22 @@ public class PriceDTO extends CreatedDTO{
     }
     
       
+           public PriceDTO(Integer item,Double purchasePrice, Double salePrice,  boolean isSale, boolean isSpecial, Integer currency, Integer employee, String code) {
+        super();
+        this.item = item;
+        this.purchasePrice = purchasePrice;
+        this.salePrice = salePrice;
+        this.endDate = null;
+        this.isSale = isSale;
+        this.isSpecial = isSpecial;
+        this.currency = currency;
+        this.employee = employee;
+        this.code = code;
+    }
+         
+         
+         
+         
    
     
     public String getEndDate(){
@@ -150,4 +166,8 @@ public class PriceDTO extends CreatedDTO{
         return this.code;
     }
     
+    
+    public Integer getCurrency(){
+        return this.currency;
+    }
 }
