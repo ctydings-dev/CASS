@@ -48,35 +48,35 @@ public class TABLE_COLUMNS {
             public static final String ID = "item_type_id";
             public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
         }
-        
-          public static class TRANSACTION {
+
+        public static class TRANSACTION {
 
             public static final String TABLE_NAME = "inventory_transaction_types";
             public static final String ID = "inventory_transaction_type_id";
-             public static final String MULTIPLYER = "inventory_multiplyer";
+            public static final String MULTIPLYER = "inventory_multiplyer";
             public static final String NAME = TABLE_COLUMNS.GENERAL.TYPE;
         }
-        
-          public static class CURRENCY{
-               public static final String TABLE_NAME = "currencies";
+
+        public static class CURRENCY {
+
+            public static final String TABLE_NAME = "currencies";
             public static final String ID = "currency_id";
             public static final String NAME = "currency_name";
-          }
-          
-            public static class INVOICE{
-               public static final String TABLE_NAME = "invoice_types";
+        }
+
+        public static class INVOICE {
+
+            public static final String TABLE_NAME = "invoice_types";
             public static final String ID = "invoice_type_id";
             public static final String NAME = "type_name";
-          }
-            
-                public static class ACCOUNT{
-               public static final String TABLE_NAME = "account_types";
+        }
+
+        public static class ACCOUNT {
+
+            public static final String TABLE_NAME = "account_types";
             public static final String ID = "account_type_id";
             public static final String NAME = "type_name";
-          }
-            
-          
-        
+        }
 
     }
 
@@ -90,6 +90,69 @@ public class TABLE_COLUMNS {
         public static final String UPDATED_DATE = "updated_date";
 
         public static final String TYPE = "type_name";
+
+    }
+
+    public static class INVOICE {
+
+        public static class INVOICE_TABLE {
+
+            public static final String TABLE_NAME = "invoices";
+            public static final String ID = "invoice_id";
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+            public static final String TYPE = TABLE_COLUMNS.TYPE.INVOICE.ID;
+            public static final String NAME = "invoice_name";
+            public static final String ACCOUNT = TABLE_COLUMNS.PEOPLE.ACCOUNT.ID;
+            public static final String EMPLOYEE = TABLE_COLUMNS.PEOPLE.EMPLOYEE.ID;
+            public static final String FINISIHED = "finished_date";
+
+        }
+
+        public static class INVOICE_ITEM {
+
+            public static final String TABLE_NAME = "invoice_items";
+            public static final String ID = "invoice_item_id";
+            public static final String INVOICE = "invoice_id";
+            
+            public static final String PRICE = "price_id";
+            public static final String TRANSACTION = TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID;
+            public static final String TAX = "tax";
+            public static final String ADJUSTMENT = "adjustment";
+        }
+
+        public static class INVOICE_NOTE {
+
+            public static final String TABLE_NAME = "invoice_notes";
+            public static final String ID = "invoice_note_id";
+            public static final String INVOICE = TABLE_COLUMNS.INVOICE.INVOICE_TABLE.ID;
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+            public static final String NOTE = "note";
+            public static final String TYPE = "note_type_id";
+            public static final String EMPLOYEE = TABLE_COLUMNS.PEOPLE.EMPLOYEE.ID;
+
+        }
+        
+        
+        public static class INVOICE_ITEM_SERIAL_NUMBER{
+            
+            public static final String TABLE_NAME = "invoice_item_serial_numbers";
+            public static final String ID = "invoice_item_serial_number_id";
+            public static final String INVOICE_ITEM = TABLE_COLUMNS.INVOICE.INVOICE_ITEM.ID;
+            public static final String ITEM  = TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.ID;
+            
+        }
+
+        public static class INVOICE_ITEM_NOTE {
+
+            public static final String TABLE_NAME = "invoice_item_notes";
+            public static final String ID = "invoice_note_id";
+            public static final String ITEM = TABLE_COLUMNS.INVOICE.INVOICE_ITEM.ID;
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+            public static final String NOTE = "note";
+            public static final String TYPE = "note_type_id";
+            public static final String EMPLOYEE = TABLE_COLUMNS.PEOPLE.EMPLOYEE.ID;
+
+        }
 
     }
 
@@ -167,29 +230,27 @@ public class TABLE_COLUMNS {
             public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
 
         }
-        
-        
-        
-        public static class ACCOUNT{
-                   public static final String TABLE_NAME = "accounts";
+
+        public static class ACCOUNT {
+
+            public static final String TABLE_NAME = "accounts";
             public static final String ID = "account_id";
             public static final String TYPE = "account_type_id";
             public static final String NAME = "account_name";
-             public static final String NUMBER = "account_number";
+            public static final String NUMBER = "account_number";
             public static final String PERSON = TABLE_COLUMNS.PEOPLE.PERSON.ID;
-            
+
             public static final String CLOSED = "closed_date";
-            
-            
-             public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
+
+            public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
         }
-        
 
     }
 
     public static class INVENTORY {
 
         public static class ITEM {
+
             public static final String TABLE_NAME = "items";
             public static final String ID = "item_id";
             public static final String NAME = "item_name";
@@ -201,66 +262,100 @@ public class TABLE_COLUMNS {
             public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
         }
         
-     public static class INVENTORY_TABLE{
-          public static final String TABLE_NAME = "inventory";
-            public static final String ID = "inventory_id";
-             public static final String ITEM = "item_id";
-          public static final String STOCK = "quantity";
-            public static final String FACILITY = "facility_id";
-     }
-     
-     
-     public static class INVENTORY_TRANSACTION{
-         public static final String TABLE_NAME = "inventory_transactions";
-            public static final String ID = "inventory_transaction_id";
-             public static final String ITEM = "item_id";
-          public static final String AMMOUNT = "quantity";
-          public static final String EMPLOYEE = "employee_id";
-          public static final String TYPE = "inventory_transaction_type_id";
-          public static final String DATE = "transaction_date";
-          public static final String IS_VALID = "valid";
-            public static final String FACILITY = "facility_id";
-          
-     }
-     
-       public static class INVENTORY_TRANSACTION_NOTE{
-         public static final String TABLE_NAME = "inventory_transaction_notes";
-            public static final String ID = "inventory_transaction_note_id";
-             public static final String TRANSACTION = "inventory_transaction_id";
-           public static final String NOTE= "note";
-            public static final String TYPE= "note_type_id";
-     }
-     
        
-       public static class PRICE{
-           public static final String TABLE_NAME = "prices";
-           public static final String ID = "price_id";
-           
+        public static class SERIALIZED_ITEM{
+            public static final String TABLE_NAME = "serialized_items";
+            public static final String ID  = "serialized_item_id";
+            public static final String ITEM = TABLE_COLUMNS.INVENTORY.ITEM.ID;
+            public static final String SERIAL_NUMBER = "serial_number";
+              public static final String IS_FOR_SALE ="is_for_sale";
+              public static final String PRESENT = "is_present";
+        }
+        
+        
+           public static class SERIALIZED_ITEM_NOTE{
+            public static final String TABLE_NAME = "serialized_item_notes";
+            public static final String ID  = "serialized_item_note_id";
+            public static final String ITEM = TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.ID;
+            public static final String NOTE = "note";
+             public static final String TYPE = TABLE_COLUMNS.TYPE.NOTE.ID;
+             public static final String EMPLOYEE = TABLE_COLUMNS.PEOPLE.EMPLOYEE.ID;
+            
+        }
+
+        
+        
+
+        public static class SERIALIZED_INVENTORY{
+            public static final String TABLE_NAME = "serialized_inventory";
+            public static final String ITEM = TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.ID;
+            public static final String TRANSACTION = TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID;
+                              }
+        
+        
+        
+        
+        public static class INVENTORY_TABLE {
+
+            public static final String TABLE_NAME = "inventory";
+            public static final String ID = "inventory_id";
+            public static final String ITEM = "item_id";
+            public static final String STOCK = "quantity";
+            public static final String FACILITY = "facility_id";
+        }
+
+        public static class INVENTORY_TRANSACTION {
+
+            public static final String TABLE_NAME = "inventory_transactions";
+            public static final String ID = "inventory_transaction_id";
+            public static final String ITEM = "item_id";
+            public static final String AMMOUNT = "quantity";
+            public static final String EMPLOYEE = "employee_id";
+            public static final String TYPE = "inventory_transaction_type_id";
+            public static final String DATE = "transaction_date";
+            public static final String IS_VALID = "valid";
+            public static final String FACILITY = "facility_id";
+
+        }
+
+        public static class INVENTORY_TRANSACTION_NOTE {
+
+            public static final String TABLE_NAME = "inventory_transaction_notes";
+            public static final String ID = "inventory_transaction_note_id";
+            public static final String TRANSACTION = "inventory_transaction_id";
+            public static final String NOTE = "note";
+            public static final String TYPE = "note_type_id";
+        }
+
+        public static class PRICE {
+
+            public static final String TABLE_NAME = "prices";
+            public static final String ID = "price_id";
+
             public static final String NAME = "price_name";
-           
-           public static final String ITEM = "item_id";
-           
-           public static final String BUY = "purchase_price";
-           
-           public static final String SELL = "sell_price";
-           
-           public static final String IS_SPECIAL = "is_special";
 
-           public static final String IS_SALE = "is_sale";
+            public static final String ITEM = "item_id";
 
-           public static final String CURRENCY = "currency_id";
-                      public static final String STARTED = "started_date";
-                      
- public static final String ENDED= "ended_date";
-                     
-            public static final String CODE= "price_code";
-           
+            public static final String BUY = "purchase_price";
+
+            public static final String SELL = "sell_price";
+
+            public static final String IS_SPECIAL = "is_special";
+
+            public static final String IS_SALE = "is_sale";
+
+            public static final String CURRENCY = "currency_id";
+            public static final String STARTED = "started_date";
+
+            public static final String ENDED = "ended_date";
+
+            public static final String CODE = "price_code";
+
             public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
- public static final String EMPLOYEE = TABLE_COLUMNS.PEOPLE.EMPLOYEE.ID;
-           
-       }
-     
-     
+            public static final String EMPLOYEE = TABLE_COLUMNS.PEOPLE.EMPLOYEE.ID;
+
+        }
+
     }
 
     public static class LOCATION {

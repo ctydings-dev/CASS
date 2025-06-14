@@ -6,8 +6,10 @@ package CASS.services;
 
 import CASS.data.BaseDTO;
 import CASS.data.TypeDTO;
+import CASS.data.invoice.InvoiceDTO;
 import CASS.data.item.ItemDTO;
 import CASS.data.item.PriceDTO;
+import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.search.ItemSearchParameters;
@@ -52,6 +54,28 @@ public PriceDTO getCurrentPrice(ItemDTO item) throws ServiceError;
 
 public PriceDTO addItemPrice(PriceDTO toAdd) throws ServiceError;
 
-
 public Integer getItemQty(ItemDTO item, BaseDTO facility) throws ServiceError;
+
+public SerializedItemDTO addSerializedItem(ItemDTO item, String SerialNumber, boolean forSale) throws ServiceError;
+
+public SerializedItemDTO getSerializedItem(SerializedItemDTO key) throws ServiceError;
+
+
+
+
+public void addSerializedItemToInventory(SerializedItemDTO toAdd, TransactionDTO entry) throws ServiceError;
+
+public void removeSerializedItemFromInventory(SerializedItemDTO toRemove) throws ServiceError;
+
+public SerializedItemDTO [] getAllSerializedItems() throws ServiceError;
+
+public SerializedItemDTO [] getSerializedItems(ItemDTO item, BaseDTO facility) throws ServiceError;
+
+public void removeSerializedItem(SerializedItemDTO toRemove) throws ServiceError;
+
+
+public void addSerializedItemNote(SerializedItemDTO item,EmployeeDTO employee, TypeDTO type, String note) throws ServiceError;
+
+
+
 }

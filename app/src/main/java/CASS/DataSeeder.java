@@ -12,6 +12,7 @@ import CASS.data.address.CountryDTO;
 import CASS.data.address.StateDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.manager.InventoryManager;
+import CASS.manager.InvoiceManager;
 import CASS.manager.PersonManager;
 import CASS.services.AddressService;
 import CASS.services.ExtendedItemService;
@@ -46,15 +47,12 @@ clearDBs();
    
    
    InventoryManager invMng = new InventoryManager((ExtendedItemService) itmSvc,prsnMng);
-   
+   InvoiceManager inMng = new InvoiceManager(ServiceProvider.getInvoiceService(),invMng,prsnMng);
    
    ItemDataSeed.seedItemData(invMng);
    
-   TypeDTO target =TypeRepository.getTypeDTO(TypeRepository.EMPLOYEE_ROLE.INSTRUCTOR);
-   
-   //List<EmployeeDTO> test = prsnSvc.getEmployeesIDsWithAssignment(target);
-   //System.out.println(test);
-        
+   InvoiceDataSeeder.seedInvoiceData(inMng, invMng);
+
     }
     
     
@@ -64,9 +62,22 @@ clearDBs();
        ServiceProvider.getMySql().executeStatement(query);
            query = "DELETE FROM inventory;";
        ServiceProvider.getMySql().executeStatement(query);
+                  query = "DELETE FROM serialized_item_notes;";
+       ServiceProvider.getMySql().executeStatement(query);
+               query = "DELETE FROM invoice_items;";
+       ServiceProvider.getMySql().executeStatement(query);
        
+             query = "DELETE FROM invoice_item_serial_numbers;";
+       ServiceProvider.getMySql().executeStatement(query);
+                  query = "DELETE FROM invoices;";
+       ServiceProvider.getMySql().executeStatement(query);
+            
                query = "DELETE FROM accounts;";
        ServiceProvider.getMySql().executeStatement(query);
+       
+                    query = "DELETE FROM serialized_items;";
+       ServiceProvider.getMySql().executeStatement(query);
+       
             query = "DELETE FROM prices;";
        ServiceProvider.getMySql().executeStatement(query);
        

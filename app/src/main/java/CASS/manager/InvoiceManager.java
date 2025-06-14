@@ -9,6 +9,8 @@ import CASS.data.TypeDTO;
 import CASS.data.TypeRepository;
 import CASS.data.invoice.InvoiceDTO;
 import CASS.data.invoice.InvoiceItemDTO;
+import CASS.data.item.PriceDTO;
+import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
 import CASS.data.person.AccountDTO;
 import CASS.data.person.EmployeeDTO;
@@ -27,9 +29,12 @@ public class InvoiceManager {
     InventoryManager svc;
 
     PersonManager prsnSvc;
+    
+    InvoiceService inv;
 
-    public InvoiceManager(InventoryManager svc, PersonManager prsnSvc) {
+    public InvoiceManager(InvoiceService inv, InventoryManager svc, PersonManager prsnSvc) {
         this.svc = svc;
+        this.inv = inv;
         this.prsnSvc = prsnSvc;
     }
 
@@ -42,19 +47,42 @@ public class InvoiceManager {
     }
 
     private InvoiceService getInvoiceService() {
-        return null;
+return this.inv;
     }
 
+    
+    private int getFacility(){
+        return this.getItemService().getFacility();
+        
+    }
+    
+    
+    
+    
     private TransactionDTO getTransaction(InvoiceDTO invoice, InvoiceItemDTO toCheck) {
-        return new TransactionDTO(toCheck.getItem(), invoice.getEmployeeID(), toCheck.getQuantity(), toCheck.getInvoiceItemType(), true);
+        int facility = this.getFacility();
+        return new TransactionDTO(toCheck.getItem(), invoice.getEmployeeID(), toCheck.getQuantity(),facility, toCheck.getInvoiceItemType(), true);
 
     }
 
-    public boolean checkInvoiceItem(InvoiceDTO invoice, InvoiceItemDTO toCheck) throws ServiceError {
+    private void checkInvoiceItem(InvoiceDTO invoice, InvoiceItemDTO toCheck) throws ServiceError {
         TransactionDTO entry = this.getTransaction(invoice, toCheck);
 
-        return this.getItemService().checkTransaction(entry);
-
+    this.getItemService().checkTransaction(entry);
+        PriceDTO price = this.getItemService().getPrice(toCheck.getPriceId());
+       
+        this.getItemService().checkPrice(price);
+        
+    
+        if(price.getItem() != entry.getItem()){
+            throw new ServiceError("ITEM DOES NOT MATCH PRICE ITEM!");
+        }
+        
+        
+        
+        
+        
+        
     }
 
     public InvoiceDTO addInvoice(InvoiceDTO toAdd, InvoiceItemDTO[] items) throws ServiceError {
@@ -64,9 +92,9 @@ public class InvoiceManager {
         }
 
         for (InvoiceItemDTO item : items) {
-            if (this.checkInvoiceItem(toAdd, item) == false) {
-                throw new ServiceError("Invalid Invoice Item!");
-            }
+           
+            this.checkInvoiceItem(toAdd, item);
+           
         }
 
         toAdd = this.getInvoiceService().addInvoice(toAdd);
@@ -79,21 +107,32 @@ public class InvoiceManager {
 
     }
 
-    public InvoiceItemDTO addInvoiceItem(InvoiceDTO invoice, InvoiceItemDTO toAdd) throws ServiceError {
-        if (this.checkInvoiceItem(invoice, toAdd) == false) {
-            throw new ServiceError("Invalid Invoice Item!");
-        }
+    private InvoiceItemDTO addInvoiceItem(InvoiceDTO invoice, InvoiceItemDTO toAdd) throws ServiceError {
+        this.checkInvoiceItem(invoice, toAdd);
+         
         toAdd.setInvoice(invoice.getKey());
 
         TransactionDTO trans = this.getTransaction(invoice, toAdd);
         trans = this.getItemService().addInventoryTransaction(trans);
         toAdd.setInventoryTransactionId(trans.getKey());
-        return this.getInvoiceService().addInvoiceItem(toAdd);
+       InvoiceItemDTO ret = this.getInvoiceService().addInvoiceItem(toAdd);
+       toAdd.setKey(ret.getKey());
+       return ret;
     }
 
+    public static String createInvoiceName(Integer account, Integer emp, Integer type){
+        Date curr = new Date(System.currentTimeMillis());
+        String ret = "INVOICE:"+account +"_EMP:"+ emp +"_TYPE:"+type+"_ON:" + curr;
+        
+        return ret;
+        
+    }
+    
     public InvoiceDTO createInvoice(Integer account, Integer employee, Integer type, InvoiceItemDTO[] items) throws ServiceError {
 
-        InvoiceDTO toAdd = new InvoiceDTO(account, employee, type);
+        String name= this.createInvoiceName(account,employee,type);
+        
+        InvoiceDTO toAdd = new InvoiceDTO(name,account, employee, type);
 
         return this.addInvoice(toAdd, items);
 
@@ -111,24 +150,31 @@ public class InvoiceManager {
         return this.createSalesInvoice(account, employee, new InvoiceItemDTO[0]);
     }
 
-    public InvoiceItemDTO createInvoiceItemDTO(InvoiceDTO invoice, Integer item, Integer type, Integer qty, Integer facility, Integer price, Double tax, Double adj) throws ServiceError {
-        InvoiceItemDTO toAdd = new InvoiceItemDTO(invoice.getKey(), type, facility, qty, price, tax, adj);
-        return this.addInvoiceItem(invoice, toAdd);
-    }
+   
 
     public double calculateTax(Integer priceId) {
         return 0;
 
     }
 
-    public InvoiceItemDTO createSaleInvoiceItem(InvoiceDTO invoice, Integer item, Integer qty, Integer facility, Integer price) throws ServiceError {
-
-        TypeDTO type = TypeRepository.getTypeDTO(TypeRepository.TRANSACTION_TYPE.SALE);
-        Double tax = this.calculateTax(price);
-
-        return this.createSaleInvoiceItem(invoice, item, qty, facility, price, tax, 0.0);
-
+    public InvoiceItemDTO createInvoiceItem(InvoiceDTO invoice, Integer item, Integer qty, Integer transactionType, Integer facility,  Integer price, Double tax, Double adj) throws ServiceError 
+    {
+     
+     
+       InvoiceItemDTO toAdd =  new InvoiceItemDTO(invoice.getKey(),0,qty,price,tax,adj );
+       toAdd.setItemId(item);
+       toAdd.setInventoryTransactionType(transactionType);
+     return  this.addInvoiceItem(invoice, toAdd);
+       
+       
     }
+    
+      public InvoiceItemDTO createSaleInvoiceItem(InvoiceDTO invoice, Integer item, Integer qty,  Integer facility,  Integer price, Double tax, Double adj) throws ServiceError 
+    {
+     TypeDTO type = TypeRepository.getTypeDTO(TypeRepository.TRANSACTION_TYPE.SALE);
+        return this.createInvoiceItem(invoice, item, qty, type.getKey(), facility, price, tax, adj);
+    }
+ 
 
     public Integer getPrice(Integer item, double price) {
 
@@ -136,21 +182,35 @@ public class InvoiceManager {
 
     }
 
-    public InvoiceItemDTO createSaleInvoiceItem(InvoiceDTO invoice, Integer item, Integer qty, Integer facility, double price) throws ServiceError {
-
-        TypeDTO type = TypeRepository.getTypeDTO(TypeRepository.TRANSACTION_TYPE.SALE);
-        Integer priceId = this.getPrice(item, price);
-        Double tax = this.calculateTax(priceId);
-        return this.createSaleInvoiceItem(invoice, item, qty, facility, priceId, tax, 0.0);
-
+    public Integer getDefaultFacility(){
+        return 1;
+        
     }
-
-    public InvoiceItemDTO createSaleInvoiceItem(InvoiceDTO invoice, Integer item, Integer qty, Integer facility, Integer price, Double tax, Double adj) throws ServiceError {
-
-        TypeDTO type = TypeRepository.getTypeDTO(TypeRepository.TRANSACTION_TYPE.SALE);
-
-        return this.createInvoiceItemDTO(invoice, item, type.getKey(), qty, facility, price, tax, adj);
-
+   
+    
+   public InvoiceItemDTO sellSerializedItem(Integer serializedItemId,Integer price, Integer invoice) throws ServiceError{
+       InvoiceDTO invoiceDto = this.getInvoiceService().getInvoice(new BaseDTO(invoice));
+       Integer facility = this.getFacility();
+       
+       return this.sellSerializedItem(serializedItemId,price,invoiceDto, facility);
+  
+   }
+    
+    
+    
+    
+    public InvoiceItemDTO sellSerializedItem(Integer serializedItemId,Integer price, InvoiceDTO invoice, Integer facility) throws ServiceError{
+        
+ SerializedItemDTO sn = this.getItemService().getSerialziedItem(serializedItemId);
+ 
+        
+   InvoiceItemDTO  ret =    this.createSaleInvoiceItem(invoice, sn.getItem(), 1, facility, price, 0.0,  0.0);
+ 
+   this.getItemService().removeSerializedItem(sn.getKey(), invoice.getEmployeeID(), true);
+   
+   this.getInvoiceService().addSerializedItemToInvoiceItem(sn, ret);
+   return ret;
+        
     }
 
 }

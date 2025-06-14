@@ -34,7 +34,7 @@ public class InvoiceItemDTO extends BaseDTO{
     
     private Integer inventoryTransactionId;
 
-    public InvoiceItemDTO(Integer invoice, Integer invoiceItemType, Integer facility, Integer quantity, Integer priceId, double cost, double adjustment) {
+    public InvoiceItemDTO(Integer invoice, Integer invoiceItemType, Integer item, Integer facility, Integer quantity, Integer priceId, double cost,  double adjustment) {
         this.invoice = invoice;
         this.invoiceItemType = invoiceItemType;
         this.facility = facility;
@@ -42,7 +42,32 @@ public class InvoiceItemDTO extends BaseDTO{
         this.priceId = priceId;
         this.tax = cost;
         this.adjustment = adjustment;
+        this.item = item;
     }
+    
+       public InvoiceItemDTO(Integer key, Integer invoice, Integer invoiceItemType, Integer item, Integer facility, Integer quantity, Integer priceId, double cost, double adjustment) {
+        super(key);
+           this.invoice = invoice;
+        this.invoiceItemType = invoiceItemType;
+        this.facility = facility;
+        this.quantity = quantity;
+        this.priceId = priceId;
+        this.tax = cost;
+        this.adjustment = adjustment;
+        this.item = item;
+    }
+    
+       
+       
+       public InvoiceItemDTO(Integer invoice, Integer transactionId,Integer qty, Integer price,double tax, double adj){
+           this.inventoryTransactionId = transactionId;
+           this.tax = tax;
+           this.quantity = qty;
+           this.adjustment = adj;
+          this.priceId = price;
+           this.invoice = invoice;           
+       }
+       
     
 
 
@@ -91,6 +116,12 @@ public class InvoiceItemDTO extends BaseDTO{
     public void setInventoryTransactionId(Integer inventoryTransactionId) {
         this.inventoryTransactionId = inventoryTransactionId;
     }
+
+    public void setInventoryTransactionType(Integer transactionType) {
+     this.invoiceItemType = transactionType;}
+
+    public void setItemId(Integer item) {
+   this.item = item;  }
     
     
     

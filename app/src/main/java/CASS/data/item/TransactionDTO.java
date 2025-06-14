@@ -36,7 +36,7 @@ public class TransactionDTO extends CreatedDTO{
         
     }
     
-      public TransactionDTO( Integer item, Integer emp, Integer qty, Integer type, boolean isValid){
+      public TransactionDTO( Integer item, Integer emp, Integer qty, Integer facility, Integer type, boolean isValid){
         super();
         this.item = item;
         this.employee = emp;
@@ -76,6 +76,10 @@ public class TransactionDTO extends CreatedDTO{
       return this.facility;
   }
     
-    
+  
+  public void setFacility(Integer facility)
+  {
+      this.facility = facility;
+  } 
     
 }

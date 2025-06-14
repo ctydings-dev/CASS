@@ -42,5 +42,9 @@ public class CreatedDTO extends BaseDTO {
     public void setCreatedDate(String date) {
         this.createdDate = date;
     }
+    
+    public boolean hasCreatedDate(){
+        return this.getCreatedDate() != null;
+    }
 
 }

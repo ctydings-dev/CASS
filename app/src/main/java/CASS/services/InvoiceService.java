@@ -9,6 +9,7 @@ import CASS.data.CreatedDTO;
 import CASS.data.invoice.InvoiceDTO;
 import CASS.data.invoice.InvoiceItemDTO;
 import CASS.data.invoice.ShipmentDTO;
+import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
 import CASS.data.person.AccountDTO;
 import CASS.data.person.EmployeeDTO;
@@ -33,6 +34,8 @@ public abstract class InvoiceService {
     public abstract InvoiceItemDTO addInvoiceItem(InvoiceItemDTO toAdd) throws ServiceError;
     
     
+    public abstract void closeInvoice(InvoiceDTO toClose) throws ServiceError;
+    
     public abstract ShipmentDTO addShipment(ShipmentDTO shipment) throws ServiceError;
 
     
@@ -49,4 +52,11 @@ public abstract class InvoiceService {
         return toAdd;
     }
 
+    
+    
+    public abstract void addSerializedItemToInvoiceItem(SerializedItemDTO toAdd, InvoiceItemDTO item) throws ServiceError;
+   
+
+
+    
 }
