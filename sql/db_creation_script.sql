@@ -1,7 +1,7 @@
 DROP DATABASE IF EXISTS DA19785;
 CREATE DATABASE DA19785;
 USE DA19785;
- 
+ SET SQL_SAFE_UPDATES = 0;
  CREATE TABLE phone_numbers(phone_number_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, phone_number VARCHAR(16), phone_type VARCHAR(32));
  
  CREATE TABLE countries(country_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, country_name VARCHAR(64), country_abbv VARCHAR(4), created_date DATETIME);
@@ -16,7 +16,7 @@ USE DA19785;
  
  
  
- CREATE TABLE states(state_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, country_id INT, state_name varchar(64), state_abbv VARCHAR(4),created_date DATETIME, FOREIGN KEY(country_id) REFERENCES countries(country_id));
+ CREATE TABLE states(state_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, country_id INT, state_name varchar(64), state_abbv VARCHAR(12),created_date DATETIME, FOREIGN KEY(country_id) REFERENCES countries(country_id));
  
 
  ALTER TABLE states MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
@@ -44,7 +44,7 @@ USE DA19785;
  , FOREIGN KEY(historic_person_id) REFERENCES persons(person_id), FOREIGN KEY(current_person_id) REFERENCES persons(person_id));
  
  
- CREATE TABLE person_notes(person_note_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, person_id INT, note TEXT, created_date DATETIME,note_type_id INT,
+ CREATE TABLE person_notes(person_note_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, person_id INT, note TEXT, created_date DATETIME,note_type_id INT, employee_id INT,
  FOREIGN KEY(person_id) REFERENCES persons(person_id), FOREIGN KEY(note_type_id) REFERENCES note_types(note_type_id));
  
   ALTER TABLE person_notes MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
@@ -52,7 +52,12 @@ USE DA19785;
  CREATE TABLE person_phone_number(person_phone_number_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, person_id INT, phone_number_id INT,
  FOREIGN KEY(person_id) REFERENCES persons(person_id), FOREIGN KEY(phone_number_id) REFERENCES phone_numbers(phone_number_id));
   
-  CREATE TABLE accounts(account_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, account_number VARCHAR(32) UNIQUE, account_name VARCHAR(64) UNIQUE, person_id INT , created_date DATE, closed_date DATE);
+  CREATE TABLE account_types(account_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, type_name VARCHAR(64) UNIQUE);
+    
+  CREATE TABLE accounts(account_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, account_number VARCHAR(32) UNIQUE, account_name VARCHAR(64) UNIQUE, person_id INT , created_date DATE, closed_date DATE, account_type_id INT);
+  
+  ALTER TABLE accounts MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+  
   
   CREATE TABLE employee_types(employee_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, type_name VARCHAR(64));
   
@@ -68,13 +73,30 @@ USE DA19785;
   
   CREATE TABLE employee_roles(employee_role_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, employee_id INT, role_id INT, created_date DATETIME);
   
+   ALTER TABLE employee_roles MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+  
+  
+   ALTER TABLE employee_roles ADD CONSTRAINT unique_cert UNIQUE ( employee_id,  role_id); 
+  
+  
 
  CREATE TABLE companies(company_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, company_name VARCHAR(64) UNIQUE, company_code VARCHAR(64) UNIQUE, notes TEXT,
- address_id INT, is_active BOOLEAN, is_current BOOLEAN);
+ address_id INT, is_active BOOLEAN, is_current BOOLEAN, created_date DATETIME);
+ 
+ ALTER TABLE companies MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+  
+  
+ 
+ CREATE TABLE company_parents(company_parend_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, parent_company_id INT, child_company_id INT, FOREIGN KEY(parent_company_id) REFERENCES companies(company_id),FOREIGN KEY(child_company_id) REFERENCES companies(company_id));
+ 
  
  CREATE TABLE company_persons(company_person_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, company_id INT, person_id INT, 
  FOREIGN KEY (company_id) REFERENCES companies(company_id), FOREIGN KEY(person_id) REFERENCES persons(person_id));
  
+  
+  CREATE TABLE facilities(facility_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, company_id INT, address_id int, facility_name VARCHAR(64));
+  
+  
   CREATE TABLE certification_types(certification_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,type_name VARCHAR(32) UNIQUE);
  
  CREATE TABLE certifications(certification_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, company_id INT, certification_name VARCHAR(32), certification_type_id INT, FOREIGN KEY(company_id) REFERENCES companies(company_id));
@@ -122,51 +144,97 @@ USE DA19785;
  
  
  
- CREATE TABLE item_types(item_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, item_type_name VARCHAR(64) UNIQUE);
+ CREATE TABLE item_types(item_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, type_name VARCHAR(64) UNIQUE);
  
- CREATE TABLE items(item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,item_type INT, item_name VARCHAR(64),item_alias VARCHAR(128), is_for_sale BOOLEAN,
- company_id INT, created_date DATETIME, FOREIGN KEY(company_id) REFERENCES companies(company_id), FOREIGN KEY(item_type) REFERENCES item_types(item_type_id));
+ CREATE TABLE items(item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,item_type_id INT, item_name VARCHAR(64),item_alias VARCHAR(128), is_for_sale BOOLEAN,
+ company_id INT, is_serialized BOOLEAN, created_date DATETIME, FOREIGN KEY(company_id) REFERENCES companies(company_id), FOREIGN KEY(item_type_id) REFERENCES item_types(item_type_id));
+ 
+  ALTER TABLE items MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+  
+ CREATE TABLE item_barcodes(item_barcode_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, item_id INT, barcode VARCHAR(128), is_current BOOLEAN, created_date DATETIME, FOREIGN KEY(item_id) REFERENCES items(item_id));
+ 
+
+  ALTER TABLE item_barcodes MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+ 
+ 
  
  CREATE TABLE serialized_items(serialized_item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, item_id INT, 
- serial_number VARCHAR(64), FOREIGN KEY (item_id) REFERENCES items(item_id));
+ serial_number VARCHAR(64), is_for_sale BOOLEAN,is_present BOOLEAN, FOREIGN KEY (item_id) REFERENCES items(item_id));
  
- CREATE TABLE item_notes(item_note_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, item_id INT, created_date DATETIME, note TEXT, note_type_id INT,
+  ALTER TABLE serialized_items MODIFY is_present BOOLEAN DEFAULT true;
+ 
+ 
+ 
+ CREATE TABLE item_notes(item_note_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, item_id INT, created_date DATETIME, note TEXT, note_type_id INT,employee_id INT,
  FOREIGN KEY(item_id) REFERENCES items(item_id), FOREIGN KEY(note_type_id) REFERENCES note_types(note_type_id));
  
+ 
+ 
+ 
+ 
+ 
  CREATE TABLE serialized_item_notes(serailzied_item_note_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, serialized_item_id INT, 
- note TEXT, note_type_id INT,  created_date DATETIME, FOREIGN KEY(serialized_item_id) REFERENCES serialized_items(serialized_item_id), FOREIGN KEY(note_type_id) REFERENCES note_types(note_type_id));
+ note TEXT, note_type_id INT,  created_date DATETIME, employee_id INT, FOREIGN KEY(serialized_item_id) REFERENCES serialized_items(serialized_item_id), FOREIGN KEY(note_type_id) REFERENCES note_types(note_type_id));
+ 
+  ALTER TABLE serialized_item_notes MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+ 
+ 
+ 
  
  CREATE TABLE item_upc(item_upc_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, item_id INT, upc VARCHAR(32), FOREIGN KEY(item_id) REFERENCES items(item_id));
  
- CREATE TABLE inventory(inventory_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, item_id INT, stock INT);
+ CREATE TABLE inventory(inventory_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, item_id INT,facility_id INT, quantity INT);
  
- CREATE TABLE inventory_transaction_types(inventory_transaction_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, type_name VARCHAR(64) UNIQUE);
+ ALTER TABLE inventory ADD CONSTRAINT unique_inv_req UNIQUE ( item_id, facility_id);
  
- CREATE TABLE inventory_transactions(inventory_transaction_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, inventory_id INT, amount INT, inventory_transaction_type_id INT,  transaction_date DATETIME, FOREIGN KEY(inventory_transaction_type_id) REFERENCES inventory_transaction_types(inventory_transaction_type_id));
+ 
+ CREATE TABLE inventory_transaction_types(inventory_transaction_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, type_name VARCHAR(64) UNIQUE, inventory_multiplyer INT);
+ 
+ ALTER TABLE  inventory_transaction_types MODIFY inventory_multiplyer INT DEFAULT 0;
 
-  ALTER TABLE inventory_transactions MODIFY transaction_date datetime DEFAULT CURRENT_TIMESTAMP;
+ CREATE TABLE inventory_transactions(inventory_transaction_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, item_id INT, quantity INT, employee_id INT,facility_id INT, inventory_transaction_type_id INT,  transaction_date DATETIME, valid BOOLEAN, FOREIGN KEY(inventory_transaction_type_id) REFERENCES inventory_transaction_types(inventory_transaction_type_id));
 
-CREATE TABLE inventory_transaction_notes(inventory_transaction_notes_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, inventory_transaction_id INT, notes TEXT);
+ ALTER TABLE inventory_transactions MODIFY transaction_date datetime DEFAULT CURRENT_TIMESTAMP;
+
+ CREATE TABLE serialized_inventory(serialized_item_id INTEGER PRIMARY KEY UNIQUE , inventory_transaction_id INT);
+ 
+ CREATE TABLE serialized_inventory_ownerships(serailzied_inventory_ownership_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, account_id INT);
+   
+CREATE TABLE inventory_transaction_notes(inventory_transaction_notes_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, inventory_transaction_id INT, note TEXT, note_type_id INT);
 
  
  
- CREATE TABLE currencies(currency_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, currency_name VARCHAR(32), country_id INT, FOREIGN KEY(country_id) REFERENCES countries(country_id));
+ CREATE TABLE currencies(currency_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, currency_name VARCHAR(32));
  
- CREATE TABLE prices(price_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, price_name VARCHAR(16), item_id INT, purchase_price DOUBLE, sell_price DOUBLE, 
- created_date DATETIME, ended_date DATETIME, is_special BOOLEAN, is_sale BOOLEAN, currency_id INT);
+ CREATE TABLE prices(price_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, price_name VARCHAR(64), item_id INT, purchase_price DOUBLE, sell_price DOUBLE, 
+ created_date DATETIME, started_date DATETIME, ended_date DATETIME, is_special BOOLEAN, is_sale BOOLEAN, currency_id INT, employee_id INT, price_code VARCHAR(64));
  
- CREATE TABLE invoices(invoice_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, invoice_name VARCHAR(32) UNIQUE, account_id INT,
- employee_id INT, amount_paid DOUBLE , created_date DATETIME, finished_date DATETIME, FOREIGN KEY(account_id) REFERENCES accounts(account_id),
+ ALTER TABLE prices MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+
+ ALTER TABLE prices MODIFY started_date datetime DEFAULT CURRENT_TIMESTAMP;
+
+ 
+ 
+ CREATE TABLE invoice_types(invoice_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, type_name VARCHAR(64) UNIQUE);
+ 
+ 
+ CREATE TABLE invoices(invoice_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, invoice_type_id INT,  invoice_name VARCHAR(64) UNIQUE, account_id INT,
+ employee_id INT,  created_date DATETIME, finished_date DATETIME, FOREIGN KEY(account_id) REFERENCES accounts(account_id),
  FOREIGN KEY(employee_id) REFERENCES employees(employee_id));
  
- CREATE TABLE invoice_notes(invoice_note_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, invoice_id INT, note TEXT, note_type_id INT , created_date DATETIME,
+ ALTER TABLE invoices MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+
+ 
+ CREATE TABLE invoice_notes(invoice_note_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, invoice_id INT, note TEXT, note_type_id INT,employee_id INT , created_date DATETIME,
  FOREIGN KEY (invoice_id) REFERENCES invoices(invoice_id), FOREIGN KEY(note_type_id) REFERENCES note_types(note_type_id));
  
- CREATE TABLE invoice_item_types(invoice_item_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, type_name VARCHAR(32) UNIQUE, created_date DATETIME);
  
- CREATE TABLE invoice_items(invoice_item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, invoice_id INT,invoice_item_type_id INT, item_id INT, price_id INT,
- quantity INT, inventory_transaction_id INT,tax DOUBLE, adjustment DOUBLE, is_return BOOLEAN, FOREIGN KEY(invoice_id) REFERENCES invoices(invoice_id), 
- FOREIGN KEY(invoice_item_type_id) REFERENCES invoice_item_types(invoice_item_type_id), FOREIGN KEY(price_id) REFERENCES prices(price_id));
+ CREATE TABLE invoice_items(invoice_item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, invoice_id INT, price_id INT,
+  inventory_transaction_id INT,tax DOUBLE, adjustment DOUBLE, FOREIGN KEY(invoice_id) REFERENCES invoices(invoice_id),  FOREIGN KEY(price_id) REFERENCES prices(price_id));
+ 
+ CREATE TABLE invoice_item_serial_numbers(invoice_item_serial_number_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, invoice_item_id INT, serialized_item_id INT);
+ 
+ 
  
  CREATE TABLE invoice_item_notes(invoice_item_note_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, invoice_item_id INT, note TEXT,note_type_id INT, created_date DATETIME, 
  FOREIGN  KEY(invoice_item_id) REFERENCES invoice_items(invoice_item_id), FOREIGN KEY(note_type_id) REFERENCES note_types(note_type_id));
@@ -186,5 +254,28 @@ CREATE TABLE servicing_items(servicing_item_id INT PRIMARY KEY NOT NULL AUTO_INC
  CREATE TABLE servicing_item_parts(servicing_item_part_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, servicing_item_id INT, invoice_item_id INT , 
  FOREIGN KEY(servicing_item_id) REFERENCES servicing_items(servicing_item_id));
  
+
+CREATE TABLE shipments(shipment_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, expected_date DATE, arrival_date DATE, invoice_id INT);
+
+CREATE TABLE shipment_inventory_transactions(shipment_inventory_transaction_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, shipment_id INT, inventory_transaction_id INT);
+
+
+
+
+
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('SHIPMENT',1);
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('RECIEVE',1);
+
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('RETURN',1);
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('REPLACEMENT_NON_RETURN',-1);
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('SALE',-1);
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('REISSUE',-1);
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('GIFT',-1);
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('RETURN_TO_MFG',-1);
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('SERVICE',0);
+INSERT INTO inventory_transaction_types(type_name,inventory_multiplyer) VALUES ('NON_INVENTORY_RECIEVE',0);
+
+
+
 
  
