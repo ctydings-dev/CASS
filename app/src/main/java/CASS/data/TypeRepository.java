@@ -228,7 +228,7 @@ public class TypeRepository {
     
     
     public enum NOTE_TYPE {
-        PERSON, EMPLOYMENT, EDUCATION, SERVICE, MAINTENANCE, SALES, INVENTORY;
+        PERSON, EMPLOYMENT, EDUCATION, SERVICE, MAINTENANCE, SALES, INVENTORY, OWNERSHIP;
     }
 
     public enum EMPLOYEE_TYPE {
@@ -258,7 +258,7 @@ public class TypeRepository {
     }
 
     public enum ACCOUNT_TYPE {
-        CONSUMER, ORGANIZATION, AUDIT, CORRECTION
+        CONSUMER, ORGANIZATION, AUDIT, CORRECTION, SHOP, TEST
     }
 
 }

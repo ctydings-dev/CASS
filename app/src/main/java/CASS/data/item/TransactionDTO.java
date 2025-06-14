@@ -43,7 +43,7 @@ public class TransactionDTO extends CreatedDTO{
         this.quantity = qty;
        this.type = type;
         this.isValid = isValid;
-        this.facility = 1; 
+        this.facility = facility; 
     }
       public TransactionDTO(Integer key){
         super(key);

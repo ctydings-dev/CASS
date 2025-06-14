@@ -16,7 +16,7 @@ import CASS.services.ServiceError;
  * @author ctydi
  */
 public class AddressDataSeeder {
-    public static int US, UK, CAN, FRN, AK, AL, CA,FL,NC,LELAND,ASHBURN, VA, ITY, ITY_ST, PADILAND, ANC,EAGLE_RIVER, SPAGETTILAND,GUE_LAND,GUE, HOME,PADI, MIKE,JD,KRIS, MARES;
+    public static int US, UK, CAN, FRN, AK, AL, CA,FL,NC,LELAND,ASHBURN, VA, ITY, ITY_ST, PADILAND, ANC,EAGLE_RIVER, SPAGETTILAND,GUE_LAND,GUE, HOME,PADI, MIKE,JD,KRIS, MARES, DAK;
     
     
     
@@ -59,7 +59,10 @@ createAddresses(addrSvc);
     private static void createAddresses(AddressService addrSvc) throws ServiceError{
         
         AddressDTO home = new AddressDTO("10030 GEBHART DR.", "","99515",ANC);
-                AddressDTO mike = new AddressDTO("1234 U2GOOD4ANC DRIVE", "","99516",EAGLE_RIVER);
+              AddressDTO dak = new AddressDTO("7100 Old Seward Hwy Ste A", "","99518",ANC);
+            
+        
+        AddressDTO mike = new AddressDTO("1234 U2GOOD4ANC DRIVE", "","99516",EAGLE_RIVER);
        
                 AddressDTO jd = new AddressDTO("2458 COVESIDE CT.", "","99401",LELAND);
                AddressDTO kris = new AddressDTO("20936 CAPILANO CT.", "","28451",ASHBURN);
@@ -78,6 +81,7 @@ createAddresses(addrSvc);
         JD = addrSvc.addAddress(jd);
         KRIS = addrSvc.addAddress(kris);
         GUE = addrSvc.addAddress(gue);
+        DAK= addrSvc.addAddress(dak);
         
 
         

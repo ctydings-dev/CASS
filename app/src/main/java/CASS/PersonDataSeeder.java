@@ -24,7 +24,7 @@ public class PersonDataSeeder {
     
     
     
-    public static int ME,ME_EMP,ME_ACC, MIKE,MIKE_ACC, JD,JD_ACC, MIKE_EMP,JD_EMP, KRIS, KRIS_EMP, GUE, MARES, PADI, MARES_MAN;
+    public static int ME,ME_EMP,ME_ACC,SHOP_ACC, MIKE,MIKE_ACC, JD,JD_ACC, MIKE_EMP,JD_EMP, KRIS, KRIS_EMP, GUE, MARES, PADI, MARES_MAN;
     
     public static void seedPersonData(PersonService svc) throws ServiceError{
         
@@ -35,6 +35,9 @@ public class PersonDataSeeder {
         addCompanies(svc);
         
     }
+    
+    
+    
     
     
    
@@ -62,20 +65,21 @@ public class PersonDataSeeder {
         MARES_MAN = svc.addPerson(maresDTO);
         
         TypeDTO  type = TypeRepository.getTypeDTO(TypeRepository.ACCOUNT_TYPE.CONSUMER);
-        
-        
+      
         
         meDTO.setKey(ME);
         
         String name = InventoryManager.createAccountNumber(meDTO, type);
         
           AccountDTO meAcc = new AccountDTO(name,"CMT-"+ meDTO.getKey(),ME,type.getKey());
+          type = TypeRepository.getTypeDTO(TypeRepository.ACCOUNT_TYPE.SHOP);
+            AccountDTO shopAcc = new AccountDTO("DAK-SHOP","DAK-SHOP-1",JD,type.getKey());
           
  
           
           
           ME_ACC = svc.addAccount(meAcc).getKey();
-          
+          SHOP_ACC = svc.addAccount(shopAcc).getKey();
           
         
         

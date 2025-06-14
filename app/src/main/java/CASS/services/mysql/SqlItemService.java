@@ -770,6 +770,53 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         
         
     }
+    @Override
+    public void clearSerializedItemOwnership(SerializedItemDTO item) throws ServiceError
+    {
+         try {
+            String stmt = "UPDATE " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.TABLE_NAME;
+            
+            stmt +=  " SET " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ACTIVE;
+            stmt += " = FALSE WHERE " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ITEM;
+            
+            stmt += " = " + item.getKey() + ";";
+            
+            this.getService().executeStatement(stmt);
+                   
+        } catch (SQLException ex) {
+         throw new ServiceError(ex); }
+        
+        
+    }
+    
+    
+
+    @Override
+    public void setSerializedItemOwnership(SerializedItemDTO item, AccountDTO owner) throws ServiceError {
+    
+        try {
+           this.clearSerializedItemOwnership(item);
+            
+            String stmt = "INSERT INTO " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.TABLE_NAME;
+            stmt += "("+   TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ITEM;
+            stmt += ", " +   TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.OWNER;
+            stmt += ", " +   TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ACTIVE;
+            stmt += ") VALUES (" + item.getKey() + ", " + owner.getKey();
+            stmt += ", TRUE);";
+            
+            this.getService().executeStatement(stmt);
+            
+            
+            
+            
+        } catch (SQLException ex) {
+         throw new ServiceError(ex); }
+        
+        
+    
+    
+    
+    }
 
     
     

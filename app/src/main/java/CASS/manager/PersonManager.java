@@ -52,67 +52,68 @@ public class PersonManager {
     
     
     
-    private boolean personValid(PersonDTO toCheck){
+    private void personValid(PersonDTO toCheck) throws ServiceError{
         if(toCheck.isIs_active() == false || toCheck.isIs_current() == false){
-            return false;
+          throw new ServiceError("PERSON IS NOT ACTIVE/CURRENT!");
         }
-        return true;
+ 
     }
     
-    public boolean personValid(Integer toCheck) throws ServiceError{
-        return this.personValid(this.getPerson(toCheck));
+    public void personValid(Integer toCheck) throws ServiceError{
+         this.personValid(this.getPerson(toCheck));
     }
     
-    public boolean employeeValid(Integer toCheck) throws ServiceError{
+    public void employeeValid(Integer toCheck) throws ServiceError{
         
-        return this.employeeValid(this.getEmployee(toCheck));
-        
-    }
-    
-    
-    public boolean employeeValid(EmployeeDTO toCheck) throws ServiceError{
-        
-        if(this.personValid(toCheck.getPersonID()) == false){
-            return false;
-        }
-        
-        return toCheck.isIsActive();
-        
+        this.employeeValid(this.getEmployee(toCheck));
         
     }
     
     
+    public void  employeeValid(EmployeeDTO toCheck) throws ServiceError{
+        
+       this.personValid(toCheck.getPersonID());
+        
+        
+     if(toCheck.isIsActive() == false){
+         throw new ServiceError("EMPLOYEE IS INACTIVE");
+     }
+        
+        
+    }
     
-    public boolean accountValid(Integer accountId) throws ServiceError{
+    
+    
+    public void accountValid(Integer accountId) throws ServiceError{
         
         
         AccountDTO toCheck = this.getAccount(accountId);
         
-        if(this.personValid(toCheck.getPersonId()) == false){
-            return false;
-        }
+      this.personValid(toCheck.getPersonId());
         
         
         
         
-   return this.accountValid(toCheck);
+   this.accountValid(toCheck);
        
         
         
     }
     
     
-    private boolean accountValid(AccountDTO toCheck){
+    private void accountValid(AccountDTO toCheck) throws ServiceError{
           
         if(toCheck.getClosedDate() == null){
-            return true;
+            return;
         }
         
                 Date current= new Date(System.currentTimeMillis());
         
         Date check  = new Date(toCheck.getClosedDate());
         
-        return check.after(current);
+       if(check.after(current) == false){
+           throw new ServiceError("ACCOUNT IS CLOSED!");
+       }
         
     }
     

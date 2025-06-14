@@ -65,6 +65,11 @@ private Integer accountType;
     }
     
     
+    public AccountDTO(Integer key){
+        super(key);
+    }
+    
+    
  
 
     public String getAccountNumber() {

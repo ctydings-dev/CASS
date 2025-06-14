@@ -31,11 +31,13 @@ public class InvoiceManager {
     PersonManager prsnSvc;
     
     InvoiceService inv;
-
+    
+   
     public InvoiceManager(InvoiceService inv, InventoryManager svc, PersonManager prsnSvc) {
         this.svc = svc;
         this.inv = inv;
         this.prsnSvc = prsnSvc;
+    
     }
 
     private PersonManager getPersonService() {
@@ -86,10 +88,8 @@ return this.inv;
     }
 
     public InvoiceDTO addInvoice(InvoiceDTO toAdd, InvoiceItemDTO[] items) throws ServiceError {
-
-        if (this.getPersonService().accountValid(toAdd.getAccountID()) == false) {
-            throw new ServiceError("Account Invalid!");
-        }
+this.getPersonService().accountValid(toAdd.getAccountID());
+       
 
         for (InvoiceItemDTO item : items) {
            
@@ -182,10 +182,7 @@ return this.inv;
 
     }
 
-    public Integer getDefaultFacility(){
-        return 1;
-        
-    }
+    
    
     
    public InvoiceItemDTO sellSerializedItem(Integer serializedItemId,Integer price, Integer invoice) throws ServiceError{
@@ -206,9 +203,12 @@ return this.inv;
         
    InvoiceItemDTO  ret =    this.createSaleInvoiceItem(invoice, sn.getItem(), 1, facility, price, 0.0,  0.0);
  
-   this.getItemService().removeSerializedItem(sn.getKey(), invoice.getEmployeeID(), true);
+ 
    
    this.getInvoiceService().addSerializedItemToInvoiceItem(sn, ret);
+   this.getItemService().setSerializedItemOwnership(sn.getKey(), invoice.getAccountID(),invoice.getEmployeeID());
+   
+   
    return ret;
         
     }

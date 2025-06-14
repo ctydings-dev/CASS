@@ -11,6 +11,7 @@ import CASS.data.item.ItemDTO;
 import CASS.data.item.PriceDTO;
 import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
+import CASS.data.person.AccountDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.search.ItemSearchParameters;
 import java.util.List;
@@ -75,6 +76,11 @@ public void removeSerializedItem(SerializedItemDTO toRemove) throws ServiceError
 
 
 public void addSerializedItemNote(SerializedItemDTO item,EmployeeDTO employee, TypeDTO type, String note) throws ServiceError;
+
+public void setSerializedItemOwnership(SerializedItemDTO item,  AccountDTO owner) throws ServiceError;
+
+public void clearSerializedItemOwnership(SerializedItemDTO item) throws ServiceError;
+
 
 
 

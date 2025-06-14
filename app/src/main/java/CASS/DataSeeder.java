@@ -46,12 +46,12 @@ clearDBs();
    PersonManager prsnMng = new PersonManager(prsnSvc);
    
    
-   InventoryManager invMng = new InventoryManager((ExtendedItemService) itmSvc,prsnMng);
+   InventoryManager invMng = new InventoryManager((ExtendedItemService) itmSvc,prsnMng,PersonDataSeeder.SHOP_ACC, AddressDataSeeder.DAK);
    InvoiceManager inMng = new InvoiceManager(ServiceProvider.getInvoiceService(),invMng,prsnMng);
    
    ItemDataSeed.seedItemData(invMng);
    
-   InvoiceDataSeeder.seedInvoiceData(inMng, invMng);
+   InvoiceDataSeeder.seedInvoiceData(inMng, invMng, addrSvc, prsnSvc);
 
     }
     
@@ -62,6 +62,9 @@ clearDBs();
        ServiceProvider.getMySql().executeStatement(query);
            query = "DELETE FROM inventory;";
        ServiceProvider.getMySql().executeStatement(query);
+               query = "DELETE FROM serialized_item_ownerships;";
+       ServiceProvider.getMySql().executeStatement(query);
+       
                   query = "DELETE FROM serialized_item_notes;";
        ServiceProvider.getMySql().executeStatement(query);
                query = "DELETE FROM invoice_items;";
