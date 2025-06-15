@@ -45,7 +45,9 @@ public class ItemDTO extends CreatedDTO{
         
     }
     
-    
+    public boolean isSerialized(){
+        return this.isSerialized == true;
+    }
     
     public boolean isForSale(){
         return this.isForSale == true;

@@ -225,6 +225,21 @@ public class TypeRepository {
     }
 
     
+       public static TypeDTO getItemType(Integer id){
+           
+           for(ITEM_TYPE type  : itemTypes.keySet()){
+               
+               if(itemTypes.get(type) == id){
+                   TypeDTO ret = new TypeDTO(type.name(),id);
+                   return ret;
+               }
+               
+           }
+           
+           
+           throw new IllegalArgumentException();
+       }
+       
     
     
     public enum NOTE_TYPE {
@@ -240,7 +255,7 @@ public class TypeRepository {
     }
 
     public enum ITEM_TYPE {
-        REGULATOR, BCD;
+        REGULATOR, BCD, HOSE, FINS, MASK, TANK, TEST;
     }
 
     public enum TRANSACTION_TYPE {

@@ -558,8 +558,31 @@ public class SqlPersonService implements PersonService {
       
       
       
-      
-   
+      @Override
+      public AccountDTO [] getAccountsByType(TypeDTO type) throws ServiceError{
+         
+        try {
+            String stmt = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
+            stmt += " WHERE " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TYPE;
+            stmt += " = " + type.getKey();
+            
+            
+            ResultSet rs = this.getService().executeQuery(stmt);
+            List<AccountDTO> accs = DataObjectGenerator.createList();
+            
+            while(rs.next()){
+                accs.add(this.createAccountFromResultSet(rs));
+            }
+            
+            AccountDTO [] ret = new AccountDTO[accs.size()];
+            for(int index = 0; index < ret.length; index++){
+                ret[index ] = accs.get(index);
+            }
+            
+            return ret;
+        } catch (SQLException ex) {
+         throw new ServiceError(ex); }
+      }
     
     
     

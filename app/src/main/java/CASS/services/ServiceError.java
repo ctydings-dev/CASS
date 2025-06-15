@@ -10,23 +10,32 @@ package CASS.services;
  */
 public class ServiceError extends Throwable {
 
+    private String msg;
+    
+    
+    
     public ServiceError() {
 
     }
 
     public ServiceError(String error) {
-
+this.msg = error;
     }
 
     
     public ServiceError(Throwable e){
-        
+        this.msg = e.getLocalizedMessage();
     }
     
     
     public void setError(String msg){
-        
+        this.msg = msg;
     }
+    
+    public String getMessage(){
+        return this.msg;
+    }
+    
     
 }
 

@@ -79,6 +79,13 @@ public class SearchValue {
     }
 
     private String format(String in){
+        
+        if(in.contains("'") == true){
+            
+            in = in.replace("'", "''");
+        }
+        
+        
         return in.trim().toUpperCase();
     }
     

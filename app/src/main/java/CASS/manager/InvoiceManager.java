@@ -76,8 +76,11 @@ return this.inv;
         this.getItemService().checkPrice(price);
         
     
-        if(price.getItem() != entry.getItem()){
-            throw new ServiceError("ITEM DOES NOT MATCH PRICE ITEM!");
+        if(price.getItem().equals(entry.getItem()) == false){
+            
+       
+            
+            throw new ServiceError("ITEM DOES NOT MATCH PRICE ITEM P:" + price.getItem() + " I:" + entry.getItem());
         }
         
         

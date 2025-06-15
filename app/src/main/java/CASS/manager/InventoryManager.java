@@ -7,22 +7,26 @@ package CASS.manager;
 import CASS.data.BaseDTO;
 import CASS.data.TypeDTO;
 import CASS.data.TypeRepository;
+import CASS.data.item.InventoryItemDTO;
 import CASS.data.item.ItemDTO;
 import CASS.data.item.PriceDTO;
 import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
 import CASS.data.person.AccountDTO;
+import CASS.data.person.CompanyDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.data.person.PersonDTO;
 import CASS.services.ExtendedItemService;
 import CASS.services.ItemService;
 import CASS.services.PersonService;
 import CASS.services.ServiceError;
+import CASS.util.DataObjectGenerator;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import static java.util.Map.entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,14 +45,46 @@ public class InventoryManager {
     Integer shopAcc;
     
     Integer facility;
+    
+    private Map<Integer,Map<CompanyDTO, Integer>> cachedCompanies;
+    
+    
+    private Map<Integer, ItemDTO> cahcedItems;
+    
+    private Map<Integer, SerializedItemDTO> cachedSerialized;
+    
+    
 
     public InventoryManager(ExtendedItemService svc, PersonManager prsnSvc, Integer shopAcc, Integer facility) {
         this.svc = svc;
         this.prsnSvc = prsnSvc;
         this.shopAcc = shopAcc;
         this.facility = facility;
+this.resetCache();
     }
 
+    
+    
+    
+    public void resetCache(){
+        this.cachedCompanies = DataObjectGenerator.createMap();
+        this.cahcedItems = DataObjectGenerator.createMap();
+        this.cachedSerialized = DataObjectGenerator.createMap();
+    }
+    
+    private Map<Integer,Map<CompanyDTO, Integer>> getCachedCompanies(){
+        return this.cachedCompanies;
+    }
+    private Map<Integer,ItemDTO> getCachedItems(){
+        return this.cahcedItems;
+    }
+    
+    private Map<Integer,SerializedItemDTO> getCachedSerializedItems(){
+        return this.cachedSerialized;
+    }
+    
+    
+    
     protected ExtendedItemService getItemService() {
         return this.svc;
 
@@ -88,7 +124,7 @@ public class InventoryManager {
     }
 
     private TransactionDTO updateInventoroy(TransactionDTO entry, boolean reverse) throws SQLException, ServiceError {
-
+this.resetCache();
         if (this.getItemService().inventoryContains(entry.getItem(), entry.getFacility()) == false) {
             this.getItemService().addInventory(entry);
         }
@@ -157,6 +193,7 @@ public class InventoryManager {
     }
 
     public TransactionDTO addServiceTransaction(int item, int employee, int qty) throws ServiceError {
+        
         int facility = this.getFacility();
         TransactionDTO trans = new TransactionDTO(item, employee, qty, facility, TypeRepository.getKey(TypeRepository.TRANSACTION_TYPE.SERVICE), true);
 
@@ -165,7 +202,7 @@ public class InventoryManager {
     }
 
     public TransactionDTO addReturnRemovedTransaction(int item, int employee, int qty) throws ServiceError {
-
+   this.resetCache();
         int facility = this.getFacility();
 
         TransactionDTO trans = new TransactionDTO(item, employee, qty, facility, TypeRepository.getKey(TypeRepository.TRANSACTION_TYPE.RETURN_REMOVED), true);
@@ -180,8 +217,14 @@ public class InventoryManager {
 
     }
 
-    public Integer addItem(ItemDTO toAdd) throws ServiceError {
+    public Integer addItem(ItemDTO toAdd,Integer adder) throws ServiceError {
+           this.resetCache();
         Integer ret = this.getItemService().addItem(toAdd);
+        TypeDTO type = TypeRepository.getTypeDTO(TypeRepository.NOTE_TYPE.INVENTORY);
+ TransactionDTO inven = new TransactionDTO(ret,adder,0,this.getFacility(),type.getKey(),true);
+        
+        this.addInventoryTransaction(inven);
+   
         toAdd.setKey(ret);
         return ret;
     }
@@ -192,8 +235,8 @@ public class InventoryManager {
 
             this.getPersonService().employeeValid(entry.getEmployee());
 
-            if (entry.getQuantity() < 1) {
-                throw new ServiceError("Nonpositive transaction quantity!");
+            if (entry.getQuantity() < 0) {
+                throw new ServiceError("Negative transaction quantity!");
             }
 
             int multi = this.getItemService().getMultiplyer(entry.getType());
@@ -213,7 +256,7 @@ public class InventoryManager {
 
     public TransactionDTO addInventoryTransaction(TransactionDTO toAdd) throws ServiceError {
         this.checkTransaction(toAdd);
-
+   this.resetCache();
         TransactionDTO ret = this.getItemService().addInventoryTransaction(toAdd);
         toAdd.setKey(ret.getKey());
         return ret;
@@ -229,11 +272,12 @@ public class InventoryManager {
     }
 
     public void addInventoryTransactionNote(TransactionDTO trans, TypeDTO toUse, String note) throws ServiceError {
+          this.resetCache();
         this.getItemService().addInventoryTransactionNote(trans, toUse, note);
     }
 
     public void addInventoryTransactionSalesNote(TransactionDTO trans, String note) throws ServiceError {
-
+   this.resetCache();
         TypeDTO toUse = TypeRepository.getTypeDTO(TypeRepository.NOTE_TYPE.SALES);
 
         this.addInventoryTransactionNote(trans, toUse, note);
@@ -280,6 +324,7 @@ public class InventoryManager {
     }
 
     public PriceDTO addPrice(Integer item, double price, Integer employee) throws ServiceError {
+          this.resetCache();
         String code = this.getStdPriceCode(item, price, employee);
         PriceDTO toAdd = new PriceDTO(item, 0.0, price, false, false, this.getDefaultCurrency().getKey(), employee, code);
         return this.getItemService().addItemPrice(toAdd);
@@ -287,6 +332,7 @@ public class InventoryManager {
     }
 
     public PriceDTO addPrice(Integer item, double price, double cost, Integer employee) throws ServiceError {
+        this.resetCache();
         String code = this.getStdPriceCode(item, price, employee);
         PriceDTO toAdd = new PriceDTO(item, cost, price, false, false, this.getDefaultCurrency().getKey(), employee, code);
         return this.getItemService().addItemPrice(toAdd);
@@ -306,13 +352,13 @@ public class InventoryManager {
     }
 
     public Integer addSerializedItem(Integer item, String sn, boolean forSale) throws ServiceError {
-
+this.resetCache();
         return this.getItemService().addSerializedItem(new ItemDTO(item), sn, forSale).getKey();
 
     }
 
     public Integer addSerializedItem(SerializedItemDTO toAdd) throws ServiceError {
-
+this.resetCache();
         return this.getItemService().addSerializedItem(new ItemDTO(toAdd.getItem()), toAdd.getSerialNumber(), toAdd.isForSale()).getKey();
 
     }
@@ -338,7 +384,7 @@ public class InventoryManager {
     }
 
     private void addSerializedItemToInventory(SerializedItemDTO toAdd, Integer employee, Integer facility, boolean addToInventory) throws ServiceError {
-
+this.resetCache();
         int type = TypeRepository.getKey(TypeRepository.TRANSACTION_TYPE.RECIEVE);
 
         if (addToInventory == false) {
@@ -384,7 +430,7 @@ public class InventoryManager {
         String note = "SERIALIZED ITEM REMOVED FROM INVENTORY";
 
         this.addSerializedItemNote(item, employee, type, note);
-
+this.resetCache();
     }
 
     public void sellSerializedItem(Integer item, Integer employee, Integer acc) throws ServiceError {
@@ -403,11 +449,54 @@ public class InventoryManager {
     }
 
     public SerializedItemDTO getSerialziedItem(Integer key) throws ServiceError {
-        return this.getItemService().getSerializedItem(new SerializedItemDTO(key));
+        
+        
+        if(this.getCachedSerializedItems().containsKey(key)){
+            return this.getCachedSerializedItems().get(key);
+        }
+        
+        
+        
+        
+        
+        SerializedItemDTO ret = this.getItemService().getSerializedItem(new SerializedItemDTO(key));
+        
+        this.getCachedSerializedItems().put(key,ret);
+        
+        return ret;
     }
+    
+    public Map<SerializedItemDTO,ItemDTO> getAllSerialziedItems() throws ServiceError{
+        
+      
+        SerializedItemDTO[] items = this.getItemService().getAllSerializedItems();
+        
+        Map<SerializedItemDTO,ItemDTO> ret = DataObjectGenerator.createMap();
+        
+        for(int index = 0; index < items.length; index++){
+           SerializedItemDTO item = items[index];
+            this.getCachedSerializedItems().put(item.getKey(), item);
+                       ret.put(item,this.getItem(item.getItem()));
+        }
+        
+        
+        return ret;
+    }
+    
 
     public ItemDTO getItem(Integer item) throws ServiceError {
-        return this.getItemService().getItem(new BaseDTO(item));
+        
+        
+        if(this.getCachedItems().containsKey(item)){
+            return this.getCachedItems().get(item);
+        }
+        ItemDTO ret = this.getItemService().getItem(new BaseDTO(item));
+        
+        
+        this.getCachedItems().put(item, ret);
+        
+        
+        return ret;
     }
 
     public void setSerializedItemOwnership(Integer item, Integer owner, Integer employee) throws ServiceError {
@@ -416,10 +505,10 @@ public class InventoryManager {
         if(owner != this.getShopAccount()){
             this.getItemService().removeSerializedItemFromInventory(new SerializedItemDTO(item));
         }
-        
-        
+       
     }
 
+    
     public void setSerializedItemOwnershipBySell(Integer item, Integer owner, Integer employee) throws ServiceError {
         EmployeeDTO emp = this.getPersonService().getEmployee(employee);
 
@@ -459,7 +548,7 @@ public class InventoryManager {
     }
 
     public void setSerializedItemOwnership(Integer item, Integer owner, Integer employee, boolean ignoreChecks, String note) throws ServiceError {
-
+this.resetCache();
         if (ignoreChecks == false) {
             this.getPersonService().employeeValid(employee);
             this.getPersonService().accountValid(owner);
@@ -472,5 +561,119 @@ public class InventoryManager {
         this.addSerializedItemNote(item, employee, type.getKey(), note);
 
     }
+    
+    
+       public List<InventoryItemDTO> getInventory() throws ServiceError{
+       return this.getInventory(this.getFacility());
+       }
+    
+    
+    public List<InventoryItemDTO> getInventory(Integer facility) throws ServiceError{
+     
+        InventoryItemDTO[] results = this.getItemService().getInventory(new BaseDTO(facility));
+      return  Arrays.asList(results);
+     
+    }
+    public Map<TypeDTO, Integer> getTypesInInventory() throws ServiceError{
+        return this.getTypesInInventory(this.getFacility());
+        
+    }
+    
+    
+    
+    public Map<TypeDTO, Integer> getTypesInInventory(Integer facility) throws ServiceError{
+        List<InventoryItemDTO> items = this.getInventory(facility);
+        
+        
+        Map<Integer, Integer> count = DataObjectGenerator.createMap();
+        
+        
+        
+        
+        items.forEach(item ->{
+        
+            int typeId = item.getItemType();
+            
+            if(count.containsKey(typeId) == false){
+                count.put(typeId,0);
+                            }
+        
+           count.put(typeId,count.get(typeId) + 1);
+    
+        });
+        
+          Map<TypeDTO, Integer> ret = DataObjectGenerator.createMap();
+       
+        
+        count.keySet().forEach(entry ->{
+        TypeDTO type = TypeRepository.getItemType(entry);
+        
+        ret.put(type, count.get(entry));
+        
+        
+        });
+        
+        
+        
+        
+        
+        return ret;
+    }
+    
+        
+    public Map<CompanyDTO, Integer> getCompaniesInInventory() throws ServiceError{
+        return this.getCompaniesInInventory(this.getFacility());
+        
+    }
+    
+    
+    
+    
+    
+    public Map<CompanyDTO, Integer> getCompaniesInInventory(Integer facility) throws ServiceError{
+        List<InventoryItemDTO> items = this.getInventory(facility);
+        
+        
+        Map<Integer, Integer> count = DataObjectGenerator.createMap();
+        
+        
+        
+        
+        items.forEach(item ->{
+        
+            int typeId = item.getCompany();
+            
+            if(count.containsKey(typeId) == false){
+                count.put(typeId,0);
+                            }
+        
+           count.put(typeId,count.get(typeId) + 1);
+    
+        });
+        
+          Map<CompanyDTO, Integer> ret = DataObjectGenerator.createMap();
+    
+        for(int entry : count.keySet()){
+        
+       CompanyDTO comp =  this.getPersonService().getCompany(entry);
+        ret.put(comp, count.get(entry));
+        
+        
+                }
+        
+        return ret;
+       }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 }

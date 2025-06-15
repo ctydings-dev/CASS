@@ -10,6 +10,7 @@ import CASS.data.address.AddressDTO;
 import CASS.data.address.CityDTO;
 import CASS.data.address.CountryDTO;
 import CASS.data.address.StateDTO;
+import CASS.data.item.InventoryItemDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.manager.InventoryManager;
 import CASS.manager.InvoiceManager;
@@ -23,6 +24,7 @@ import CASS.services.ServiceProvider;
 import CASS.services.TypeService;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -37,7 +39,7 @@ public class DataSeeder {
         PersonService prsnSvc = ServiceProvider.getPersonService();
           ItemService itmSvc = ServiceProvider.getItemService();
             TypeService typeSvc = ServiceProvider.getTypeService();
-
+try{
         TypeRepository.setupRepo(typeSvc);
 clearDBs();
     AddressDataSeeder.seedAddresses(addrSvc);
@@ -52,7 +54,19 @@ clearDBs();
    ItemDataSeed.seedItemData(invMng);
    
    InvoiceDataSeeder.seedInvoiceData(inMng, invMng, addrSvc, prsnSvc);
-
+   
+        Map<TypeDTO, Integer> itemTypes = invMng.getTypesInInventory();
+}
+catch(ServiceError er){
+    System.out.println(er.getMessage());
+    er.printStackTrace();
+}
+        
+        
+        
+        
+        
+System.out.println("DONE");
     }
     
     

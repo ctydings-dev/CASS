@@ -10,6 +10,7 @@ import CASS.data.BaseSearchParameter;
 import CASS.data.CASSConstants;
 import CASS.data.TypeAssignmentDTO;
 import CASS.data.TypeDTO;
+import CASS.data.item.InventoryItemDTO;
 import CASS.data.item.ItemDTO;
 import CASS.data.item.PriceDTO;
 import CASS.data.item.SerializedItemDTO;
@@ -68,6 +69,26 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         return new ItemDTO(key, name, alias, type, company, isForSale, isSerialized);
 
     }
+    
+    
+      private InventoryItemDTO createInvItemFromResultSet(ResultSet rs) throws SQLException {
+String item = "itm.";
+        int key = rs.getInt(item + TABLE_COLUMNS.INVENTORY.ITEM.ID);
+        int company = rs.getInt(item + TABLE_COLUMNS.INVENTORY.ITEM.COMPANY);
+        int type = rs.getInt(item + TABLE_COLUMNS.INVENTORY.ITEM.TYPE);
+
+        String name = rs.getString(item + TABLE_COLUMNS.INVENTORY.ITEM.NAME);
+        String alias = rs.getString(item + TABLE_COLUMNS.INVENTORY.ITEM.ALIAS);
+        boolean isForSale = rs.getBoolean(item + TABLE_COLUMNS.INVENTORY.ITEM.IS_FOR_SALE);
+        boolean isSerialized = rs.getBoolean(item + TABLE_COLUMNS.INVENTORY.ITEM.IS_SERIALIZED);
+
+        ItemDTO base =  new ItemDTO(key, name, alias, type, company, isForSale, isSerialized);
+Integer qty = rs.getInt("inv."+ TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK);
+        
+        return new InventoryItemDTO(base,qty);
+    }
+    
+    
 
     private TransactionDTO createTransactionFromResultSet(ResultSet rs) throws SQLException {
 
@@ -120,7 +141,14 @@ public class SqlItemService implements ItemService, ExtendedItemService {
 
         try {
             List<ItemDTO> ret = DataObjectGenerator.createList();
-            ResultSet rs = this.getService().getAllForTable(TABLE_COLUMNS.INVENTORY.ITEM.TABLE_NAME);
+            
+            String query =  "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.ITEM.NAME;
+            
+            query = query + " WHERE " + TABLE_COLUMNS.INVENTORY.ITEM.VALID;
+            query = query + " = TRUE;";
+            
+            
+            ResultSet rs = this.getService().executeQuery(query);
             while (rs.next()) {
                 ret.add(this.createItemFromResultSet(rs));
             }
@@ -816,6 +844,31 @@ public class SqlItemService implements ItemService, ExtendedItemService {
     
     
     
+    }
+
+   @Override
+  public InventoryItemDTO [] getInventory(BaseDTO facility) throws ServiceError{
+        try {
+            String stmt  = "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.ITEM.TABLE_NAME;
+            stmt += " AS itm INNER JOIN " + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.TABLE_NAME;
+            stmt += " AS inv ON itm." + TABLE_COLUMNS.INVENTORY.ITEM.ID ;
+            stmt += " = inv."+ TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.ITEM;
+            stmt += " WHERE " + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.FACILITY;
+            stmt += " = " + facility.getKey() + ";";
+            
+            
+            ResultSet rs = this.getService().executeQuery(stmt);
+            List<InventoryItemDTO> items = DataObjectGenerator.createList();
+            while(rs.next()){
+                items.add(this.createInvItemFromResultSet(rs));
+                   }
+            InventoryItemDTO [] ret = new InventoryItemDTO[items.size()];
+            for(int index = 0; index < ret.length; index++){
+                ret[index] = items.get(index);
+            }
+           return ret;
+        } catch (SQLException ex) {
+         throw new ServiceError(ex);  }
     }
 
     

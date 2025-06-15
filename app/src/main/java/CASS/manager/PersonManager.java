@@ -5,13 +5,17 @@
 package CASS.manager;
 
 import CASS.data.BaseDTO;
+import CASS.data.TypeDTO;
 import CASS.data.person.AccountDTO;
+import CASS.data.person.CompanyDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.data.person.PersonDTO;
 import CASS.services.ExtendedItemService;
 import CASS.services.PersonService;
 import CASS.services.ServiceError;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -100,6 +104,19 @@ public class PersonManager {
         
     }
     
+    public List<AccountDTO> getAccountsByType(Integer type) throws ServiceError{
+        AccountDTO [] results = this.getPersonService().getAccountsByType(new TypeDTO(type));
+        
+     return   Arrays.asList(results);
+        
+    }
+    
+    
+    public CompanyDTO getCompany(Integer key) throws ServiceError{
+     return   this.getPersonService().getCompany(new BaseDTO(key));
+        }
+    
+    
     
     private void accountValid(AccountDTO toCheck) throws ServiceError{
           
@@ -116,6 +133,19 @@ public class PersonManager {
        }
         
     }
+    
+    
+    public List<PersonDTO> getPeople() throws ServiceError{
+       return this.getPersonService().getPersons();
+   
+    }
+    
+    public List<EmployeeDTO> getEmployees() throws ServiceError{
+  return this.getPersonService().getEmployees();
+    }
+    
+    
+    
     
     
 }

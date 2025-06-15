@@ -38,6 +38,9 @@ public class ItemDataSeed {
         
      addAbyss(svc);  
      addRover(svc);
+     addGeneric(svc);
+     addTanks(svc);
+     //createShitloads(svc,150);
       
         
     }
@@ -67,14 +70,153 @@ public class ItemDataSeed {
     }
     
     
+    private static void addGenericItem(InventoryManager svc, ItemDTO item, int qty, double price) throws ServiceError{
+         svc.addItem(item,PersonDataSeeder.JD_EMP);
+           int transType  = TypeRepository.getKey(TypeRepository.TRANSACTION_TYPE.RECIEVE);
+       
+        TransactionDTO trans = new TransactionDTO(item.getKey(),PersonDataSeeder.KRIS_EMP,qty,svc.getFacility(),transType,true);
+               
+        svc.addInventoryTransaction(trans);
+        svc.addPrice(item.getKey(), price, PersonDataSeeder.KRIS_EMP);
+        
+        
+    }
+    
+    
+    
+    
+    
+        private static void createShitloads(InventoryManager svc, int qty) throws ServiceError
+        {
+         int type = TypeRepository.getKey(TypeRepository.ITEM_TYPE.TEST);
+       
+        
+            for(int index = 0; index < qty; index++){
+                if(index % 10 == 0){
+                    
+                    System.out.println("ON " + index);
+                }
+       double price = 20.99;
+               
+                  ItemDTO item = new ItemDTO(0,"TEST"+ index,"TEST:"+index,type,PersonDataSeeder.XSCUBA,true,false);
+        
+       addGenericItem(svc,item,index+1, price);
+        
+        
+            }
+            
+            
+        }
+    
+    
+    
+    public static void addGeneric(InventoryManager svc) throws ServiceError{
+        
+        int type = TypeRepository.getKey(TypeRepository.ITEM_TYPE.HOSE);
+       
+        
+        
+        
+          ItemDTO item = new ItemDTO(0,"LP HOSE 25 INCH","LP_HOSE_25_XSCUBA",type,PersonDataSeeder.XSCUBA,true,false);
+        
+        
+       int qty = 10;
+       double price = 20.99;
+               
+       
+       addGenericItem(svc,item, qty, price);
+        
+              type = TypeRepository.getKey(TypeRepository.ITEM_TYPE.HOSE);
+         qty = 12;
+         price = 19.99;
+              
+         item = new ItemDTO(0,"LP HOSE 20 INCH","LP_HOSE_20_XSCUBA",type,PersonDataSeeder.XSCUBA,true,false);
+          addGenericItem(svc,item, qty, price);
+         type = TypeRepository.getKey(TypeRepository.ITEM_TYPE.MASK);
+         qty = 5;
+         price = 49.99;
+              
+         item = new ItemDTO(0,"TECHO MASK(S)","TECNO_MARES_S",type,PersonDataSeeder.MARES,true,false);
+        addGenericItem(svc,item, qty, price);
+                 qty = 6;
+    
+              
+         item = new ItemDTO(0,"TECHO MASK(M)","TECNO_MARES_M",type,PersonDataSeeder.MARES,true,false);
+          addGenericItem(svc,item, qty, price);
+        
+               qty = 2;
+    
+              
+         item = new ItemDTO(0,"TECHO MASK(L)","TECNO_MARES_L",type,PersonDataSeeder.MARES,true,false);
+       addGenericItem(svc,item, qty, price);
+        
+          
+          
+          
+          
+          
+        
+    }
+    
+    public static void addTanks(InventoryManager svc) throws ServiceError{
+        
+         int type = TypeRepository.getKey(TypeRepository.ITEM_TYPE.TANK);
+                 ItemDTO tank = new ItemDTO(0,"80 CFT Tank Steel Non-Galvanzied","80-CF-TANK-LUX-NON_GAL",type,PersonDataSeeder.LUX,true,true);
+               svc.addItem(tank,PersonDataSeeder.JD_EMP);
+             
+        
+        svc.addPrice(tank.getKey(), 249.99, 150,PersonDataSeeder.JD_EMP).getKey();
+        
+         addSerializedItems(svc,tank,4,PersonDataSeeder.JD_EMP);
+               
+         
+         
+         tank = new ItemDTO(0,"100 CFT Tank Steel Non-Galvanzied","100-CF-TANK-LUX-NON_GAL",type,PersonDataSeeder.LUX,true,true);
+               svc.addItem(tank,PersonDataSeeder.JD_EMP);
+             
+        
+        svc.addPrice(tank.getKey(), 299.99, 200,PersonDataSeeder.JD_EMP).getKey();
+        
+         addSerializedItems(svc,tank,3,PersonDataSeeder.JD_EMP);
+           
+            tank = new ItemDTO(0,"130 CFT Tank Steel Non-Galvanzied","130-CF-TANK-LUX-NON_GAL",type,PersonDataSeeder.LUX,true,true);
+               svc.addItem(tank,PersonDataSeeder.JD_EMP);
+             
+        
+        svc.addPrice(tank.getKey(), 349.99, 250,PersonDataSeeder.JD_EMP).getKey();
+        
+         addSerializedItems(svc,tank,8,PersonDataSeeder.JD_EMP);
+           
+         
+         
+         
+         
+    }
+    
+    
+    
+    
+    
         public static void addAbyss(InventoryManager svc) throws ServiceError{
       
             
           
         int type = TypeRepository.getKey(TypeRepository.ITEM_TYPE.REGULATOR);
                 ItemDTO abyss = new ItemDTO(0,"ABYSS","ABYSS-POST-2015",type,PersonDataSeeder.MARES,true,true);
-               ABYSS = svc.addItem(abyss);
+               ABYSS = svc.addItem(abyss,PersonDataSeeder.KRIS_EMP );
              
+               
+             ItemDTO abyssOcto = new ItemDTO(0,"ABYSS OCTO","ABYSS-POST-2015-OCTO",type,PersonDataSeeder.MARES,true,true);
+             svc.addItem(abyssOcto,PersonDataSeeder.KRIS_EMP );
+               
+               
+               
+               
+                ItemDTO mr22 = new ItemDTO(0,"MR22","MR22-POST-2015",type,PersonDataSeeder.MARES,true,true);
+              svc.addItem(mr22,PersonDataSeeder.KRIS_EMP );
+               
+               
+               
               
               ABYSS_PRICE = svc.addPrice(ABYSS, 749.99, 300,PersonDataSeeder.KRIS_EMP ).getKey();
                
@@ -108,7 +250,7 @@ public class ItemDataSeed {
         int type = TypeRepository.getKey(TypeRepository.ITEM_TYPE.REGULATOR);
                 ItemDTO rover = new ItemDTO(0,"ROVER","ROVER-2015-2021",type,PersonDataSeeder.MARES,true,true);
        EmployeeDTO kris = new EmployeeDTO(PersonDataSeeder.KRIS_EMP);
-        ROVER = svc.addItem(rover);
+        ROVER = svc.addItem(rover,PersonDataSeeder.KRIS_EMP );
        
         TransactionDTO trans;
   

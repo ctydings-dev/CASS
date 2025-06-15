@@ -73,6 +73,6 @@ public interface PersonService {
     
     public AccountDTO addAccount(AccountDTO toAdd) throws ServiceError;
     
-    
+    public AccountDTO [] getAccountsByType(TypeDTO type) throws ServiceError;
     
 }

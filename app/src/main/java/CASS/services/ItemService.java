@@ -7,6 +7,7 @@ package CASS.services;
 import CASS.data.BaseDTO;
 import CASS.data.TypeDTO;
 import CASS.data.invoice.InvoiceDTO;
+import CASS.data.item.InventoryItemDTO;
 import CASS.data.item.ItemDTO;
 import CASS.data.item.PriceDTO;
 import CASS.data.item.SerializedItemDTO;
@@ -61,7 +62,7 @@ public SerializedItemDTO addSerializedItem(ItemDTO item, String SerialNumber, bo
 
 public SerializedItemDTO getSerializedItem(SerializedItemDTO key) throws ServiceError;
 
-
+public InventoryItemDTO [] getInventory(BaseDTO facility) throws ServiceError;
 
 
 public void addSerializedItemToInventory(SerializedItemDTO toAdd, TransactionDTO entry) throws ServiceError;
@@ -80,6 +81,7 @@ public void addSerializedItemNote(SerializedItemDTO item,EmployeeDTO employee, T
 public void setSerializedItemOwnership(SerializedItemDTO item,  AccountDTO owner) throws ServiceError;
 
 public void clearSerializedItemOwnership(SerializedItemDTO item) throws ServiceError;
+
 
 
 

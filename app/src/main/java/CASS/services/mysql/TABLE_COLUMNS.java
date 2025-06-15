@@ -259,6 +259,7 @@ public class TABLE_COLUMNS {
             public static final String TYPE = "item_type_id";
             public static final String IS_FOR_SALE = "is_for_sale";
             public static final String IS_SERIALIZED = "is_serialized";
+              public static final String VALID = "valid";
             public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
         }
         
