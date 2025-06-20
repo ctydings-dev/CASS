@@ -145,7 +145,23 @@ public class PersonManager {
     }
     
     
-    
-    
+    public AccountDTO getAccountByName(String name){
+        try{
+            return this.getPersonService().getAccountByName(name);
+        }
+        catch(Throwable e){
+            return null;
+        }
+        
+    }
+        public AccountDTO getAccountByNumber(String name){
+        try{
+            return this.getPersonService().getAccountByNumber(name);
+        }
+        catch(Throwable e){
+            return null;
+        }
+        
+    }
     
 }

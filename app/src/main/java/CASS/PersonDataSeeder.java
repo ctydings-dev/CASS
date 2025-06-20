@@ -71,9 +71,9 @@ public class PersonDataSeeder {
         
         String name = InventoryManager.createAccountNumber(meDTO, type);
         
-          AccountDTO meAcc = new AccountDTO(name,"CMT-"+ meDTO.getKey(),ME,type.getKey());
+          AccountDTO meAcc = new AccountDTO("CMT-ACC","CMT-ACC",ME,type.getKey());
           type = TypeRepository.getTypeDTO(TypeRepository.ACCOUNT_TYPE.SHOP);
-            AccountDTO shopAcc = new AccountDTO("DAK-SHOP","DAK-SHOP-1",JD,type.getKey());
+            AccountDTO shopAcc = new AccountDTO("DAK-SHOP","DAK-SHOP",JD,type.getKey());
           
  
           
@@ -92,10 +92,10 @@ public class PersonDataSeeder {
        String gueNote = "ZE PURPOSE OF ZE SCUBA IS FUR PERCISION UNT EFFICENCY. ACTUNG! YOU ARE HAVING FUN!?!?!?! NEIN! NEIIIIIINNNNNN! ALSO, SINCE I HAVE YOUR ATTENTION HERE IS A LITTLE FUN FACT: THE MAX DEPTH FOR GUE DIVERS ON NITROX IS 100 FEET, WHICH IS CONSEQUENTLY SLIGHLY LESS THAT THE AVERAGE LENGTH OF STICK THAT A GUE DIVER WILL HAVE SHOVED UP THEIR ASS.";
         //gueNote = "test";
         CompanyDTO gue = new CompanyDTO("GLOBAL UNDERWATER EXPLORERS","GUE",AddressDataSeeder.GUE,true,true,gueNote);
-        String maresNote = "NOT WELL LIKED, BUT COME ON, CLEARLY THE BEST. LET THE FLAME WARS BEGIN! STILL UGLY AS SIN. Except the Abyss. Ahhhhhh the Abyss. Beauty meets druability. Yeah I said it. The Abyss eats the ScubaPro S620 and shits it out. Which isn't saying much but still. I mean have you seen the 620? And don't even get met started on the D420. More like D420 Blaze It. Ammirite bois! Still the A700 is a looker and even I will admit it. However all of these punks are like 'its heavy.' Yeah, no shit jackass. It's heavy because its not made of tupperware, I mean 'Technopolymer.' ";
+        String maresNote = "NOT WELL LIKED, BUT COME ON, CLEARLY THE BEST. LET THE FLAME WARS BEGIN! STILL UGLY AS SIN. Except the Abyss. Ahhhhhh the Abyss. Beauty meets druability. Yeah I said it. The Abyss eats the ScubaPro S620 for lunch and shits it out. Which isn't saying much but still. I mean have you seen the 620? And don't even get met started on the D420. More like D420 Blaze It. Ammirite bois! Still the A700 is a looker and even I will admit it. However all of these punks are like 'its heavy.' Yeah, no shit jackass. It's heavy because its not made of effin tupperware; I'm sorry, I mean 'Technopolymer.' ";
         CompanyDTO mares = new CompanyDTO("MARES","MARES",AddressDataSeeder.MARES,true,true,maresNote,0);
         CompanyDTO lux = new CompanyDTO("LUXIFOR","LUXIFOR",AddressDataSeeder.LUX,true,true,"INDUSTRY STANDARD TANK MAKER",0);
-         CompanyDTO sherwood = new CompanyDTO("SHERWOOD","SHERWOOD",AddressDataSeeder.LUX,true,true,"FISHER PRICE MEETS SCUBA. Like seriously, these are the ugliest regulators known to man, and I dive a Mares!",0);
+         CompanyDTO sherwood = new CompanyDTO("SHERWOOD","SHERWOOD",AddressDataSeeder.LUX,true,true,"FISHER PRICE MEETS SCUBA. Like seriously, these are the ugliest regulators known to man, and I dive a Mares! I know you're British but come on guys.",0);
         CompanyDTO xscuba = new CompanyDTO("XSCUBA","XSCUBA" ,AddressDataSeeder.XSCUBA,true,true,"HOSES 'N SHIT",0);
          CompanyDTO scubapro = new CompanyDTO("SCUBAPRO","SCUBAPRO" ,AddressDataSeeder.XSCUBA,true,true,"Pretty a much a cult at this point.",0);
         

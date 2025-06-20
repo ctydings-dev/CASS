@@ -22,5 +22,8 @@ public class DataObjectGenerator {
     public static <E, F> Map createMap() {
         return new HashMap();
     }
+    
+    
+
 
 }

@@ -9,6 +9,8 @@ import CASS.PersonDataSeeder;
 import CASS.data.TypeDTO;
 import CASS.data.TypeRepository;
 import CASS.data.address.AddressDTO;
+import CASS.data.item.InventoryItemDTO;
+import CASS.data.item.ItemDTO;
 import CASS.data.person.AccountDTO;
 import CASS.data.person.CompanyDTO;
 import CASS.manager.InventoryManager;
@@ -21,6 +23,7 @@ import CASS.services.PersonService;
 import CASS.services.ServiceError;
 import CASS.services.ServiceProvider;
 import CASS.services.TypeService;
+import CASS.util.DataObjectGenerator;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,20 @@ public class GUIRunner extends javax.swing.JFrame {
     private PersonManager prsnMngr;
     private InventoryManager invnMngr;
     private InvoiceManager ivoMngr;
+  
+    private InventoryView invenView ;
+    private SerializedItemView itemView;
+    
+        private List<InventoryItemDTO> inventory;
+    
+   private Map<CompanyDTO, Integer> companies;
+    
+   private  Map<TypeDTO, Integer> types; 
+   
+    private Map<Integer, ItemDTO> items;
+    
+    
+    
     
 
     /**
@@ -46,16 +63,126 @@ public class GUIRunner extends javax.swing.JFrame {
         initComponents();
         
         this.setupBackend();
-        InventoryView invenView = new InventoryView(this.invnMngr, this);
-            SerializedItemView itemView = new SerializedItemView(this);
+        this.loadInventory();
         
-        
+       invenView = new InventoryView(this.invnMngr, this);
+            itemView = new SerializedItemView(this);
+          
+    
         this.main.add("Inventory", invenView);
-        this.main.add("Items", itemView);
+         this.main.add("Items", itemView);
 
         
         
+   }
+    
+    
+    public List<InventoryItemDTO> getInventory(){
+        return this.inventory;
+        
     }
+    
+    public InvoiceManager getInvoiceManager(){
+        return this.ivoMngr;
+    }
+    
+    
+    public PersonManager getPersonManager(){
+        return this.prsnMngr;
+    }
+    
+    public  Map<CompanyDTO, Integer> getCompanies(){
+        return this.companies;
+    }
+    
+    public Map<TypeDTO, Integer> getTypes(){
+        return this.types;
+    }
+    
+    public Map<Integer, ItemDTO> getItems(){
+        return this.items;
+    }
+    
+    
+    public ItemDTO getItemByCode(String code){
+        
+        return this.getInventoryManager().getItemByAlias(code);
+    }
+    
+    
+    public AccountDTO getAccountByName(String name){
+        
+      return  this.getPersonManager().getAccountByName(name);
+    }
+    
+    
+    
+    
+    
+       public void loadInventory() throws ServiceError{
+       this.inventory=  this.getInventoryManager().getInventory();
+       this.items = DataObjectGenerator.createMap();
+       for(InventoryItemDTO item : this.inventory){
+           this.getItems().put( item.getKey(), this.getInventoryManager().getItem(item.getKey()));
+       }
+
+       this.types =  this.getInventoryManager().getTypesInInventory();
+       this.companies = this.getInventoryManager().getCompaniesInInventory();
+    }
+    
+    
+    
+    
+    
+
+       public String getType(Integer id){
+        
+        for(TypeDTO comp :  this.getTypes().keySet())
+       {
+           if(id == comp.getKey()){
+               return comp.getTypeName();
+           }  
+       }
+        
+        return "ERROR";
+        
+    }
+    
+       public SerializedItemView getSerializedItemView(){
+           return this.itemView;
+       }
+       public void setSerializedBaseItem(ItemDTO toSet){
+           
+           this.getSerializedItemView().seedItem(toSet);
+       }
+       
+       
+
+       
+       
+       public Integer getStoreAccountId(){
+         
+       return this.getInventoryManager().getShopAccount();
+       }
+       
+       
+       
+       
+        public CompanyDTO getCompany(Integer id){
+        
+        for(CompanyDTO comp :  this.getCompanies().keySet())
+       {
+           if(id == comp.getKey()){
+               return comp;
+           }  
+       }
+        
+        return null;
+        
+    }
+       
+    
+    
     
     
     public Integer getEmployeeID() throws ServiceError{
@@ -66,6 +193,19 @@ public class GUIRunner extends javax.swing.JFrame {
         
     }
     
+    
+
+    
+    
+    public void setSerializedItemsToView(ItemDTO toView){
+        
+    }
+    
+    
+    public void viewSerializedItems(){
+     this.main.setSelectedComponent(this.itemView);
+
+    }
     
     
     public void displayError(Throwable e){
@@ -108,7 +248,7 @@ public class GUIRunner extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(main, javax.swing.GroupLayout.DEFAULT_SIZE, 879, Short.MAX_VALUE)
+                .addComponent(main, javax.swing.GroupLayout.DEFAULT_SIZE, 1306, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -212,6 +352,20 @@ Integer accType = TypeRepository.getKey(TypeRepository.ACCOUNT_TYPE.SHOP);
 
     }
 
+    
+     public String getCompanyName(String code){
+        code = code.trim();
+        for(CompanyDTO comp : this.getCompanies().keySet()){
+            
+            
+            if(comp.getCompanyCode().trim().equalsIgnoreCase(code) == true){
+                return comp.getCompanyName();
+            }
+        }
+        return "ERROR";
+    }
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane main;

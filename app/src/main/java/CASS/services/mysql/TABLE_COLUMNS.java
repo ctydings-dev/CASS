@@ -276,10 +276,13 @@ public class TABLE_COLUMNS {
          public static class SERIALIZED_ITEM_OWNERSHIP{
             public static final String TABLE_NAME = "serialized_item_ownerships";
             public static final String ID  = "serialized_item_ownership_id";
+                                      
             public static final String ITEM = TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.ID;
            public static final String OWNER = TABLE_COLUMNS.PEOPLE.ACCOUNT.ID;
            public static final String ACTIVE = "is_active";
+           public static final String CREATED_DATE = TABLE_COLUMNS.GENERAL.CREATED_DATE;
             }
+         
         
         
         

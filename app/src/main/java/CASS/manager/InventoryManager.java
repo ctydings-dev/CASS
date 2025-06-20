@@ -9,6 +9,7 @@ import CASS.data.TypeDTO;
 import CASS.data.TypeRepository;
 import CASS.data.item.InventoryItemDTO;
 import CASS.data.item.ItemDTO;
+import CASS.data.item.ItemOwnershipDTO;
 import CASS.data.item.PriceDTO;
 import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
@@ -21,6 +22,7 @@ import CASS.services.ItemService;
 import CASS.services.PersonService;
 import CASS.services.ServiceError;
 import CASS.util.DataObjectGenerator;
+import CASS.util.DateUtils;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -509,6 +511,22 @@ this.resetCache();
     }
 
     
+    public void addSerializedItemToInventory(SerializedItemDTO item, Integer employee) throws ServiceError{
+      //  Integer item, Integer emp, Integer qty, Integer facility, Integer type, boolean isVali
+      
+        TypeDTO type = TypeRepository.getTypeDTO(TypeRepository.TRANSACTION_TYPE.RECIEVE);
+
+        TransactionDTO trans = new TransactionDTO(item.getItem(), employee,1, this.getFacility(), type.getKey(),true);
+        
+        this.getItemService().addSerializedItemToInventory(item, trans);
+        
+    }
+    
+    
+    
+    
+    
+    
     public void setSerializedItemOwnershipBySell(Integer item, Integer owner, Integer employee) throws ServiceError {
         EmployeeDTO emp = this.getPersonService().getEmployee(employee);
 
@@ -667,8 +685,61 @@ this.resetCache();
     
     
     
+    public AccountDTO getOwner(Integer key) throws ServiceError{
+              return this.getItemService().getItemOwner(new SerializedItemDTO(key));
+     }
     
     
+    public Map<Date,AccountDTO> getItemHistory(Integer key) throws ServiceError{
+        
+      ItemOwnershipDTO [] history =   this.getItemService().getAllOwnersForItem(new SerializedItemDTO(key));
+      
+      
+      
+      Map<Date,AccountDTO> ret = DataObjectGenerator.createMap();
+      
+      for(int index = 0; index < history.length; index++){
+          
+         Date date = DateUtils.parseDate(history[index].getCreatedDate());
+         
+         
+         AccountDTO acc = this.getPersonService().getAccount(history[index].getAccount());
+         ret.put(date, acc);
+          
+          
+      }
+      
+     return ret;
+        
+    }
+    
+    public boolean hasItemWithAlias(String alias){
+        return this.getItemByAlias(alias) != null;
+    }
+    
+    
+    public ItemDTO getItemByAlias(String alias){
+        
+        try{
+            return this.getItemService().getItemByAlias(alias);
+        }
+        catch(Throwable e){
+            return null;
+        }
+        
+        
+    }
+    
+    
+    public SerializedItemDTO getSerializedItem(Integer item, String serialNumber){
+        
+        try {
+            return this.getItemService().getSerializedItem(new ItemDTO(item), serialNumber);
+        } catch (ServiceError ex) {
+       return null;  }
+        
+        
+    }
     
     
     

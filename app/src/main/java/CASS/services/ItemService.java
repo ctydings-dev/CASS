@@ -9,6 +9,7 @@ import CASS.data.TypeDTO;
 import CASS.data.invoice.InvoiceDTO;
 import CASS.data.item.InventoryItemDTO;
 import CASS.data.item.ItemDTO;
+import CASS.data.item.ItemOwnershipDTO;
 import CASS.data.item.PriceDTO;
 import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
@@ -27,6 +28,8 @@ public interface ItemService {
     
     
     public ItemDTO getItem(BaseDTO key) throws ServiceError;
+    
+    public ItemDTO getItemByAlias(String code) throws ServiceError;
     
     
     public List<ItemDTO> searchItems(ItemSearchParameters params) throws ServiceError;
@@ -82,8 +85,13 @@ public void setSerializedItemOwnership(SerializedItemDTO item,  AccountDTO owner
 
 public void clearSerializedItemOwnership(SerializedItemDTO item) throws ServiceError;
 
+public void markItemAsInvalid(ItemDTO toMark) throws ServiceError;
 
 
+public AccountDTO getItemOwner(SerializedItemDTO toCheck) throws ServiceError;
 
+public ItemOwnershipDTO [] getAllOwnersForItem(SerializedItemDTO toGet) throws ServiceError;
+
+public SerializedItemDTO getSerializedItem(ItemDTO item, String sn) throws ServiceError;
 
 }

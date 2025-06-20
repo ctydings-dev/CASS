@@ -9,6 +9,7 @@ import CASS.data.TypeDTO;
 import CASS.data.TypeRepository;
 import CASS.data.invoice.InvoiceDTO;
 import CASS.data.invoice.InvoiceItemDTO;
+import CASS.data.item.ItemDTO;
 import CASS.data.item.PriceDTO;
 import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
@@ -18,7 +19,9 @@ import CASS.services.ExtendedItemService;
 import CASS.services.InvoiceService;
 import CASS.services.PersonService;
 import CASS.services.ServiceError;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -216,4 +219,24 @@ this.getPersonService().accountValid(toAdd.getAccountID());
         
     }
 
+    
+    public List<InvoiceDTO> getInvoicesWithItem(Integer key) throws ServiceError{
+        
+        InvoiceDTO [] ret = this.getInvoiceService().getInvoicesWithItem(new ItemDTO(key));
+        
+        return Arrays.asList(ret);
+        
+    }
+    
+     public List<InvoiceDTO> getInvoicesWithSerialNumber(Integer key) throws ServiceError{
+        
+        InvoiceDTO [] ret = this.getInvoiceService().getInvoicesWithSerialNumber(new SerializedItemDTO(key));
+        
+        return Arrays.asList(ret);
+        
+    }
+    
+    
+    
+    
 }

@@ -41,13 +41,7 @@ public class InventoryView extends javax.swing.JPanel {
     
     private InventoryManager invenManager;
     
-    private List<InventoryItemDTO> inventory;
-    
-   private Map<CompanyDTO, Integer> companies;
-    
-   private  Map<TypeDTO, Integer> types; 
-   
-    private Map<Integer, ItemDTO> items;
+
     
     private GUIRunner caller;
     
@@ -75,7 +69,7 @@ public class InventoryView extends javax.swing.JPanel {
     
     private void load() throws ServiceError{
         this.isAddMode = false;
-         this.loadInventory();
+       this.getCaller().loadInventory();
         this.loadAllItemTypes();
         this.loadAllMfgrs();
         this.setInventoryTable();
@@ -89,33 +83,33 @@ public class InventoryView extends javax.swing.JPanel {
     }
     
     
-    private void loadInventory() throws ServiceError{
-       this.inventory =  this.getInventoryMngr().getInventory();
-       this.items = DataObjectGenerator.createMap();
-       for(InventoryItemDTO item : this.inventory){
-           this.items.put( item.getKey(), this.getInventoryMngr().getItem(item.getKey()));
-       }
-  
-       this.types =  this.getInventoryMngr().getTypesInInventory();
-       this.companies = this.getInventoryMngr().getCompaniesInInventory();
-       
-       
-       
+    public Map<CompanyDTO, Integer> getCompanies()
+    {
+        return this.getCaller().getCompanies();
+    }
+    
+    public Map<Integer, ItemDTO> getItems(){
+        return this.getCaller().getItems();
+    }
+ 
+    public Map<TypeDTO, Integer> getTypes(){
+        return this.getCaller().getTypes();
     }
     
     
-    
-    
+    public List<InventoryItemDTO> getInventory(){
+        return this.getCaller().getInventory();
+    }
     
     
     private void loadAllItemTypes() throws ServiceError{
         
        
-        String[] types = new String[this.types.keySet().size() + 1];
+        String[] types = new String[this.getCaller().getTypes().keySet().size() + 1];
         types[0] = EMPTY;
         AtomicInteger counter = new AtomicInteger(1);
         
-        this.types.keySet().stream().forEach(entry ->{
+        this.getCaller().getTypes().keySet().stream().forEach(entry ->{
             types[counter.get()] = entry.getTypeName();
             counter.addAndGet(1);
             });
@@ -131,7 +125,7 @@ public class InventoryView extends javax.swing.JPanel {
     
     private int getCompanyID(String companyCode){
         
-       for(CompanyDTO comp :  this.companies.keySet())
+       for(CompanyDTO comp :  this.getCompanies().keySet())
        {
            if(companyCode.trim().equalsIgnoreCase(comp.getCompanyCode().trim())){
                return comp.getKey();
@@ -150,7 +144,7 @@ public class InventoryView extends javax.swing.JPanel {
     
     private Object [] createItemRow(InventoryItemDTO item){
         Object [] ret = new Object[4];
-         ItemDTO spec = this.items.get(item.getKey());
+         ItemDTO spec = this.getItems().get(item.getKey());
         ret[0] = this.getType(spec.getItemType());
        
        
@@ -163,7 +157,7 @@ public class InventoryView extends javax.swing.JPanel {
     }
     
     private boolean includeItem(InventoryItemDTO toCheck){
-        ItemDTO spec = this.items.get(toCheck.getKey());
+        ItemDTO spec = this.getItems().get(toCheck.getKey());
         String typeName = this.itemTypes.getSelectedItem().toString().trim();
         
         if(typeName.equalsIgnoreCase(EMPTY) == false){
@@ -244,7 +238,7 @@ public class InventoryView extends javax.swing.JPanel {
     
     private void setInventoryTable(){
         
-           List<InventoryItemDTO> sub = this.inventory.stream().filter(toCheck ->{
+           List<InventoryItemDTO> sub = this.getInventory().stream().filter(toCheck ->{
            return this.includeItem(toCheck);    
            }).collect(Collectors.toList());
         
@@ -264,30 +258,21 @@ public class InventoryView extends javax.swing.JPanel {
     }
     
     private CompanyDTO getCompany(Integer id){
-        
-        for(CompanyDTO comp :  this.companies.keySet())
-       {
-           if(id == comp.getKey()){
-               return comp;
-           }  
-       }
-        
-        return null;
+       return this.getCaller().getCompany(id);
         
     }
     
        private String getType(Integer id){
+      
         
-        for(TypeDTO comp :  this.types.keySet())
-       {
-           if(id == comp.getKey()){
-               return comp.getTypeName();
-           }  
-       }
-        
-        return "ERROR";
+    return this.getCaller().getType(id);
         
     }
+    
+  
+       
+        
+    
     
   
        
@@ -298,11 +283,11 @@ public class InventoryView extends javax.swing.JPanel {
     private void loadAllMfgrs() throws ServiceError{
         
        
-        String[] types = new String[this.companies.keySet().size() + 1];
+        String[] types = new String[this.getCompanies().keySet().size() + 1];
         types[0] = EMPTY;
         AtomicInteger counter = new AtomicInteger(1);
         
-        this.companies.keySet().stream().forEach(entry ->{
+        this.getCompanies().keySet().stream().forEach(entry ->{
             types[counter.get()] = entry.getCompanyCode();
             counter.addAndGet(1);
             });
@@ -338,7 +323,11 @@ public class InventoryView extends javax.swing.JPanel {
             return;
         }
         
-      ItemDTO item = new ItemDTO(0,name,alias,type,company,true,false);
+        
+        boolean serialized = this.getSerializedItemButton.getText().toUpperCase().contains("NON") == false;
+        
+        
+      ItemDTO item = new ItemDTO(0,name,alias,type,company,true,serialized);
         
         Integer emp = this.getCaller().getEmployeeID();
         
@@ -378,7 +367,7 @@ public class InventoryView extends javax.swing.JPanel {
                  this.getSerializedItemButton.setEnabled(this.isAddMode);
         if(this.isAddMode){
    
-            if(this.getSerializedItemButton.getText().toUpperCase().contains("NON"))
+            if(this.getSerializedItemButton.getText().toUpperCase().contains("NON") || this.getSerializedItemButton.getText().toUpperCase().contains("NOT"))
             {
                 this.getSerializedItemButton.setText("Serialized Item");
                 
@@ -387,11 +376,11 @@ public class InventoryView extends javax.swing.JPanel {
             
                this.getSerializedItemButton.setText("Non-Serialized Item");
             
-            
+        return;    
         }
         
         
-        
+        this.getCaller().viewSerializedItems();
         
         
     }
@@ -401,7 +390,7 @@ public class InventoryView extends javax.swing.JPanel {
     
     private Integer getTypeID(String name){
         
-        for(TypeDTO toCheck : this.types.keySet()){
+        for(TypeDTO toCheck : this.getTypes().keySet()){
             
             if(toCheck.getTypeName().equalsIgnoreCase(name)){
                 
@@ -591,6 +580,11 @@ public class InventoryView extends javax.swing.JPanel {
         itemType.setFocusable(false);
 
         companyCode.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        companyCode.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                companyCodeItemStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -748,8 +742,7 @@ public class InventoryView extends javax.swing.JPanel {
            
         
         
-            this.companyName.setText(comp.getCompanyName());
-            
+         
             String code = comp.getCompanyCode().trim();
             
        
@@ -802,7 +795,7 @@ public class InventoryView extends javax.swing.JPanel {
            
            if(item.isSerialized() == true){
                 this.getSerializedItemButton.setText("View Serialized Items");
-           this.getSerializedItemButton.setEnabled(false);
+           this.getSerializedItemButton.setEnabled(true);
            
            }else
            {
@@ -853,6 +846,11 @@ public class InventoryView extends javax.swing.JPanel {
   
   ItemDTO item = (ItemDTO) model.getRawValue(index, 2);
   
+  
+  if(item.isSerialized()){
+      this.getCaller().setSerializedBaseItem(item);
+  }
+  
   InventoryItemDTO inven = (InventoryItemDTO)model.getRawValue(index, 3);
   this.setItemToDisplay(item,inven.getQuantity());
   
@@ -883,6 +881,23 @@ public class InventoryView extends javax.swing.JPanel {
       this.setSerialiedItemButton();
     }//GEN-LAST:event_getSerializedItemButtonActionPerformed
 
+    private void companyCodeItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_companyCodeItemStateChanged
+      
+        String name = this.getCompanyName(this.companyCode.getSelectedItem().toString());
+        
+        this.companyName.setText(name);
+        
+        
+        
+        
+        
+    }//GEN-LAST:event_companyCodeItemStateChanged
+
+    
+    private String getCompanyName(String code){
+return this.getCaller().getCompanyName(code);
+    }
+    
     
     
     private void setAddButtonText(){

@@ -8,6 +8,7 @@ import CASS.data.BaseDTO;
 import CASS.data.invoice.InvoiceDTO;
 import CASS.data.invoice.InvoiceItemDTO;
 import CASS.data.invoice.ShipmentDTO;
+import CASS.data.item.ItemDTO;
 import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
 import CASS.data.person.AccountDTO;
@@ -18,6 +19,7 @@ import CASS.util.DataObjectGenerator;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -289,5 +291,115 @@ public class SqlInvoiceService extends InvoiceService {
         }
 
     }
+
+    @Override
+    public InvoiceDTO[] getInvoicesWithItem(ItemDTO key) throws ServiceError {
+       
+    InvoiceItemDTO [] items = this.getInvoiceItemsWithItem(key);
+    
+    List<Integer> sorted = DataObjectGenerator.createList();
+    
+    for(int index = 0; index < items.length; index++){
+       
+        Integer invoice = items[index].getInvoice();
+        
+        if(sorted.contains(invoice) == false){
+            sorted.add(invoice);
+        }
+       
+    }
+    
+    InvoiceDTO [] ret = new InvoiceDTO[sorted.size()];
+    for(int index = 0; index < sorted.size(); index++){
+ 
+InvoiceDTO toAdd = this.getInvoice(new BaseDTO(sorted.get(index)));
+        ret[index] = toAdd;
+    }
+    return ret;
+    }
+
+    @Override
+    public InvoiceDTO[] getInvoicesWithSerialNumber(SerializedItemDTO key) throws ServiceError {
+         InvoiceItemDTO [] items = this.getInvoiceItemsWithSerialNumber(key);
+    
+    List<Integer> sorted = DataObjectGenerator.createList();
+    
+    for(int index = 0; index < items.length; index++){
+       
+        Integer invoice = items[index].getInvoice();
+        
+        if(sorted.contains(invoice) == false){
+            sorted.add(invoice);
+        }
+       
+    }
+    
+    InvoiceDTO [] ret = new InvoiceDTO[sorted.size()];
+    for(int index = 0; index < sorted.size(); index++){
+ 
+InvoiceDTO toAdd = this.getInvoice(new BaseDTO(sorted.get(index)));
+        ret[index] = toAdd;
+    }
+    return ret;
+    }
+  
+
+    @Override
+    public InvoiceItemDTO[] getInvoiceItemsWithItem(ItemDTO key) throws ServiceError {
+        try {
+            String query = "SELECT itm.* FROM " + TABLE_COLUMNS.INVOICE.INVOICE_ITEM.TABLE_NAME;
+            
+            
+            query = query + " AS itm INNER JOIN " + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.TABLE_NAME;
+            
+            query += " AS trn ON itm."+ TABLE_COLUMNS.INVOICE.INVOICE_ITEM.TRANSACTION;
+            query += " = trn." + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ID;
+            query += " WHERE trn." + TABLE_COLUMNS.INVENTORY.INVENTORY_TRANSACTION.ITEM;
+            query += " = " + key.getKey();
+            
+            ResultSet rs = this.getService().executeQuery(query);
+            
+            List<InvoiceItemDTO> items = DataObjectGenerator.createList();
+            
+            while(rs.next()){
+                items.add(createInvoiceItemFromResultSet(rs));
+                            }
+            InvoiceItemDTO[] ret = new InvoiceItemDTO[items.size()];
+            for(int index = 0; index < ret.length; index++){
+                ret[index] = items.get(index);
+            }
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError(ex); }
+
+    }
+
+    @Override
+    public InvoiceItemDTO[] getInvoiceItemsWithSerialNumber(SerializedItemDTO key) throws ServiceError {
+     try {
+            String query = "SELECT itm.* FROM " + TABLE_COLUMNS.INVOICE.INVOICE_ITEM.TABLE_NAME;
+            
+            
+            query = query + " AS itm INNER JOIN " + TABLE_COLUMNS.INVOICE.INVOICE_ITEM_SERIAL_NUMBER.TABLE_NAME;
+            
+            query += " AS trn ON itm."+ TABLE_COLUMNS.INVOICE.INVOICE_ITEM.ID;
+            query += " = trn." +TABLE_COLUMNS.INVOICE.INVOICE_ITEM_SERIAL_NUMBER.INVOICE_ITEM;
+            query += " WHERE trn." + TABLE_COLUMNS.INVOICE.INVOICE_ITEM_SERIAL_NUMBER.ITEM;
+            query += " = " + key.getKey();
+            
+            ResultSet rs = this.getService().executeQuery(query);
+            
+            List<InvoiceItemDTO> items = DataObjectGenerator.createList();
+            
+            while(rs.next()){
+                items.add(createInvoiceItemFromResultSet(rs));
+                            }
+            InvoiceItemDTO[] ret = new InvoiceItemDTO[items.size()];
+            for(int index = 0; index < ret.length; index++){
+                ret[index] = items.get(index);
+            }
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError(ex); }   }
 
 }

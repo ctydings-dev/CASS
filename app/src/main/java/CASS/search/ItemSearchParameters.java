@@ -68,6 +68,7 @@ public void setDTO(ItemDTO toUse){
     this.setItemAlias(toUse.getItemAlias());
     this.setItemType(toUse.getItemType());
     this.setIsForSale(toUse.isForSale());
+    this.setIsSerialized(toUse.isSerialized());
     
 }
 

@@ -5,21 +5,28 @@
 package CASS.ui;
 
 import CASS.data.TypeDTO;
+import CASS.data.invoice.InvoiceDTO;
+import CASS.data.invoice.InvoiceItemDTO;
 import CASS.data.item.InventoryItemDTO;
 import CASS.data.item.ItemDTO;
 import CASS.data.item.SerializedItemDTO;
+import CASS.data.person.AccountDTO;
 import CASS.data.person.CompanyDTO;
 import CASS.manager.InventoryManager;
 import CASS.services.ServiceError;
 import CASS.util.DataObjectGenerator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -41,6 +48,18 @@ public class SerializedItemView extends javax.swing.JPanel {
     private GUIRunner caller;
 
     private static final String EMPTY = "-";
+    
+    
+    private static final String viewModeText = "Click to Enter Add Mode";
+    
+    private static final String addModeText = "Click to Add Item";
+    
+    
+   private static final String updateModeText = "Click to Update Item";
+    
+    private boolean isAddMode;
+    
+    
 
     public SerializedItemView(GUIRunner caller) throws ServiceError {
         initComponents();
@@ -50,7 +69,9 @@ public class SerializedItemView extends javax.swing.JPanel {
         this.loadAllMfgrs();
         this.setInventoryTable();
         this.clearItemDisplay();
+        this.isAddMode = false;
 
+        this.turnAddModeOff();
         this.inventoryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
 
@@ -62,6 +83,51 @@ public class SerializedItemView extends javax.swing.JPanel {
         return this.getCaller().getInventoryManager();
     }
 
+    
+    private void setAddButtonText(){
+        if(this.isAddMode != true){
+            this.addButton.setText(viewModeText);
+            
+        }
+    
+        if(this.getSerializedItem() == null)
+        {       
+    this.addButton.setText(addModeText);
+    return;
+        }
+        
+        this.addButton.setText(updateModeText);
+    
+    
+    
+    }
+    
+    
+    private SerializedItemDTO getSerializedItem(Integer item, String serialNumber ){
+   return     this.getCaller().getInventoryManager().getSerializedItem(item, serialNumber);
+    }
+    
+    
+    
+    private SerializedItemDTO getSerializedItem(){
+        
+        String alias = this.itemAlias.getText().trim().toUpperCase();
+        
+        ItemDTO item  = this.getCaller().getItemByCode(alias);
+        if(item == null){
+            return null;
+        }
+        
+        String sn = this.serialNumber.getText();
+        
+        return this.getSerializedItem(item.getKey(),sn);
+        
+        
+        
+    }
+    
+    
+    
     private void loadInventory() throws ServiceError {
 
         this.inventory = this.getInventoryMngr().getAllSerialziedItems();
@@ -120,6 +186,36 @@ public class SerializedItemView extends javax.swing.JPanel {
     }
 
     
+    public void seedItem(ItemDTO toSeed){
+        
+        this.clearItemDisplay();
+        
+      this.setItem(toSeed);
+       
+        
+    }
+    
+    
+    
+    
+    public void setItem(ItemDTO toSet){
+         String typeName = this.getCaller().getType(toSet.getKey());
+           
+        
+         CompanyDTO comp = this.getCaller().getCompany(toSet.getCompany());
+        
+       this.companyCode.setText(comp.getCompanyCode());
+       this.itemType.setText(typeName);
+       this.itemAlias.setText(toSet.getItemAlias());
+       
+    }
+    
+    
+    
+    
+    
+    
+    
     
     private ItemDTO getItem(SerializedItemDTO base){
         return this.inventory.get(base);
@@ -152,11 +248,53 @@ public class SerializedItemView extends javax.swing.JPanel {
 
         if (name.length() > 0) {
 
-            if (spec.getItemName().toUpperCase().contains(name) == false) {
+            if (spec.getItemAlias().toUpperCase().contains(name) == false) {
                 return false;
             }
 
         }
+        
+        
+        String sn = this.serialNumberFilter.getText().trim().toUpperCase();
+        
+        
+        if(sn.length() > 0){
+            
+            
+             if (toCheck.getSerialNumber().toUpperCase().contains(sn) == false) {
+                return false;
+            }
+            
+        }
+        String owner = this.ownerFilter.getText().trim().toUpperCase();
+        
+        if(owner.length() > 0){
+            try {
+                AccountDTO acc = this.getCaller().getInventoryManager().getOwner(toCheck.getKey());
+                if(acc.getAccountName().toUpperCase().contains(owner) == false){
+                    
+                    if(acc.getAccountNumber().toUpperCase().contains(owner) == false){
+                    
+                    return false;
+                    }
+                    
+                }
+                
+                
+                
+                
+                
+            } catch (ServiceError ex) {
+             return false;}
+            
+            
+            
+            
+            
+        }
+        
+        
+        
 
         return true;
     }
@@ -176,7 +314,7 @@ public class SerializedItemView extends javax.swing.JPanel {
             data[index] = this.createItemRow(sub.get(index));
 
         }
-        ItemTableModel model = new ItemTableModel(data);
+        SNItemTableModel model = new SNItemTableModel(data);
         this.inventoryTable.setModel(model);
 
     }
@@ -242,23 +380,26 @@ public class SerializedItemView extends javax.swing.JPanel {
         reset = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         inventoryTable = new javax.swing.JTable();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         itemType = new javax.swing.JTextField();
-        itemName = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
         itemAlias = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
-        getSerializedItemButton = new javax.swing.JButton();
-        companyName = new javax.swing.JTextField();
-        Company = new javax.swing.JLabel();
+        itemAliasLabel = new javax.swing.JLabel();
+        addButton = new javax.swing.JButton();
         companyCode = new javax.swing.JTextField();
         Company1 = new javax.swing.JLabel();
-        qty = new javax.swing.JTextField();
+        serialNumber = new javax.swing.JTextField();
         Company3 = new javax.swing.JLabel();
+        serialNumberFilter = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        invoiceTable = new javax.swing.JTable();
+        account = new javax.swing.JTextField();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        itemHistory = new javax.swing.JTable();
+        ownerFilter = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        sellable = new javax.swing.JCheckBox();
 
         companyCode1.setEditable(false);
         companyCode1.setText("jTextField1");
@@ -334,46 +475,109 @@ public class SerializedItemView extends javax.swing.JPanel {
         });
         jScrollPane2.setViewportView(inventoryTable);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jTextArea1.setAutoscrolls(false);
-        jScrollPane1.setViewportView(jTextArea1);
-
-        jLabel4.setText("Item Notes");
-
-        jLabel5.setText("Item");
+        jLabel4.setText("Serial Number");
 
         jLabel6.setText("Item Type:");
 
         itemType.setEditable(false);
         itemType.setText("jTextField1");
 
-        itemName.setEditable(false);
-        itemName.setText("jTextField1");
-
-        jLabel7.setText("Item Name:");
-
         itemAlias.setEditable(false);
         itemAlias.setText("jTextField1");
+        itemAlias.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                itemAliasKeyReleased(evt);
+            }
+        });
 
-        jLabel8.setText("Item Alias:");
+        itemAliasLabel.setText("Item Alias:");
 
-        getSerializedItemButton.setText("jButton1");
-
-        companyName.setEditable(false);
-        companyName.setText("jTextField1");
-
-        Company.setText("Company Name");
+        addButton.setText("Click to add Serialized Item");
+        addButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addButtonActionPerformed(evt);
+            }
+        });
 
         companyCode.setEditable(false);
         companyCode.setText("jTextField1");
 
         Company1.setText("Company Code");
 
-        qty.setEditable(false);
-        qty.setText("jTextField1");
+        serialNumber.setEditable(false);
+        serialNumber.setText("jTextField1");
+        serialNumber.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                serialNumberKeyReleased(evt);
+            }
+        });
 
-        Company3.setText("Quantity in Stock:");
+        Company3.setText("Serial Number");
+
+        serialNumberFilter.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                serialNumberFilterKeyReleased(evt);
+            }
+        });
+
+        jLabel7.setText("Current Owner");
+
+        invoiceTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Invoice", "Date"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        invoiceTable.setEnabled(false);
+        invoiceTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        invoiceTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane1.setViewportView(invoiceTable);
+
+        account.setText("jTextField1");
+
+        itemHistory.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Owner", "Date"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(itemHistory);
+
+        ownerFilter.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                ownerFilterKeyReleased(evt);
+            }
+        });
+
+        jLabel5.setText("Serial Number");
+
+        sellable.setText("Sellable Item");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -381,61 +585,84 @@ public class SerializedItemView extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(15, 15, 15)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(itemTypes, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(manufacturers, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(itemTypes, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(manufacturers, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(reset, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE)
+                    .addComponent(ownerFilter)
+                    .addComponent(serialNumberFilter)
                     .addComponent(itemNameFilter)
-                    .addComponent(reset, javax.swing.GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(addButton, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sellable))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel7)
-                                    .addComponent(jLabel6)
-                                    .addComponent(jLabel8))
-                                .addGap(43, 43, 43)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(itemName, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(itemType, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(Company)
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(itemAlias, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
-                                    .addComponent(companyName)))
-                            .addComponent(Company1)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(getSerializedItemButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(layout.createSequentialGroup()
-                                    .addComponent(Company3)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel6)
+                                        .addComponent(Company1))
+                                    .addGap(21, 21, 21)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(itemType, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(companyCode, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(itemAlias, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(Company3)
+                                        .addComponent(jLabel7))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(companyCode, javax.swing.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
-                                        .addComponent(qty)))))
-                        .addContainerGap(83, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel5)
-                        .addGap(170, 170, 170))))
+                                        .addComponent(serialNumber, javax.swing.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
+                                        .addComponent(account))))
+                            .addComponent(itemAliasLabel))
+                        .addGap(13, 13, 13)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 341, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(7, 7, 7)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel5))
+                .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel6)
+                                    .addComponent(itemType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(companyCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(Company1))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(itemAliasLabel)
+                                    .addComponent(itemAlias, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(Company3)
+                                    .addComponent(serialNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel7)
+                                    .addComponent(account, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(itemTypes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(2, 2, 2)
@@ -449,37 +676,19 @@ public class SerializedItemView extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(serialNumberFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ownerFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(20, 20, 20)
                         .addComponent(reset))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(itemType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel7)
-                            .addComponent(itemName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel8)
-                            .addComponent(itemAlias, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(Company)
-                            .addComponent(companyName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(Company1)
-                            .addComponent(companyCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(Company3)
-                            .addComponent(qty, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(getSerializedItemButton)))
-                .addContainerGap(15, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addButton)
+                    .addComponent(sellable))
+                .addContainerGap(94, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -500,44 +709,96 @@ public class SerializedItemView extends javax.swing.JPanel {
         this.itemTypes.setSelectedIndex(0);
         this.manufacturers.setSelectedIndex(0);
         this.itemNameFilter.setText("");
+        this.serialNumberFilter.setText("");
+        this.ownerFilter.setText("");
         this.clearItemDisplay();
 
 
     }//GEN-LAST:event_resetActionPerformed
 
-    public void setItemToDisplay(ItemDTO item, int qty) {
-        CompanyDTO comp = this.getCompany(item.getCompany());
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    public void setItemToDisplay(ItemDTO item, SerializedItemDTO sn) throws ServiceError {
+       //this.setItemTypeAndCompany(item.getCompany(),item.getItemType());
+    this.serialNumber.setText(sn.getSerialNumber());
+           //this.itemType.setText("");
+         
+           
+          // this.itemType.getModel().s
+           
+   this.setItem(item);
+       AccountDTO acc =     this.getCaller().getInventoryManager().getOwner(sn.getKey());
+Map<Date,AccountDTO> history = this.getCaller().getInventoryManager().getItemHistory(sn.getKey());
 
-        this.itemName.setText(item.getItemName());
-        this.itemType.setText("");
-        this.itemAlias.setText(item.getItemAlias());
-        this.companyName.setText(comp.getCompanyName());
-        this.companyCode.setText(comp.getCompanyCode());
-        this.qty.setText("" + qty);
 
-        if (item.isSerialized() == true) {
-            this.getSerializedItemButton.setText("View Serialized Items");
-            this.getSerializedItemButton.setEnabled(false);
+List<AccountDTO> sorted = DataObjectGenerator.createList();
 
-        } else {
-            this.getSerializedItemButton.setText("Item is not Serialized");
-            this.getSerializedItemButton.setEnabled(false);
 
-        }
-
+  this.account.setText(acc.getAccountName());
+          history.keySet().stream().forEach(entry ->{
+              AccountDTO toAdd = history.get(entry);
+              toAdd.setCreatedDate(entry.toString());
+              sorted.add(toAdd);
+                       });
+        
+          Object [] tableData = new Object[sorted.size()];
+          for(int index = 0; index < tableData.length; index++){
+              tableData[index] = sorted.get(index);
+              
+          }
+          TableModel model = new ItemHistoryTableModel(tableData);
+          itemHistory.setModel(model);
+          
+          this.loadInvoices(sn.getKey());
+          this.addButton.setText(viewModeText);
     }
 
+    private void loadInvoices(Integer key) throws ServiceError{
+        
+        List<InvoiceDTO> invoices = this.getCaller().getInvoiceManager().getInvoicesWithSerialNumber(key);
+     
+       InvoiceDTO [] data = new InvoiceDTO[invoices.size()];
+       
+       for(int index = 0; index < data.length; index++){
+           
+           data[index] = invoices.get(index);
+           
+           
+           
+       }
+       
+        TableModel model =new InvoiceTableModel(data, 2);
+        this.invoiceTable.setModel(model);
+               
+    }
+    
+    
+    
+    
+    
     public void clearItemDisplay() {
 
-        this.itemName.setText("");
         this.itemType.setText("");
         this.itemAlias.setText("");
-        this.companyName.setText("");
+  
         this.companyCode.setText("");
-        this.qty.setText("");
-        this.getSerializedItemButton.setText("No Item Selected");
-        this.getSerializedItemButton.setEnabled(false);
-
+        this.serialNumber.setText("");
+        this.account.setText("");
+        
+        
+    this.turnAddModeOff();
     }
 
 
@@ -548,95 +809,273 @@ public class SerializedItemView extends javax.swing.JPanel {
     private void inventoryTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inventoryTableMouseReleased
         int index = this.inventoryTable.getSelectedRow();
 
-        ItemTableModel model = (ItemTableModel) this.inventoryTable.getModel();
+        SNItemTableModel model = (SNItemTableModel) this.inventoryTable.getModel();
 
         ItemDTO item = (ItemDTO) model.getRawValue(index, 2);
 
-        InventoryItemDTO inven = (InventoryItemDTO) model.getRawValue(index, 3);
-        this.setItemToDisplay(item, inven.getQuantity());
-
-        //this.inven
+        SerializedItemDTO sn = (SerializedItemDTO) model.getRawValue(index, 3);
+   
+        try {
+            this.setItemToDisplay(item, sn);
+            
+            //this.inven
+        } catch (ServiceError ex) {
+        this.getCaller().displayError(ex);  }
     }//GEN-LAST:event_inventoryTableMouseReleased
 
+    private void serialNumberFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_serialNumberFilterKeyReleased
+     this.setInventoryTable();
+    }//GEN-LAST:event_serialNumberFilterKeyReleased
+
+    
+    
+    private void turnAddModeOff(){
+        this.isAddMode = true;
+        this.toggleAddButton();
+        
+    }
+    
+    
+    private void toggleAddButton(){
+         this.isAddMode = !this.isAddMode; 
+      this.setAddButtonText();
+      
+    
+     this.itemAliasLabel.setText("Item Alias:");
+          this.itemAlias.setEditable(this.isAddMode);
+          this.serialNumber.setEditable(this.isAddMode);
+          this.account.setEditable(this.isAddMode);
+          this.companyCode.setEnabled(!this.isAddMode);
+          this.itemType.setEnabled(!this.isAddMode);
+      
+    }
+    
+    
+    
+    
+    private boolean addItem() throws ServiceError{
+    
+        String alias = this.itemAlias.getText().trim().toUpperCase();
+        ItemDTO item = this.getCaller().getItemByCode(alias);
+        if(item == null){
+            this.getCaller().displayError(alias + " is not a valid item alias.");
+            return false;
+        }
+        String owner = this.account.getText();
+        AccountDTO acc = this.getCaller().getAccountByName(owner);
+        
+      if(acc == null){
+          
+          this.getCaller().displayError(owner + " is not a valid account name.");
+          return false;
+      } 
+  
+      
+      
+      
+      
+      
+      boolean isForSale = this.sellable.isSelected();
+      SerializedItemDTO sn = this.getSerializedItem();
+      boolean update = true;
+    
+      if(sn == null){
+ update = false;         
+          sn = new SerializedItemDTO(this.serialNumber.getText().trim(), item.getKey(), isForSale);
+                }
+      else
+      {
+      AccountDTO check = this.getCaller().getInventoryManager().getOwner(sn.getKey());
+      
+      if(check.getKey() == acc.getKey()){
+          this.getCaller().displayError("This item is already owned by " + acc.getAccountName() + ".");
+          
+          return false; 
+      }
+         
+          
+      }
+      
+      
+      
+      
+      
+      Integer emp = this.getCaller().getEmployeeID();
+      
+      
+      if(update == true){
+          
+          boolean addToInven = false;
+          
+          
+          
+          
+          this.getCaller().getInventoryManager().setSerializedItemOwnership(sn.getKey(), acc.getKey(), emp);
+          
+          if(acc.getKey() == this.getCaller().getStoreAccountId()){
+    
+              this.getCaller().getInventoryManager().addSerializedItemToInventory(sn, emp);
+              
+
+              
+          }
+         
+          
+       
+            return true;
+       
+      }
+      
+      
+      
+      
+      
+      
+      
+           return true;
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
+   
+        if(this.isAddMode == true){
+            try {
+                this.addItem();
+                this.clearItemDisplay();
+                this.loadInventory();
+            } catch (ServiceError ex) {
+             this.getCaller().displayError(ex);  }
+        }
+        
+        
+        this.toggleAddButton();
+    }//GEN-LAST:event_addButtonActionPerformed
+
+    private void ownerFilterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ownerFilterKeyReleased
+   this.setInventoryTable();
+    }//GEN-LAST:event_ownerFilterKeyReleased
+
+    
+    private void serialNumberKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_serialNumberKeyReleased
+      this.setAddButtonText();
+    }//GEN-LAST:event_serialNumberKeyReleased
+
+    private void itemAliasKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_itemAliasKeyReleased
+     this.setAddButtonText();
+     
+     ItemDTO item = this.getCaller().getItemByCode(this.itemAlias.getText());
+     
+     this.itemAliasLabel.setText("Item Alias:");
+     if(item == null){
+         this.itemAliasLabel.setText("Item Alias:DNE");
+     }
+     
+     
+     
+    }//GEN-LAST:event_itemAliasKeyReleased
+
     //https://docs.oracle.com/javase/tutorial/uiswing/components/table.html
-    private class ItemTableModel extends AbstractTableModel {
+    private class SNItemTableModel extends BaseTableModel {
 
-        private String[] columnNames = {"Type", "Mnfr", "Item", "SN"};
-        private Object[][] data;
-
-        public ItemTableModel(Object[][] data) {
-            this.data = data;
+     
+        public SNItemTableModel(Object[][] data) {
+            super(data);
+            String[] columnNames = {"Type", "Mnfr", "Item", "SN"};
+ this.setCols(columnNames);
         }
 
-        public int getColumnCount() {
-            return columnNames.length;
-        }
+       
 
-        public int getRowCount() {
-            return data.length;
-        }
-
-        public String getColumnName(int col) {
-            return columnNames[col];
-        }
-
-        public Object getRawValue(int row, int col) {
-            return data[row][col];
-        }
 
         public Object getValueAt(int row, int col) {
 
             if (col == 1) {
-               return ((CompanyDTO) data[row][col]).getCompanyCode();
+          
+               return ((CompanyDTO) this.getData()[row][col]).getCompanyCode();
             }
 
             if (col == 2) {
-                return ((ItemDTO) data[row][col]).getItemName();
+                return ((ItemDTO) this.getData()[row][col]).getItemAlias();
             }
 
             if (col == 3) {
-                return ((SerializedItemDTO) data[row][col]).getSerialNumber();
+                return ((SerializedItemDTO) this.getData()[row][col]).getSerialNumber();
             }
 
-            return data[row][col];
+            return this.getData()[row][col];
         }
-
-        public Class getColumnClass(int c) {
-            return getValueAt(0, c).getClass();
-        }
-
-        /*
-     * Don't need to implement this method unless your table's
-     * editable.
-         */
-        public boolean isCellEditable(int row, int col) {
-            return false;
-        }
-
-        /*
-     * Don't need to implement this method unless your table's
-     * data can change.
-         */
-        public void setValueAt(Object value, int row, int col) {
-            data[row][col] = value;
-            fireTableCellUpdated(row, col);
-        }
-
     }
 
+    
+    
+    
+    
+    //https://docs.oracle.com/javase/tutorial/uiswing/components/table.html
+    private class ItemHistoryTableModel extends ItemTableModel {
+
+        public ItemHistoryTableModel(Object[] data) {
+            super(data);
+            String[] columnNames = {"Acc Name", "Acc #", "Date"};
+ this.setCols(columnNames);
+        }
+
+       
+
+
+        public Object getValueAt(int row, int col) {
+
+            if (col == 0) {
+               return ((AccountDTO) this.getData()[row]).getAccountName();
+            }
+  if (col == 1) {
+               return ((AccountDTO) this.getData()[row]).getAccountNumber();
+            }
+          
+  return ((AccountDTO) this.getData()[row]).getCreatedDate();
+        }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel Company;
     private javax.swing.JLabel Company1;
     private javax.swing.JLabel Company2;
     private javax.swing.JLabel Company3;
+    private javax.swing.JTextField account;
+    private javax.swing.JButton addButton;
     private javax.swing.JTextField companyCode;
     private javax.swing.JTextField companyCode1;
-    private javax.swing.JTextField companyName;
-    private javax.swing.JButton getSerializedItemButton;
     private javax.swing.JTable inventoryTable;
+    private javax.swing.JTable invoiceTable;
     private javax.swing.JTextField itemAlias;
-    private javax.swing.JTextField itemName;
+    private javax.swing.JLabel itemAliasLabel;
+    private javax.swing.JTable itemHistory;
     private javax.swing.JTextField itemNameFilter;
     private javax.swing.JTextField itemType;
     private javax.swing.JComboBox<String> itemTypes;
@@ -647,12 +1086,14 @@ public class SerializedItemView extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JComboBox<String> manufacturers;
-    private javax.swing.JTextField qty;
+    private javax.swing.JTextField ownerFilter;
     private javax.swing.JButton reset;
+    private javax.swing.JCheckBox sellable;
+    private javax.swing.JTextField serialNumber;
+    private javax.swing.JTextField serialNumberFilter;
     // End of variables declaration//GEN-END:variables
 }

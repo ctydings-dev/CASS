@@ -79,7 +79,10 @@ public class SqlPersonService implements PersonService {
     }
     
     
-    private AccountDTO createAccountFromResultSet(ResultSet rs) throws SQLException{
+
+    
+    
+       public static AccountDTO createAccountFromResultSet(ResultSet rs) throws SQLException{
           int key = rs.getInt(TABLE_COLUMNS.PEOPLE.ACCOUNT.ID);
         int person= rs.getInt(TABLE_COLUMNS.PEOPLE.ACCOUNT.PERSON);
         int  type = rs.getInt(TABLE_COLUMNS.PEOPLE.ACCOUNT.TYPE);
@@ -90,6 +93,8 @@ public class SqlPersonService implements PersonService {
               
        return new AccountDTO(name,number,person,closed,type,key,created);
     }
+    
+    
     
     
 
@@ -583,6 +588,40 @@ public class SqlPersonService implements PersonService {
         } catch (SQLException ex) {
          throw new ServiceError(ex); }
       }
+
+    @Override
+    public AccountDTO getAccountByName(String name) throws ServiceError {
+    
+        try {
+            String query = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
+            query = query + " WHERE " + TABLE_COLUMNS.PEOPLE.ACCOUNT.NAME;
+            query = query + " ='" + name + "';";
+            ResultSet rs = this.getService().executeQuery(query);
+            rs.next();
+            return createAccountFromResultSet(rs);
+     
+        } catch (SQLException ex) {
+        throw new ServiceError(ex);  }
+    
+    
+    }
+
+    @Override
+    public AccountDTO getAccountByNumber(String number) throws ServiceError {
+     
+        try {
+            String query = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
+            query = query + " WHERE " + TABLE_COLUMNS.PEOPLE.ACCOUNT.NUMBER;
+            query = query + " ='" + number + "';";
+            ResultSet rs = this.getService().executeQuery(query);
+            rs.next();
+            return createAccountFromResultSet(rs);
+     
+        } catch (SQLException ex) {
+        throw new ServiceError(ex);  }
+     }
+    
+    
     
     
     

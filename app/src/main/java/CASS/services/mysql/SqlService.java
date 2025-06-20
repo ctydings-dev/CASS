@@ -72,11 +72,11 @@ public abstract class SqlService {
     }
 
     public ResultSet executeQuery(String query) throws SQLException {
-        return this.createStatement().executeQuery(query);
+        return this.createStatement().executeQuery(query.toUpperCase());
     }
 
     public boolean executeStatement(String sql) throws SQLException {
-        return this.createStatement().execute(sql);
+        return this.createStatement().execute(sql.toUpperCase());
     }
 
     public int getIntValue(ResultSet rs, String name) throws SQLException {

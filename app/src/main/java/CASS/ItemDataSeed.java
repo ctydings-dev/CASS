@@ -40,7 +40,7 @@ public class ItemDataSeed {
      addRover(svc);
      addGeneric(svc);
      addTanks(svc);
-     //createShitloads(svc,150);
+     createShitloads(svc,0);
       
         
     }
@@ -60,6 +60,12 @@ public class ItemDataSeed {
         
         
     }
+    
+    
+    
+ 
+    
+    
     
     private static String generateSerialNumber(ItemDTO item){
         

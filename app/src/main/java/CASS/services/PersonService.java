@@ -75,4 +75,9 @@ public interface PersonService {
     
     public AccountDTO [] getAccountsByType(TypeDTO type) throws ServiceError;
     
+    
+    public AccountDTO getAccountByName(String name) throws ServiceError;
+    
+    public AccountDTO getAccountByNumber(String number) throws ServiceError;
+    
 }

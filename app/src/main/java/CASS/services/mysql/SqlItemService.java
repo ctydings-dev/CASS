@@ -12,6 +12,7 @@ import CASS.data.TypeAssignmentDTO;
 import CASS.data.TypeDTO;
 import CASS.data.item.InventoryItemDTO;
 import CASS.data.item.ItemDTO;
+import CASS.data.item.ItemOwnershipDTO;
 import CASS.data.item.PriceDTO;
 import CASS.data.item.SerializedItemDTO;
 import CASS.data.item.TransactionDTO;
@@ -55,7 +56,7 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         return svc;
     }
 
-    private ItemDTO createItemFromResultSet(ResultSet rs) throws SQLException {
+    public static ItemDTO createItemFromResultSet(ResultSet rs) throws SQLException {
 
         int key = rs.getInt(TABLE_COLUMNS.INVENTORY.ITEM.ID);
         int company = rs.getInt(TABLE_COLUMNS.INVENTORY.ITEM.COMPANY);
@@ -69,10 +70,9 @@ public class SqlItemService implements ItemService, ExtendedItemService {
         return new ItemDTO(key, name, alias, type, company, isForSale, isSerialized);
 
     }
-    
-    
-      private InventoryItemDTO createInvItemFromResultSet(ResultSet rs) throws SQLException {
-String item = "itm.";
+
+    private InventoryItemDTO createInvItemFromResultSet(ResultSet rs) throws SQLException {
+        String item = "itm.";
         int key = rs.getInt(item + TABLE_COLUMNS.INVENTORY.ITEM.ID);
         int company = rs.getInt(item + TABLE_COLUMNS.INVENTORY.ITEM.COMPANY);
         int type = rs.getInt(item + TABLE_COLUMNS.INVENTORY.ITEM.TYPE);
@@ -82,13 +82,11 @@ String item = "itm.";
         boolean isForSale = rs.getBoolean(item + TABLE_COLUMNS.INVENTORY.ITEM.IS_FOR_SALE);
         boolean isSerialized = rs.getBoolean(item + TABLE_COLUMNS.INVENTORY.ITEM.IS_SERIALIZED);
 
-        ItemDTO base =  new ItemDTO(key, name, alias, type, company, isForSale, isSerialized);
-Integer qty = rs.getInt("inv."+ TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK);
-        
-        return new InventoryItemDTO(base,qty);
+        ItemDTO base = new ItemDTO(key, name, alias, type, company, isForSale, isSerialized);
+        Integer qty = rs.getInt("inv." + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK);
+
+        return new InventoryItemDTO(base, qty);
     }
-    
-    
 
     private TransactionDTO createTransactionFromResultSet(ResultSet rs) throws SQLException {
 
@@ -141,13 +139,12 @@ Integer qty = rs.getInt("inv."+ TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK);
 
         try {
             List<ItemDTO> ret = DataObjectGenerator.createList();
-            
-            String query =  "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.ITEM.NAME;
-            
+
+            String query = "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.ITEM.NAME;
+
             query = query + " WHERE " + TABLE_COLUMNS.INVENTORY.ITEM.VALID;
             query = query + " = TRUE;";
-            
-            
+
             ResultSet rs = this.getService().executeQuery(query);
             while (rs.next()) {
                 ret.add(this.createItemFromResultSet(rs));
@@ -699,10 +696,10 @@ Integer qty = rs.getInt("inv."+ TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK);
     public SerializedItemDTO[] getAllSerializedItems() throws ServiceError {
         try {
             String query = "SELECT  * FROM " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.TABLE_NAME;
-            
-            query = query + " WHERE "+ TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.PRESENT;
+
+            query = query + " WHERE " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.PRESENT;
             query = query + " = TRUE";
-            
+
             query = query + ";";
             List<SerializedItemDTO> items = DataObjectGenerator.createList();
             ResultSet rs = this.getService().executeQuery(query);
@@ -748,10 +745,10 @@ Integer qty = rs.getInt("inv."+ TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK);
             throw new ServiceError(ex);
         }
     }
-    
+
     @Override
-    public void removeSerializedItem(SerializedItemDTO toRemove) throws ServiceError{
-        
+    public void removeSerializedItem(SerializedItemDTO toRemove) throws ServiceError {
+
         try {
             String stmt = "UPDATE " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.TABLE_NAME;
             stmt = stmt + " SET " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.PRESENT;
@@ -759,120 +756,234 @@ Integer qty = rs.getInt("inv."+ TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.STOCK);
             stmt = stmt + " = " + toRemove.getKey() + ";";
             this.getService().executeStatement(stmt);
         } catch (SQLException ex) {
-          throw new ServiceError(ex);     }
-        
-        
-        
+            throw new ServiceError(ex);
+        }
+
     }
+
     @Override
-    public void addSerializedItemNote(SerializedItemDTO item, EmployeeDTO employee, TypeDTO type, String note) throws ServiceError{
+    public void addSerializedItemNote(SerializedItemDTO item, EmployeeDTO employee, TypeDTO type, String note) throws ServiceError {
         try {
             String stmt = "INSERT INTO " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_NOTE.TABLE_NAME;
             stmt += " (" + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_NOTE.ITEM;
             stmt += ", " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_NOTE.EMPLOYEE;
             stmt += ", " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_NOTE.TYPE;
             stmt += ", " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_NOTE.NOTE;
-            stmt +=") VALUES (" + item.getKey() + ", " + employee.getKey() + ", ";
+            stmt += ") VALUES (" + item.getKey() + ", " + employee.getKey() + ", ";
             stmt += type.getKey() + ", '" + note + "');";
-            
+
             this.getService().executeStatement(stmt);
         } catch (SQLException ex) {
-       throw new ServiceError(ex);  }
-  
+            throw new ServiceError(ex);
+        }
+
     }
-    
+
     @Override
-    public SerializedItemDTO getSerializedItem(SerializedItemDTO key) throws ServiceError{
-        
+    public SerializedItemDTO getSerializedItem(SerializedItemDTO key) throws ServiceError {
+
         try {
             String stmt = "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.TABLE_NAME;
             stmt = stmt + " WHERE " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.ID;
             stmt = stmt + " = " + key.getKey() + ";";
             ResultSet rs = this.getService().executeQuery(stmt);
-            
+
             rs.next();
             return this.createSerializedItemFromResultSet(rs);
         } catch (SQLException ex) {
-     throw new ServiceError(ex);    }
-        
-        
-        
+            throw new ServiceError(ex);
+        }
+
     }
+
     @Override
-    public void clearSerializedItemOwnership(SerializedItemDTO item) throws ServiceError
-    {
-         try {
+    public void clearSerializedItemOwnership(SerializedItemDTO item) throws ServiceError {
+        try {
             String stmt = "UPDATE " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.TABLE_NAME;
-            
-            stmt +=  " SET " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ACTIVE;
+
+            stmt += " SET " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ACTIVE;
             stmt += " = FALSE WHERE " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ITEM;
-            
+
             stmt += " = " + item.getKey() + ";";
-            
+
             this.getService().executeStatement(stmt);
-                   
+
         } catch (SQLException ex) {
-         throw new ServiceError(ex); }
-        
-        
+            throw new ServiceError(ex);
+        }
+
     }
-    
-    
 
     @Override
     public void setSerializedItemOwnership(SerializedItemDTO item, AccountDTO owner) throws ServiceError {
-    
+
         try {
-           this.clearSerializedItemOwnership(item);
-            
+            this.clearSerializedItemOwnership(item);
+
             String stmt = "INSERT INTO " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.TABLE_NAME;
-            stmt += "("+   TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ITEM;
-            stmt += ", " +   TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.OWNER;
-            stmt += ", " +   TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ACTIVE;
+            stmt += "(" + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ITEM;
+            stmt += ", " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.OWNER;
+            stmt += ", " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ACTIVE;
             stmt += ") VALUES (" + item.getKey() + ", " + owner.getKey();
             stmt += ", TRUE);";
-            
+
             this.getService().executeStatement(stmt);
-            
-            
-            
-            
+
         } catch (SQLException ex) {
-         throw new ServiceError(ex); }
-        
-        
-    
-    
-    
+            throw new ServiceError(ex);
+        }
+
     }
 
-   @Override
-  public InventoryItemDTO [] getInventory(BaseDTO facility) throws ServiceError{
+    @Override
+    public InventoryItemDTO[] getInventory(BaseDTO facility) throws ServiceError {
         try {
-            String stmt  = "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.ITEM.TABLE_NAME;
+            String stmt = "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.ITEM.TABLE_NAME;
             stmt += " AS itm INNER JOIN " + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.TABLE_NAME;
-            stmt += " AS inv ON itm." + TABLE_COLUMNS.INVENTORY.ITEM.ID ;
-            stmt += " = inv."+ TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.ITEM;
+            stmt += " AS inv ON itm." + TABLE_COLUMNS.INVENTORY.ITEM.ID;
+            stmt += " = inv." + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.ITEM;
             stmt += " WHERE " + TABLE_COLUMNS.INVENTORY.INVENTORY_TABLE.FACILITY;
             stmt += " = " + facility.getKey() + ";";
-            
-            
+
             ResultSet rs = this.getService().executeQuery(stmt);
             List<InventoryItemDTO> items = DataObjectGenerator.createList();
-            while(rs.next()){
+            while (rs.next()) {
                 items.add(this.createInvItemFromResultSet(rs));
-                   }
-            InventoryItemDTO [] ret = new InventoryItemDTO[items.size()];
-            for(int index = 0; index < ret.length; index++){
+            }
+            InventoryItemDTO[] ret = new InventoryItemDTO[items.size()];
+            for (int index = 0; index < ret.length; index++) {
                 ret[index] = items.get(index);
             }
-           return ret;
+            return ret;
         } catch (SQLException ex) {
-         throw new ServiceError(ex);  }
+            throw new ServiceError(ex);
+        }
     }
 
-    
-    
-    
+    @Override
+    public void markItemAsInvalid(ItemDTO toMark) throws ServiceError {
+        try {
+            String stmt = "UPDATE " + TABLE_COLUMNS.INVENTORY.ITEM.TABLE_NAME;
+            stmt += " SET " + TABLE_COLUMNS.INVENTORY.ITEM.VALID;
+            stmt += " = FALSE WHERE " + TABLE_COLUMNS.INVENTORY.ITEM.ID;
 
+            stmt = stmt + " = " + toMark.getKey() + ";";
+
+            this.getService().executeStatement(stmt);
+        } catch (SQLException ex) {
+            throw new ServiceError(ex);
+        }
+    }
+
+    @Override
+    public AccountDTO getItemOwner(SerializedItemDTO toCheck) throws ServiceError {
+  
+        String query = "SELECT acc.* FROM " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
+        
+        
+        query += " AS acc INNER JOIN " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.TABLE_NAME;
+        
+        query += " AS ownr ON acc." + TABLE_COLUMNS.PEOPLE.ACCOUNT.ID;
+        query += " = ownr." + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.OWNER;
+        query += " WHERE ownr."+ TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ITEM;
+        query  += " = " + toCheck.getKey();
+        query += " AND " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ACTIVE;
+        query = query + " = TRUE;";
+        
+        try {
+            ResultSet rs=  this.getService().executeQuery(query);
+            rs.next();
+            return SqlPersonService.createAccountFromResultSet(rs);
+            
+        } catch (SQLException ex) {
+           throw new ServiceError(ex); }
+       
+    }
+    
+    @Override
+    public ItemOwnershipDTO [] getAllOwnersForItem(SerializedItemDTO toGet) throws ServiceError{
+         String query = "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.TABLE_NAME;
+        
+        query += " WHERE "+ TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ITEM;
+        query  += " = " + toGet.getKey();
+        query += " ORDER BY " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.CREATED_DATE;
+        
+        query = query + " ASC;";
+        
+        try {
+            ResultSet rs=  this.getService().executeQuery(query);
+            
+            
+            
+            List<ItemOwnershipDTO> values = DataObjectGenerator.createList();
+            
+            while(rs.next()){
+                
+                 Integer key = rs.getInt("" + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ID);
+                
+               
+                Integer item = rs.getInt("" + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ITEM);
+                
+                Integer owner = rs.getInt("" + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.OWNER);
+                
+                 String date = rs.getString("" + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.CREATED_DATE);
+               
+                boolean valid  = rs.getBoolean("" + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM_OWNERSHIP.ACTIVE);
+               
+                
+                ItemOwnershipDTO toAdd = new ItemOwnershipDTO(key,item,owner,valid, date);
+                values.add(toAdd);
+                
+            }
+            
+            ItemOwnershipDTO [] ret = new ItemOwnershipDTO[values.size()];
+            
+            for(int index = 0; index < values.size(); index++){
+                ret[index] = values.get(index);
+            }
+            
+            
+            return ret;
+            
+        } catch (SQLException ex) {
+           throw new ServiceError(ex); }
+    }
+
+    @Override
+    public ItemDTO getItemByAlias(String code) throws ServiceError {
+        try {
+            String query = "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.ITEM.TABLE_NAME;
+            query = query + " WHERE " + TABLE_COLUMNS.INVENTORY.ITEM.ALIAS;
+            query = query + " = '" + code + "';";
+            ResultSet rs = this.getService().executeQuery(query);
+            rs.next();
+            return this.createItemFromResultSet(rs);
+            
+            
+        } catch (SQLException ex) {
+         throw new ServiceError(ex);}
+    
+    
+    
+    
+    
+    }
+
+    @Override
+    public SerializedItemDTO getSerializedItem(ItemDTO item, String sn) throws ServiceError {
+     try {
+            String query = "SELECT * FROM " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.TABLE_NAME;
+            query = query + " WHERE " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.SERIAL_NUMBER;
+            query = query + " = '" + sn + "'";
+            query = query + " AND " + TABLE_COLUMNS.INVENTORY.SERIALIZED_ITEM.ITEM;
+            query = query + " = " + item.getKey() + ";";
+            ResultSet rs = this.getService().executeQuery(query);
+            rs.next();
+            return this.createSerializedItemFromResultSet(rs);
+            
+            
+        } catch (SQLException ex) {
+         throw new ServiceError(ex);}  }
+    
+    
 }
