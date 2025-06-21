@@ -146,10 +146,11 @@ USE DA19785;
  
  CREATE TABLE item_types(item_type_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, type_name VARCHAR(64) UNIQUE);
  
- CREATE TABLE items(item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,item_type_id INT, item_name VARCHAR(64),item_alias VARCHAR(128), is_for_sale BOOLEAN,
- company_id INT, is_serialized BOOLEAN, created_date DATETIME, FOREIGN KEY(company_id) REFERENCES companies(company_id), FOREIGN KEY(item_type_id) REFERENCES item_types(item_type_id));
+ CREATE TABLE items(item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,item_type_id INT, item_name VARCHAR(64),item_alias VARCHAR(128) UNIQUE, is_for_sale BOOLEAN,
+ company_id INT, is_serialized BOOLEAN, created_date DATETIME, valid BOOLEAN, FOREIGN KEY(company_id) REFERENCES companies(company_id), FOREIGN KEY(item_type_id) REFERENCES item_types(item_type_id));
  
   ALTER TABLE items MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+    ALTER TABLE items MODIFY valid BOOLEAN DEFAULT TRUE;
   
  CREATE TABLE item_barcodes(item_barcode_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, item_id INT, barcode VARCHAR(128), is_current BOOLEAN, created_date DATETIME, FOREIGN KEY(item_id) REFERENCES items(item_id));
  
@@ -198,7 +199,11 @@ USE DA19785;
 
  CREATE TABLE serialized_inventory(serialized_item_id INTEGER PRIMARY KEY UNIQUE , inventory_transaction_id INT);
  
- CREATE TABLE serialized_inventory_ownerships(serailzied_inventory_ownership_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, account_id INT);
+ CREATE TABLE serialized_item_ownerships(serialized_item_ownership_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, serialized_item_id INT, account_id INT, is_active BOOLEAN, created_date DATETIME);
+   
+    ALTER TABLE serialized_item_ownerships MODIFY created_date datetime DEFAULT CURRENT_TIMESTAMP;
+
+   
    
 CREATE TABLE inventory_transaction_notes(inventory_transaction_notes_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, inventory_transaction_id INT, note TEXT, note_type_id INT);
 
