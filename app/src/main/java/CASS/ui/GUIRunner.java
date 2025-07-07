@@ -4,8 +4,6 @@
  */
 package CASS.ui;
 
-import CASS.AddressDataSeeder;
-import CASS.PersonDataSeeder;
 import CASS.data.TypeDTO;
 import CASS.data.TypeRepository;
 import CASS.data.address.AddressDTO;
@@ -25,12 +23,16 @@ import CASS.services.ServiceError;
 import CASS.services.ServiceProvider;
 import CASS.services.TypeService;
 import CASS.util.DataObjectGenerator;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import jterminal.ui.TerminalPanel;
 
 /**
  *
@@ -46,6 +48,8 @@ public class GUIRunner extends javax.swing.JFrame {
     private InventoryView invenView;
     private SerializedItemView itemView;
     private AddressView adrView;
+
+    private TerminalPanel term;
 
     private List<InventoryItemDTO> inventory;
 
@@ -68,10 +72,16 @@ public class GUIRunner extends javax.swing.JFrame {
         itemView = new SerializedItemView(this);
         adrView = new AddressView(this, this.adrMngr, this.prsnMngr);
 
+        term = new TerminalPanel();
+        this.main.add("Terminal", term);
+        this.main.repaint();
+
         this.main.add("Inventory", invenView);
         this.main.add("Items", itemView);
         this.main.add("Addresses", adrView);
 
+        this.main.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke("LEFT"), "none");
+        this.main.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke("RIGHT"), "none");
     }
 
     public List<InventoryItemDTO> getInventory() {
@@ -207,6 +217,18 @@ public class GUIRunner extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        main.setMinimumSize(new java.awt.Dimension(50, 50));
+        main.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                mainComponentResized(evt);
+            }
+        });
+        main.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                mainKeyPressed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -226,6 +248,22 @@ public class GUIRunner extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void mainComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_mainComponentResized
+        int width = evt.getComponent().getParent().getWidth();
+        int height = evt.getComponent().getParent().getHeight();
+        this.term.setDimensions(width, height);
+        //   this.term.setBounds(0, 0, width, height);
+
+    }//GEN-LAST:event_mainComponentResized
+
+    private void mainKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_mainKeyPressed
+        if (this.term.isShowing()) {
+            this.term.processKeyDown(evt);
+            this.term.repaint();
+            this.main.setSelectedIndex(0);
+        }
+    }//GEN-LAST:event_mainKeyPressed
 
     /**
      * @param args the command line arguments

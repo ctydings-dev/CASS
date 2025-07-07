@@ -53,7 +53,7 @@ public class BaseCommander implements Commandable {
         this.getManager().resetIndex();
 
         command = command.trim().toUpperCase();
-        if (command.equals("CLEAR")) {
+        if (command.equals("!CLEAR")) {
             this.clear();
             return 1;
         }

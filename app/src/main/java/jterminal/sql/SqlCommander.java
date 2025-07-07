@@ -70,7 +70,6 @@ public class SqlCommander extends BaseCommander {
             return 1;
         } catch (Throwable ex) {
             try {
-                ex.printStackTrace();
                 this.getManager().addLine("ERROR: " + ex.getMessage());
             } catch (Throwable e) {
                 this.getManager().addLine("UNKNOWN ERROR!");
