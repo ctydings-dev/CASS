@@ -2,13 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package CASS.services.mysql;
+package jterminal.sql;
 
-import CASS.data.BaseDTO;
-import CASS.data.BaseSearchParameter;
-import CASS.data.TypeDTO;
-import CASS.search.TypeAssignmentTable;
-import CASS.util.DataObjectGenerator;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -98,65 +93,6 @@ public abstract class SqlService {
         String query = "SELECT * FROM " + tableName + " WHERE " + idName + " = "
                 + id + ";";
         return this.executeQuery(query);
-
-    }
-
-    public Integer insertAndGet(BaseSearchParameter toInsert) throws SQLException {
-
-        String stmt = toInsert.getInsertStatement();
-        this.executeStatement(stmt);
-        return this.getKey(toInsert);
-
-    }
-
-    public Integer getKey(BaseSearchParameter params) throws SQLException {
-
-        String query = params.getSearchQuery();
-
-        ResultSet rs = this.executeQuery(query);
-
-        rs.next();
-
-        return rs.getInt(params.getTable().getIdName());
-
-    }
-
-    public Integer addAssignment(TypeAssignmentTable table, BaseDTO target, TypeDTO type) throws SQLException {
-        String query = "INSERT INTO " + table.getTableName() + "(" + table.getTargetName();
-        query = query + ", " + table.getTypeName() + ") VALUES (";
-        query = query + target.getKey() + "," + type.getKey() + ");";
-
-        this.executeStatement(query);
-
-        return this.getTypeAssignment(table, target, type);
-    }
-
-    public Integer getTypeAssignment(TypeAssignmentTable table, BaseDTO target, TypeDTO type) throws SQLException {
-
-        String query = "SELECT " + table.getIdName() + " FROM " + table.getTableName() + " WHERE ";
-
-        query = query + table.getTargetName() + " = " + target.getKey() + " AND " + table.getTypeName();
-        query = query + " = " + type.getKey() + ";";
-        ResultSet rs = this.executeQuery(query);
-        rs.next();
-        return rs.getInt(table.getIdName());
-
-    }
-
-    public List<BaseDTO> getThoseWithTypeAssignments(TypeAssignmentTable table, TypeDTO type) throws SQLException {
-        List<BaseDTO> ret = DataObjectGenerator.createList();
-
-        String query = "SELECT " + table.getTargetName() + " FROM " + table.getTableName();
-
-        query = query + " WHERE " + table.getTypeName() + " = " + type.getKey();
-
-        ResultSet rs = this.executeQuery(query);
-        while (rs.next()) {
-
-            BaseDTO toAdd = new BaseDTO(rs.getInt(table.getTargetName()));
-            ret.add(toAdd);
-        }
-        return ret;
 
     }
 
