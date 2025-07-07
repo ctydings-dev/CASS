@@ -18,15 +18,15 @@ import java.sql.SQLException;
  */
 public class ServiceProvider {
 
-    private static String user = "";
+    private static String user = "ctydings";
 
-    private static String password = "";
+    private static String password = "Per@grin1";
 
     private static String server = "localhost";
 
     private static int port = 3306;
 
-    private static String database = "";
+    private static String database = "DA19785";
 
     public static AddressService getAddressService() throws SQLException {
         return new SqlAddressService(getMySql());

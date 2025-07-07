@@ -112,10 +112,8 @@ public class SqlAddressService implements AddressService {
     @Override
     public List<CountryDTO> getCountries() throws ServiceError {
         try {
-         ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.COUNTRY.TABLE_NAME);
-           
-            
-            
+            ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.COUNTRY.TABLE_NAME);
+
             List<CountryDTO> ret = DataObjectGenerator.createList();
 
             while (resultSet.next()) {
@@ -130,15 +128,30 @@ public class SqlAddressService implements AddressService {
     }
 
     @Override
-    public StateDTO getState(BaseDTO key) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public StateDTO getState(BaseDTO key) throws ServiceError {
+
+        try {
+            String query = "SELECT * FROM " + TABLE_COLUMNS.LOCATION.STATE.TABLE_NAME;
+            query += " WHERE " + TABLE_COLUMNS.LOCATION.STATE.ID + " = " + key.getKey() + ";";
+
+            ResultSet rs = this.getService().executeQuery(query);
+            rs.next();
+            String name = rs.getString(TABLE_COLUMNS.LOCATION.STATE.NAME);
+            String abbv = rs.getString(TABLE_COLUMNS.LOCATION.STATE.ABBV);
+            int country = rs.getInt(TABLE_COLUMNS.LOCATION.STATE.COUNTRY);
+            StateDTO ret = new StateDTO(name, abbv, country, key.getKey());
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError(ex);
+        }
+
     }
 
     @Override
     public List<StateDTO> getStates() throws ServiceError {
         try {
-         ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.STATE.TABLE_NAME);
-           
+            ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.STATE.TABLE_NAME);
+
             List<StateDTO> ret = DataObjectGenerator.createList();
 
             while (resultSet.next()) {
@@ -153,24 +166,24 @@ public class SqlAddressService implements AddressService {
 
     @Override
     public CityDTO getCity(BaseDTO key) throws ServiceError {
-        
-     try {
-                 ResultSet resultSet = this.getService().getForId(TABLE_COLUMNS.LOCATION.CITY.TABLE_NAME, TABLE_COLUMNS.LOCATION.CITY.ID, key.getKey());
-           
+
+        try {
+            ResultSet resultSet = this.getService().getForId(TABLE_COLUMNS.LOCATION.CITY.TABLE_NAME, TABLE_COLUMNS.LOCATION.CITY.ID, key.getKey());
+
             resultSet.next();
 
             return createCityFromResultSet(resultSet);
         } catch (SQLException ex) {
             throw new ServiceError();
         }
-    
+
     }
 
     @Override
     public List<CityDTO> getCities() throws ServiceError {
         try {
-          ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.CITY.TABLE_NAME);
-           
+            ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.CITY.TABLE_NAME);
+
             List<CityDTO> ret = DataObjectGenerator.createList();
 
             while (resultSet.next()) {
@@ -186,7 +199,7 @@ public class SqlAddressService implements AddressService {
     @Override
     public AddressDTO getAddress(BaseDTO key) throws ServiceError {
         try {
-                 ResultSet resultSet = this.getService().getForId(TABLE_COLUMNS.LOCATION.ADDRESS.TABLE_NAME, TABLE_COLUMNS.LOCATION.ADDRESS.ID, key.getKey());
+            ResultSet resultSet = this.getService().getForId(TABLE_COLUMNS.LOCATION.ADDRESS.TABLE_NAME, TABLE_COLUMNS.LOCATION.ADDRESS.ID, key.getKey());
             resultSet.next();
 
             return createAddressFromResultSet(resultSet);
@@ -198,9 +211,9 @@ public class SqlAddressService implements AddressService {
 
     @Override
     public List<AddressDTO> getAddressses() throws ServiceError {
-     try {
-       ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.ADDRESS.TABLE_NAME);
-           
+        try {
+            ResultSet resultSet = this.getService().getAllForTable(TABLE_COLUMNS.LOCATION.ADDRESS.TABLE_NAME);
+
             List<AddressDTO> ret = DataObjectGenerator.createList();
 
             while (resultSet.next()) {
@@ -211,24 +224,22 @@ public class SqlAddressService implements AddressService {
         } catch (SQLException ex) {
             throw new ServiceError();
         }
-    
-    
+
     }
 
     @Override
     public CompositeAddress getFullAddress(BaseDTO key) throws ServiceError {
-     
-    AddressDTO adr = this.getAddress(key);
-    key = new BaseDTO(adr.getCityID());
-    CityDTO cty = this.getCity(key);
-    key = new BaseDTO(cty.getStateID());
-    StateDTO st = this.getState(key);
-    key = new BaseDTO(st.getCountryID());
-    CountryDTO con = this.getCountry(key);
-    
-  return new CompositeAddress(adr, cty,st,con);
-    
-    
+
+        AddressDTO adr = this.getAddress(key);
+        key = new BaseDTO(adr.getCityID());
+        CityDTO cty = this.getCity(key);
+        key = new BaseDTO(cty.getStateID());
+        StateDTO st = this.getState(key);
+        key = new BaseDTO(st.getCountryID());
+        CountryDTO con = this.getCountry(key);
+
+        return new CompositeAddress(adr, cty, st, con);
+
     }
 
     @Override
@@ -266,10 +277,10 @@ public class SqlAddressService implements AddressService {
 
     @Override
     public List<StateDTO> searchStates(StateSearchParameters param) throws ServiceError {
-String query = AddressSearchBuilder.createQueryForState(param);
-    
-     try {
-                    ResultSet resultSet = this.getService().executeQuery(query);
+        String query = AddressSearchBuilder.createQueryForState(param);
+
+        try {
+            ResultSet resultSet = this.getService().executeQuery(query);
             List<StateDTO> ret = DataObjectGenerator.createList();
 
             while (resultSet.next()) {
@@ -280,7 +291,7 @@ String query = AddressSearchBuilder.createQueryForState(param);
         } catch (SQLException ex) {
             throw new ServiceError();
         }
-    
+
     }
 
     @Override
@@ -292,8 +303,8 @@ String query = AddressSearchBuilder.createQueryForState(param);
 
     @Override
     public List<CityDTO> searchCities(CitySearchParameters param) throws ServiceError {
-         try {
-            String query =  AddressSearchBuilder.createQueryForCity(param);
+        try {
+            String query = AddressSearchBuilder.createQueryForCity(param);
 
             ResultSet resultSet = this.getService().executeQuery(query);
             List<CityDTO> ret = DataObjectGenerator.createList();
@@ -307,6 +318,7 @@ String query = AddressSearchBuilder.createQueryForState(param);
             throw new ServiceError();
         }
     }
+
     @Override
     public AddressDTO searchAddress(AddressSearchParameters param) throws ServiceError {
         List<AddressDTO> results = this.searchAddresses(param);
@@ -315,8 +327,8 @@ String query = AddressSearchBuilder.createQueryForState(param);
 
     @Override
     public List<AddressDTO> searchAddresses(AddressSearchParameters param) throws ServiceError {
-      try {
-            String query =  AddressSearchBuilder.createQueryForAddress(param);
+        try {
+            String query = AddressSearchBuilder.createQueryForAddress(param);
 
             ResultSet resultSet = this.getService().executeQuery(query);
             List<AddressDTO> ret = DataObjectGenerator.createList();
@@ -334,10 +346,10 @@ String query = AddressSearchBuilder.createQueryForState(param);
     @Override
     public int addCountry(CountryDTO toAdd) throws ServiceError {
 
-           try {
-              BaseSearchParameter toInsert = new CountrySearchParameters(toAdd);
-           
-return            this.getService().insertAndGet(toInsert);
+        try {
+            BaseSearchParameter toInsert = new CountrySearchParameters(toAdd);
+
+            return this.getService().insertAndGet(toInsert);
         } catch (SQLException ex) {
             throw new ServiceError(ex.getLocalizedMessage());
         }
@@ -346,13 +358,11 @@ return            this.getService().insertAndGet(toInsert);
 
     @Override
     public int addState(StateDTO toAdd) throws ServiceError {
-       try {
-           
-           StateSearchParameters toInsert = new StateSearchParameters(toAdd);
-           
-return            this.getService().insertAndGet(toInsert);
+        try {
 
-            
+            StateSearchParameters toInsert = new StateSearchParameters(toAdd);
+
+            return this.getService().insertAndGet(toInsert);
 
         } catch (SQLException ex) {
             throw new ServiceError(ex.getLocalizedMessage());
@@ -362,10 +372,10 @@ return            this.getService().insertAndGet(toInsert);
 
     @Override
     public int addCity(CityDTO toAdd) throws ServiceError {
-       try {
-              BaseSearchParameter toInsert = new CitySearchParameters(toAdd);
-           
-return            this.getService().insertAndGet(toInsert);
+        try {
+            BaseSearchParameter toInsert = new CitySearchParameters(toAdd);
+
+            return this.getService().insertAndGet(toInsert);
         } catch (SQLException ex) {
             throw new ServiceError(ex.getLocalizedMessage());
         }
@@ -374,12 +384,10 @@ return            this.getService().insertAndGet(toInsert);
     @Override
     public int addAddress(AddressDTO toAdd) throws ServiceError {
 
-      
+        try {
+            BaseSearchParameter toInsert = new AddressSearchParameters(toAdd);
 
-             try {
-              BaseSearchParameter toInsert = new AddressSearchParameters(toAdd);
-           
-return            this.getService().insertAndGet(toInsert);
+            return this.getService().insertAndGet(toInsert);
         } catch (SQLException ex) {
             throw new ServiceError(ex.getLocalizedMessage());
         }
@@ -428,10 +436,5 @@ return            this.getService().insertAndGet(toInsert);
         AddressSearchParameters param = new AddressSearchParameters(key);
         return this.searchAddress(param);
     }
-    
-    
-    
- 
-    
-    
+
 }

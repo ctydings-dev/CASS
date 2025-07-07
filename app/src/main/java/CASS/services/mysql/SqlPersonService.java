@@ -10,6 +10,7 @@ import CASS.data.BaseSearchParameter;
 import CASS.data.CASSConstants;
 import CASS.data.TypeAssignmentDTO;
 import CASS.data.TypeDTO;
+import CASS.data.address.AddressDTO;
 import CASS.data.person.AccountDTO;
 import CASS.data.person.CompanyDTO;
 import CASS.search.CompanySearchParameters;
@@ -77,26 +78,18 @@ public class SqlPersonService implements PersonService {
         return new CompanyDTO(name, code, address, isActive, isCurrent, notes, key);
 
     }
-    
-    
 
-    
-    
-       public static AccountDTO createAccountFromResultSet(ResultSet rs) throws SQLException{
-          int key = rs.getInt(TABLE_COLUMNS.PEOPLE.ACCOUNT.ID);
-        int person= rs.getInt(TABLE_COLUMNS.PEOPLE.ACCOUNT.PERSON);
-        int  type = rs.getInt(TABLE_COLUMNS.PEOPLE.ACCOUNT.TYPE);
+    public static AccountDTO createAccountFromResultSet(ResultSet rs) throws SQLException {
+        int key = rs.getInt(TABLE_COLUMNS.PEOPLE.ACCOUNT.ID);
+        int person = rs.getInt(TABLE_COLUMNS.PEOPLE.ACCOUNT.PERSON);
+        int type = rs.getInt(TABLE_COLUMNS.PEOPLE.ACCOUNT.TYPE);
         String name = rs.getString(TABLE_COLUMNS.PEOPLE.ACCOUNT.NAME);
-           String number = rs.getString(TABLE_COLUMNS.PEOPLE.ACCOUNT.NUMBER);
-              String closed = rs.getString(TABLE_COLUMNS.PEOPLE.ACCOUNT.CLOSED);
-              String created = rs.getString(TABLE_COLUMNS.PEOPLE.PERSON.CREATED_DATE);
-              
-       return new AccountDTO(name,number,person,closed,type,key,created);
+        String number = rs.getString(TABLE_COLUMNS.PEOPLE.ACCOUNT.NUMBER);
+        String closed = rs.getString(TABLE_COLUMNS.PEOPLE.ACCOUNT.CLOSED);
+        String created = rs.getString(TABLE_COLUMNS.PEOPLE.PERSON.CREATED_DATE);
+
+        return new AccountDTO(name, number, person, closed, type, key, created);
     }
-    
-    
-    
-    
 
     private PersonDTO createPersonFromResultSet(ResultSet rs) throws SQLException {
 
@@ -328,270 +321,230 @@ public class SqlPersonService implements PersonService {
         }
     }
 
-    
-    
-
     @Override
     public List<TypeAssignmentDTO> getRolesForEmployee(BaseDTO employee) throws ServiceError {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-     public List<EmployeeDTO> getEmployeesIDsWithAssignment(TypeDTO target) throws ServiceError{
-         try {
-             
-             
-             String query = " SELECT per.* FROM " + TABLE_COLUMNS.PEOPLE.EMPLOYEE.TABLE_NAME + " AS per INNER JOIN ";
-             
-             query = query + TABLE_COLUMNS.PEOPLE.EMPLOYEE_ROLES.TABLE_NAME + " AS emp";
-             
-             query = query + " ON per." +TABLE_COLUMNS.PEOPLE.PERSON.ID + " = emp." + TABLE_COLUMNS.PEOPLE.EMPLOYEE_ROLES.EMPLOYEE;
-             query = query + " INNER JOIN " + TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.TABLE_NAME + " AS er ON emp." + TABLE_COLUMNS.PEOPLE.EMPLOYEE_ROLES.ROLE;
-             query = query + " = " + TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.ID + " WHERE ";
-             if(target.hasKeySet()== true){
-                 query = query + TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.ID + " = " + target.getTypeID();
-             }
-             else
-             {
-                 query = query + TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.NAME + " = '" + target.getTypeName() + "'";
-             }
-             query = query + ";";
-             
-             
-             
-             ResultSet rs = this.getService().executeQuery(query);
-          
-             
-             List<EmployeeDTO> ret = DataObjectGenerator.createList();
-             
-             while(rs.next()){
-                 
-                 ret.add(this.createEmployeeFromResultSet(rs));
-                 
-             }
-             
-             
-         return ret;
-         
-         } catch (SQLException ex) {
-         throw new ServiceError(ex);    } }
-    
-
-    
-        
-        
-        @Override
-    public Integer addRoleForEmployee(EmployeeDTO employee, TypeDTO type)throws ServiceError {
-   
-        
+    public List<EmployeeDTO> getEmployeesIDsWithAssignment(TypeDTO target) throws ServiceError {
         try {
-          return  this.getService().addAssignment(TypeAssignmentTable.getEmployeeTypeTable(),employee, type);
-          } catch (SQLException ex) {
-         throw new ServiceError(ex);    }
-        
-    
+
+            String query = " SELECT per.* FROM " + TABLE_COLUMNS.PEOPLE.EMPLOYEE.TABLE_NAME + " AS per INNER JOIN ";
+
+            query = query + TABLE_COLUMNS.PEOPLE.EMPLOYEE_ROLES.TABLE_NAME + " AS emp";
+
+            query = query + " ON per." + TABLE_COLUMNS.PEOPLE.PERSON.ID + " = emp." + TABLE_COLUMNS.PEOPLE.EMPLOYEE_ROLES.EMPLOYEE;
+            query = query + " INNER JOIN " + TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.TABLE_NAME + " AS er ON emp." + TABLE_COLUMNS.PEOPLE.EMPLOYEE_ROLES.ROLE;
+            query = query + " = " + TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.ID + " WHERE ";
+            if (target.hasKeySet() == true) {
+                query = query + TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.ID + " = " + target.getTypeID();
+            } else {
+                query = query + TABLE_COLUMNS.TYPE.EMPLOYEE_ROLE.NAME + " = '" + target.getTypeName() + "'";
+            }
+            query = query + ";";
+
+            ResultSet rs = this.getService().executeQuery(query);
+
+            List<EmployeeDTO> ret = DataObjectGenerator.createList();
+
+            while (rs.next()) {
+
+                ret.add(this.createEmployeeFromResultSet(rs));
+
+            }
+
+            return ret;
+
+        } catch (SQLException ex) {
+            throw new ServiceError(ex);
+        }
     }
 
-        @Override
-      public Integer addPersonToCompany(PersonDTO person, CompanyDTO company) throws ServiceError{
-   
+    @Override
+    public Integer addRoleForEmployee(EmployeeDTO employee, TypeDTO type) throws ServiceError {
+
         try {
-       
+            return this.getService().addAssignment(TypeAssignmentTable.getEmployeeTypeTable(), employee, type);
+        } catch (SQLException ex) {
+            throw new ServiceError(ex);
+        }
+
+    }
+
+    @Override
+    public Integer addPersonToCompany(PersonDTO person, CompanyDTO company) throws ServiceError {
+
+        try {
+
             String stmt = "INSERT INTO " + TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.TABLE_NAME;
-            
-            stmt = stmt+ " (" +TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.PERSON + " , " ;
-            stmt =stmt +  " " +TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.COMPANY + ") " ;
+
+            stmt = stmt + " (" + TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.PERSON + " , ";
+            stmt = stmt + " " + TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.COMPANY + ") ";
             stmt = stmt + " VALUES (" + person.getKey() + " , " + company.getKey() + ");";
-                   
-            
+
             this.getService().executeStatement(stmt);
-        
-            
-            
+
             String query = "SELECT " + TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.ID;
             query = query + " FROM " + TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.TABLE_NAME;
             query = query + " WHERE " + TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.PERSON;
             query = query + "  = " + person.getKey() + " AND ";
-            query = query + TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.COMPANY + " = " ;
-            query =query + company.getKey() + ";";
-            
+            query = query + TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.COMPANY + " = ";
+            query = query + company.getKey() + ";";
+
             ResultSet rs = this.getService().executeQuery(query);
             rs.next();
             return rs.getInt(TABLE_COLUMNS.PEOPLE.COMPANY_PERSON.ID);
-        
-        
-        
+
         } catch (SQLException ex) {
-         throw new ServiceError(ex);    }
-        
-    
+            throw new ServiceError(ex);
+        }
+
     }
 
     @Override
     public List<PersonDTO> getPeopleForCompany(CompanyDTO company) throws ServiceError {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
-@Override
-      public CompanyDTO getCompany(BaseDTO key) throws ServiceError{
+
+    @Override
+    public CompanyDTO getCompany(BaseDTO key) throws ServiceError {
         try {
             String query = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.COMPANY.TABLE_NAME;
-            
-            query = query + " WHERE " + TABLE_COLUMNS.PEOPLE.COMPANY.ID +" = " + key.getKey();
-            
+
+            query = query + " WHERE " + TABLE_COLUMNS.PEOPLE.COMPANY.ID + " = " + key.getKey();
+
             query = query + ";";
-            
+
             ResultSet rs = this.getService().executeQuery(query);
             rs.next();
-            
+
             return this.createCompanyFromResultSet(rs);
         } catch (SQLException ex) {
-        throw new ServiceError(ex);}
-       
-       
-          
-      }
+            throw new ServiceError(ex);
+        }
+
+    }
 
     @Override
     public List<AccountDTO> getAccountsForPerson(PersonDTO person) throws ServiceError {
-      
+
         try {
             String query = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
             query = query + " WHERE " + TABLE_COLUMNS.PEOPLE.ACCOUNT.PERSON + " = ";
-            
+
             query = query + person.getKey() + " ORDER BY " + TABLE_COLUMNS.PEOPLE.ACCOUNT.ID;
-            
+
             query = query + " DESC;";
             ResultSet rs = this.getService().executeQuery(query);
             Date curr = new Date(System.currentTimeMillis());
-            List<AccountDTO> ret  = DataObjectGenerator.createList();
-            while(rs.next()){
-                
+            List<AccountDTO> ret = DataObjectGenerator.createList();
+            while (rs.next()) {
+
                 AccountDTO toAdd = this.createAccountFromResultSet(rs);
-                
-                
-              
-                        if(toAdd.getClosedDate() == null){
-                            ret.add(toAdd);
-                            
-                        }
-                        else
-                        {
-                            Date check = new Date(toAdd.getClosedDate());
-                            if(check.after(curr)){
-                                ret.add(toAdd);
-                            }
-                          
-                        }
+
+                if (toAdd.getClosedDate() == null) {
+                    ret.add(toAdd);
+
+                } else {
+                    Date check = new Date(toAdd.getClosedDate());
+                    if (check.after(curr)) {
+                        ret.add(toAdd);
+                    }
+
+                }
             }
-            
+
             return ret;
-            
+
         } catch (SQLException ex) {
-       throw new ServiceError(ex);   }
-    
-    
-    
-    
+            throw new ServiceError(ex);
+        }
+
     }
 
     @Override
     public AccountDTO addAccount(AccountDTO toAdd) throws ServiceError {
-      
+
         try {
             String stmt = "INSERT INTO " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
             stmt = stmt + "(" + TABLE_COLUMNS.PEOPLE.ACCOUNT.CLOSED;
-      
-            
+
             stmt = stmt + ", " + TABLE_COLUMNS.PEOPLE.ACCOUNT.NAME;
-             stmt = stmt + ", " + TABLE_COLUMNS.PEOPLE.ACCOUNT.NUMBER;
-            
+            stmt = stmt + ", " + TABLE_COLUMNS.PEOPLE.ACCOUNT.NUMBER;
+
             stmt = stmt + ", " + TABLE_COLUMNS.PEOPLE.ACCOUNT.PERSON;
-            
+
             stmt = stmt + ", " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TYPE;
-            
+
             String closed = toAdd.getClosedDate();
-            
-            
-           
-            if(closed == null){
+
+            if (closed == null) {
                 closed = "NULL";
-            }
-            else
-            {
+            } else {
                 closed = "'" + closed + "'";
             }
-            
-            
-        
-            
-            stmt = stmt + ") VALUES (" + closed ;
+
+            stmt = stmt + ") VALUES (" + closed;
             stmt = stmt + ",'" + toAdd.getAccountName() + "','";
-               stmt = stmt +  toAdd.getAccountName() + "',";
+            stmt = stmt + toAdd.getAccountName() + "',";
             stmt = stmt + toAdd.getPersonId() + "," + toAdd.getAccountType() + ");";
-            
+
             this.getService().executeStatement(stmt);
             return this.getAccountsForPerson(new PersonDTO(toAdd.getPersonId())).get(0);
-            
+
         } catch (SQLException ex) {
-        throw new ServiceError(ex);  }
-    
-    
-    
-            
-    
-    
-    
-    
+            throw new ServiceError(ex);
+        }
+
     }
 
     @Override
     public AccountDTO getAccount(BaseDTO key) throws ServiceError {
-      try {
+        try {
             String query = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
             query = query + " WHERE " + TABLE_COLUMNS.PEOPLE.ACCOUNT.ID + " = ";
-            
-            query = query + key.getKey() +";";
+
+            query = query + key.getKey() + ";";
             ResultSet rs = this.getService().executeQuery(query);
-            
-            List<AccountDTO> ret  = DataObjectGenerator.createList();
+
+            List<AccountDTO> ret = DataObjectGenerator.createList();
             rs.next();
             return this.createAccountFromResultSet(rs);
-                } catch (SQLException ex) {
-       throw new ServiceError(ex);   } }
-    
-      
-      
-      
-      
-      @Override
-      public AccountDTO [] getAccountsByType(TypeDTO type) throws ServiceError{
-         
+        } catch (SQLException ex) {
+            throw new ServiceError(ex);
+        }
+    }
+
+    @Override
+    public AccountDTO[] getAccountsByType(TypeDTO type) throws ServiceError {
+
         try {
             String stmt = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
             stmt += " WHERE " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TYPE;
             stmt += " = " + type.getKey();
-            
-            
+
             ResultSet rs = this.getService().executeQuery(stmt);
             List<AccountDTO> accs = DataObjectGenerator.createList();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 accs.add(this.createAccountFromResultSet(rs));
             }
-            
-            AccountDTO [] ret = new AccountDTO[accs.size()];
-            for(int index = 0; index < ret.length; index++){
-                ret[index ] = accs.get(index);
+
+            AccountDTO[] ret = new AccountDTO[accs.size()];
+            for (int index = 0; index < ret.length; index++) {
+                ret[index] = accs.get(index);
             }
-            
+
             return ret;
         } catch (SQLException ex) {
-         throw new ServiceError(ex); }
-      }
+            throw new ServiceError(ex);
+        }
+    }
 
     @Override
     public AccountDTO getAccountByName(String name) throws ServiceError {
-    
+
         try {
             String query = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
             query = query + " WHERE " + TABLE_COLUMNS.PEOPLE.ACCOUNT.NAME;
@@ -599,16 +552,16 @@ public class SqlPersonService implements PersonService {
             ResultSet rs = this.getService().executeQuery(query);
             rs.next();
             return createAccountFromResultSet(rs);
-     
+
         } catch (SQLException ex) {
-        throw new ServiceError(ex);  }
-    
-    
+            throw new ServiceError(ex);
+        }
+
     }
 
     @Override
     public AccountDTO getAccountByNumber(String number) throws ServiceError {
-     
+
         try {
             String query = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.ACCOUNT.TABLE_NAME;
             query = query + " WHERE " + TABLE_COLUMNS.PEOPLE.ACCOUNT.NUMBER;
@@ -616,14 +569,36 @@ public class SqlPersonService implements PersonService {
             ResultSet rs = this.getService().executeQuery(query);
             rs.next();
             return createAccountFromResultSet(rs);
-     
+
         } catch (SQLException ex) {
-        throw new ServiceError(ex);  }
-     }
-    
-    
-    
-    
-    
-    
+            throw new ServiceError(ex);
+        }
+    }
+
+    @Override
+    public PersonDTO[] getPersonsByAddress(AddressDTO key) throws ServiceError {
+        try {
+            String query = "SELECT * FROM " + TABLE_COLUMNS.PEOPLE.PERSON.TABLE_NAME;
+            query += " WHERE " + TABLE_COLUMNS.PEOPLE.PERSON.ADDRESS;
+            query += " = " + key.getKey();
+
+            List<PersonDTO> results = DataObjectGenerator.createList();
+            ResultSet rs = this.getService().executeQuery(query);
+
+            while (rs.next()) {
+                results.add(this.createPersonFromResultSet(rs));
+            }
+            PersonDTO[] ret = new PersonDTO[results.size()];
+
+            for (int index = 0; index < ret.length; index++) {
+                ret[index] = results.get(index);
+            }
+
+            return ret;
+        } catch (SQLException ex) {
+            throw new ServiceError(ex);
+        }
+
+    }
+
 }
