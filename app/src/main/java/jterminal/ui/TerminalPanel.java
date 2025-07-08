@@ -4,6 +4,7 @@
  */
 package jterminal.ui;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -38,14 +39,11 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
 
     public TerminalPanel() {
         initComponents();
-        this.width = 50; //1350;
-        this.height = 50; // 600;
-        this.display.setFocusable(true);
-        this.display.setBounds(0, 0, WIDTH, HEIGHT);
+        this.width = 100;
+        this.height = 100;
+        this.setFocusable(true);
         this.updateManager();
         this.commander = new SqlCommander(this.manager);
-
-        this.display.repaint();
 
     }
 
@@ -59,7 +57,8 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
     }
 
     private int getColCount() {
-        return (this.width - this.getPadding() * 2) / 10;
+        double value = (this.width - this.getPadding() * 2) / 8;
+        return (int) (value);
     }
 
     private int getRowCount() {
@@ -72,10 +71,10 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
         return this.manager;
     }
 
+    @Override
     public void paint(Graphics g) {
 
         super.paint(g);
-
         this.fillDisplay(g);
         this.setupForText(g);
         this.printInput(g);
@@ -93,6 +92,13 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
             row++;
         }
 
+    }
+
+    public void setDimensions(int width, int height) {
+        this.setSize(width, height);
+
+        // this.display.setBounds(0, 0, width, height);
+        //this.display.setLocation(0, 0);
     }
 
     private double rowHeight() {
@@ -126,11 +132,11 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
     private void fillDisplay(Graphics g) {
         Color toSet = new Color(26, 26, 26);
         g.setColor(toSet);
-
+        g.clearRect(0, 0, width, height);
         int width = this.getWidth();
         int height = this.getHeight();
 
-        g.fillRect(this.getPadding(), this.getPadding(), width, height);
+        g.fillRect(0, 0, width, height);
 
     }
 
@@ -185,25 +191,17 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        display = new java.awt.Canvas();
-
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 formComponentResized(evt);
             }
         });
         addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 formKeyReleased(evt);
-            }
-        });
-
-        display.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                displayKeyPressed(evt);
-            }
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                displayKeyReleased(evt);
             }
         });
 
@@ -211,41 +209,15 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(display, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addGap(0, 708, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(display, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addGap(0, 438, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void displayKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_displayKeyReleased
-        //  this.processKeyDown(evt);
-    }//GEN-LAST:event_displayKeyReleased
-
-    private void displayKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_displayKeyPressed
-        if (evt.getKeyChar() == KeyEvent.SHIFT_DOWN_MASK) {
-            this.shift = true;
-
-        }
-
-        if (evt.getKeyCode() == 8) {
-            //  add = false;
-            this.getManager().trimInput();
-            this.repaint();
-            return;
-        }
-        this.processKeyDown(evt);
-
-    }//GEN-LAST:event_displayKeyPressed
-
-    private void processKeyDown(KeyEvent evt) {
+    public void processKeyDown(KeyEvent evt) {
         this.last = System.currentTimeMillis();
         if (skipChar(evt) == true) {
             return;
@@ -254,7 +226,7 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
         boolean add = true;
         if (evt.getKeyCode() == 8) {
             add = false;
-            //     this.getManager().trimInput();
+            this.getManager().trimInput();
         }
 
         if (evt.getKeyCode() == 16) {
@@ -300,7 +272,7 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
         if (add == true) {
             this.getManager().appendInput(evt.getKeyChar() + "");
         }
-        this.display.repaint();
+        // this.display.repaint();
         this.repaint();
     }
 
@@ -340,13 +312,17 @@ public class TerminalPanel extends javax.swing.JPanel implements Runnable {
 
         this.updateManager();
         this.repaint();
-
     }//GEN-LAST:event_formComponentResized
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private java.awt.Canvas display;
-    // End of variables declaration//GEN-END:variables
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+        processKeyDown(evt);
+    }//GEN-LAST:event_formKeyPressed
 
+    // public Canvas getDisplay() {
+    //    return this.display;
+    //  }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // End of variables declaration//GEN-END:variables
     @Override
     public void run() {
 

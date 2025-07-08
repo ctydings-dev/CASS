@@ -10,6 +10,7 @@ import CASS.search.EmployeeSearchParameters;
 import CASS.data.BaseDTO;
 import CASS.data.TypeAssignmentDTO;
 import CASS.data.TypeDTO;
+import CASS.data.address.AddressDTO;
 import CASS.data.person.EmployeeDTO;
 import CASS.data.person.PersonDTO;
 import CASS.data.person.*;
@@ -26,58 +27,49 @@ public interface PersonService {
     public List<PersonDTO> getPersons() throws ServiceError;
 
     public int addPerson(PersonDTO toAdd) throws ServiceError;
-    
+
     public List<PersonDTO> searchPersons(PersonSearchParameters params) throws ServiceError;
-  
-    
-    public EmployeeDTO getEmployee(BaseDTO key)throws ServiceError;
-    
-    
+
+    public EmployeeDTO getEmployee(BaseDTO key) throws ServiceError;
+
     public List<EmployeeDTO> getEmployees() throws ServiceError;
-    
+
     public int addEmployee(EmployeeDTO toAdd) throws ServiceError;
-    
+
     public List<EmployeeDTO> searchEmployees(EmployeeSearchParameters params) throws ServiceError;
-    
-    
-    public int addCompany(CompanyDTO toAdd)throws ServiceError;
-    
+
+    public int addCompany(CompanyDTO toAdd) throws ServiceError;
+
     public int addCompanyRep(CompanyDTO comp, PersonDTO person) throws ServiceError;
-    
+
     public List<CompanyDTO> getCompanies() throws ServiceError;
-    
+
     public CompanyDTO getCompany(BaseDTO key) throws ServiceError;
-    
-   
+
     public List<CompanyDTO> searchCompanies(CompanySearchParameters params) throws ServiceError;
-    
-    
+
     public Integer addRoleForEmployee(EmployeeDTO employee, TypeDTO target) throws ServiceError;
-    
-    
+
     public List<TypeAssignmentDTO> getRolesForEmployee(BaseDTO employee) throws ServiceError;
-    
+
     public List<EmployeeDTO> getEmployeesIDsWithAssignment(TypeDTO target) throws ServiceError;
- 
-    
+
     public Integer addPersonToCompany(PersonDTO person, CompanyDTO company) throws ServiceError;
-    
+
     public List<PersonDTO> getPeopleForCompany(CompanyDTO company) throws ServiceError;
-    
+
     public List<AccountDTO> getAccountsForPerson(PersonDTO person) throws ServiceError;
-    
-    
+
     public AccountDTO getAccount(BaseDTO key) throws ServiceError;
-    
-    
-    
+
     public AccountDTO addAccount(AccountDTO toAdd) throws ServiceError;
-    
-    public AccountDTO [] getAccountsByType(TypeDTO type) throws ServiceError;
-    
-    
+
+    public AccountDTO[] getAccountsByType(TypeDTO type) throws ServiceError;
+
     public AccountDTO getAccountByName(String name) throws ServiceError;
-    
+
     public AccountDTO getAccountByNumber(String number) throws ServiceError;
-    
+
+    public PersonDTO[] getPersonsByAddress(AddressDTO key) throws ServiceError;
+
 }
